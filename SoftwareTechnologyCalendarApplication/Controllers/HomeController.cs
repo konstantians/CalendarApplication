@@ -14,16 +14,14 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IUserDataAccess UserDataAccess;
 
-        public HomeController(ILogger<HomeController> logger, IUserDataAccess userDataAccess)
+        public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            UserDataAccess = userDataAccess;
         }
 
         public IActionResult Index()
-        {
+        {   
             return View();
         }
 
