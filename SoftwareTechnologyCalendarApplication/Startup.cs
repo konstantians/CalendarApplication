@@ -26,8 +26,9 @@ namespace SoftwareTechnologyCalendarApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            //services.AddSingleton(Configuration);
             services.AddSingleton<IUserDataAccess, UserDataAccess>();
+            services.AddSingleton<ICalendarDataAccess, CalendarDataAccess>();
+            services.AddSingleton<IEventDataAccess, EventDataAccess>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
