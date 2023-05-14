@@ -152,7 +152,7 @@ namespace DataAccess.Logic
         /// or the createEvent in the eventDataAccess. The connection with the user ther is automatic by providing
         /// the user's username.
         /// </summary>
-        /// <param name="user">The user model</param>
+        //// <param name="user">The user model</param>
         public void CreateUser(UserDataModel user)
         {
             // check for other users with the same username
@@ -179,7 +179,7 @@ namespace DataAccess.Logic
         /// This method deletes the user and and all their calendars and events. It also removes any indirect connections
         /// That the user has with any event. 
         /// </summary>
-        /// <param name="username">The user's name</param>
+        /// <param /name="username">The user's name</param>
         public void DeleteUser(string username)
         {
             //get the user and delete all the calendars(this will also delete all the events and it will take care
