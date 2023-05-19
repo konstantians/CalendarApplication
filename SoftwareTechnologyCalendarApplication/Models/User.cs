@@ -51,6 +51,44 @@ namespace SoftwareTechnologyCalendarApplication.Models
         //copy constructor for data model
         public User(UserDataModel userDataModel)
         {
+            Username = userDataModel.Username;
+            Password = userDataModel.Password;
+            Fullname = userDataModel.Fullname;
+            Email = userDataModel.Email;
+            Phone = userDataModel.Phone;
+
+            foreach (EventDataModel calendarEvent in userDataModel.EventsThatTheUserParticipates)
+            {
+                Event tempCalendarEvent = new Event();
+                tempCalendarEvent.Id = calendarEvent.Id;
+                tempCalendarEvent.Title = calendarEvent.Title;
+                tempCalendarEvent.AlertStatus = calendarEvent.AlertStatus;
+                tempCalendarEvent.StartingTime = calendarEvent.StartingTime;
+                tempCalendarEvent.EndingTime = calendarEvent.EndingTime;
+
+                EventsThatTheUserParticipates.Add(tempCalendarEvent);
+            }
+
+
+            foreach (CalendarDataModel calendar in userDataModel.Calendars)
+            {
+                Calendar tempCalendar = new Calendar();
+                tempCalendar.Id = calendar.Id;
+                foreach(EventDataModel calendarEvent in calendar.Events) {
+                    Event tempCalendarEvent = new Event();
+                    tempCalendarEvent.Id = calendarEvent.Id;
+                    tempCalendarEvent.Title = calendarEvent.Title;
+                    tempCalendarEvent.AlertStatus = calendarEvent.AlertStatus;
+                    tempCalendarEvent.StartingTime = calendarEvent.StartingTime;
+                    tempCalendarEvent.EndingTime = calendarEvent.EndingTime;
+
+                    tempCalendar.Events.Add(tempCalendarEvent);  
+                }
+                tempCalendar.Categories = calendar.Categories;
+                tempCalendar.Title = calendar.Title;
+
+                Calendars.Add(tempCalendar);
+            }
 
         }
     }

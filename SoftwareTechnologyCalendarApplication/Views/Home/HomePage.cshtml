@@ -1,0 +1,175 @@
+﻿@model SoftwareTechnologyCalendarApplication.Models.User
+
+@{
+    ViewData["Title"] = "Home Page";
+    int paginationCount = 1;
+    int pagination = (int)ViewData["pagination"];
+    int paginationPrevious = (pagination / 6) - 1;
+    int paginationNext = (pagination / 6) + 1;
+}
+
+
+@if ((bool)ViewData["DeletedCalendar"])
+{
+    <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+    </symbol>
+    <div class="alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill" /></svg>
+        <div>
+            The calendar was deleted successfully!
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+    </div>
+}
+
+
+<h3 class="h1 pb-3 text-center">My Calendars</h3>
+@if (Model.Calendars.Count == 0)
+{
+    <h3 class="h3 pb-3 text-center">It looks like there are no calendar yet</h3>
+    <h3 class="h3 pb-5 text-center">Click one of the options below to get started!</h3>
+    <div class="text-center">
+        <a class="btn btn-secondary pt-3 pb-3 mr-4 font-weight-bold" style="width:220px"
+           href="#">Show Documentation</a>
+        <a class="btn btn-primary pt-3 pb-3 font-weight-bold" style="width:220px"
+           asp-controller="Home" asp-action="AddCalendar" asp-route-username="@Model.Username">Add A Calendar</a>
+    </div>
+}
+else
+{
+    <div class="container">
+        <div class="row mb-2">
+
+
+
+            @for (int i = pagination - 6; i < pagination; i++)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="card mb-4 shadow">
+                        <div class="card-header">
+                            <h4 class="text-center">@Model.Calendars.ElementAt(i).Title</h4>
+                        </div>
+                        <img class="card-img-top" src="~/images/noimage.jpg" />
+                        <div class="card-footer">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="offset-xl-1 offset-lg-1 offset-md-1 offset-sm-2 offset-2">
+                                        <button type="button" class="btn btn-danger font-weight-bold" style="width:75px;"
+                                                data-target="#deleteModal-@i" data-toggle="modal">
+                                            Delete
+                                        </button>
+
+                                        <div class="modal fade" id="deleteModal-@i">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel-@i">Calendar Deletion Confirmation Dialog</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete the calendar @Model.Calendars.ElementAt(i).Title?</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width:75px;">No</button>
+                                                        <form method="post" asp-controller="Home" asp-action="DeleteCalendar"
+                                                              asp-route-username="@Model.Username" asp-route-calendarId="@Model.Calendars.ElementAt(i).Id">
+                                                            <input type="hidden" name="username" value="@Model.Username" />
+                                                            <input type="hidden" name="calendarId" value="@Model.Calendars.ElementAt(i).Id" />
+                                                            <button type="submit" class="btn btn-danger" style="width:75px;">Yes</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="offset-xl-4 offset-lg-4 offset-md-4 offset-sm-4 offset-4">
+                                        <a href="#" class="btn btn-primary font-weight-bold" style="width:75px">View</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                if (i == Model.Calendars.Count - 1)
+                    break;
+            }
+        </div>
+
+    </div>
+
+    <nav aria-label="Page navigation example" class="footer" style="width:72%;">
+        <ul class="pagination justify-content-center">
+            @if (pagination == 6)
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo; Previous</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="HomePage" asp-route-username="@Model.Username"
+                       asp-route-pagination="@paginationPrevious" aria-label="Previous">
+                        <span aria-hidden="true">&laquo; Previous</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+            }
+
+
+            @for (int i = 0; i < Model.Calendars.Count; i += 6)
+            {
+                if (paginationCount == pagination / 6)
+                {
+                    <li class="page-item active">
+                        <a class="page-link" asp-action="HomePage"
+                           asp-route-username="@Model.Username" asp-route-pagination="@paginationCount">
+                            @paginationCount
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="HomePage"
+                           asp-route-username="@Model.Username" asp-route-pagination="@paginationCount">
+                            @paginationCount
+                        </a>
+                    </li>
+                }
+
+                {
+                    paginationCount++;
+                }
+            }
+
+            @if (paginationCount - 1 == pagination / 6)
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">Next &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="HomePage" asp-route-username="@Model.Username"
+                       asp-route-pagination="@paginationNext" aria-label="Next">
+                        <span aria-hidden="true">Next &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+

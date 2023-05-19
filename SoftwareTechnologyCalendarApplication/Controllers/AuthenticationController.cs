@@ -4,6 +4,7 @@ using DataAccess.Logic;
 using DataAccess.Models;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 
 namespace SoftwareTechnologyCalendarApplicationMVC.Controllers
 {
@@ -18,6 +19,7 @@ namespace SoftwareTechnologyCalendarApplicationMVC.Controllers
         }
         public IActionResult Register()
         {
+            ViewData["DuplicateAccount"] = false;
             return View();
             //return View("Register", "~/Views/Shared/_emptyLayout.cshtml");
         }
@@ -26,19 +28,29 @@ namespace SoftwareTechnologyCalendarApplicationMVC.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Register(User user)
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
-                UserDataModel userr = new UserDataModel();
-                userr.Username = user.Username;
-                userr.Password = user.Password;
-                userr.Email = user.Email;
-                userr.Phone = user.Phone;
-                userr.Fullname = user.Fullname;
-                _userDataAccess.CreateUser(userr);
-                return RedirectToAction("Login");
+                return View();
             }
 
-            return View();
+            List<UserDataModel> users = _userDataAccess.GetUsers();
+            foreach (UserDataModel userDataModel in users)
+            {
+                if(userDataModel.Username == user.Username)
+                {
+                    ViewData["DuplicateAccount"] = true;
+                    return View();
+                }
+            }
+
+            UserDataModel userr = new UserDataModel();
+            userr.Username = user.Username;
+            userr.Password = user.Password;
+            userr.Email = user.Email;
+            userr.Phone = user.Phone;
+            userr.Fullname = user.Fullname;
+            _userDataAccess.CreateUser(userr);
+            return RedirectToAction("HomePage", "Home", new { username = userr.Username, pagination = 1 });
         }
 
         public IActionResult Login()
@@ -62,7 +74,7 @@ namespace SoftwareTechnologyCalendarApplicationMVC.Controllers
                 ViewData["WrongUsernamePassword"]=true; return View();
                 //throw new Exception("There is no user with the username and password that you provided");
             }
-            return RedirectToAction("Register");
+            return RedirectToAction("HomePage","Home", new { username = userDataModel.Username ,pagination = 1});
             //return View("SuccessfulLogin_HomePageOfUser");
         }
     }
