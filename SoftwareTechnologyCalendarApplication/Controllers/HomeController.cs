@@ -6,6 +6,7 @@ using SoftwareTechnologyCalendarApplication.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,11 +17,14 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IUserDataAccess UserDataAccess;
         private readonly ICalendarDataAccess CalendarDataAccess;
+        private readonly IEventDataAccess EventDataAccess;
 
-        public HomeController(ILogger<HomeController> logger, IUserDataAccess userDataAccess, ICalendarDataAccess calendarDataAccess)
+        public HomeController(ILogger<HomeController> logger, IUserDataAccess userDataAccess, 
+            ICalendarDataAccess calendarDataAccess, IEventDataAccess eventDataAccess)
         {
             UserDataAccess = userDataAccess;
             CalendarDataAccess = calendarDataAccess;
+            EventDataAccess = eventDataAccess;
             _logger = logger;
         }
 
@@ -33,7 +37,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddCalendar(string username,Calendar calendar)
+        public IActionResult AddCalendar(string username,Models.Calendar calendar)
         {
             ViewData["DuplicateCalendarTitle"] = false;
             if (!ModelState.IsValid)
@@ -86,6 +90,60 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             return RedirectToAction("HomePage", "Home", new { username = username, pagination = 1 ,
                 calendarWasDeleted = true});
         }
+
+        public IActionResult ViewCalendar(string username, int calendarId, int month, int year)
+        {
+            int monthIndex = month == 0? DateTime.Today.Month : month;
+            int yearIndex = year == 0 ? DateTime.Today.Year : year; 
+
+            int monthlength;
+            if (monthIndex == 1 || monthIndex == 3 ||
+                monthIndex == 5 || monthIndex == 7 ||
+                monthIndex == 8 || monthIndex == 10 ||
+                monthIndex == 12)
+            {
+                monthlength = 31;
+            }
+            else if (monthIndex == 4 || monthIndex == 6 ||
+                monthIndex == 9 || monthIndex == 11)
+            {
+                monthlength = 30;
+            }
+            else if (yearIndex % 4 != 0 && monthIndex == 2)
+            {
+                monthlength = 28;
+            }
+            else
+            {
+                monthlength = 29;
+            }
+
+            //get the offset (numerical represantation of the day- for example Monday = 0, Tuesday = 1 ...)
+            //adjusted by one, because it starts as Sunday = 0 and We are going with monday = 0;
+            int offset = new DateTime(yearIndex, monthIndex, 1).DayOfWeek != 0 ? (int)new DateTime(yearIndex, monthIndex, 1).DayOfWeek - 1 : 6;
+
+            CalendarDataModel calendarDataModel = CalendarDataAccess.GetCalendar(calendarId);
+            Models.Calendar calendar = new Models.Calendar(calendarDataModel);
+            ViewData["User"] = username;
+            ViewData["MonthLength"] = monthlength;
+            ViewData["Offset"] = offset;
+            ViewData["MonthName"] = CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(monthIndex);
+            ViewData["Month"] = monthIndex;
+            ViewData["Year"] = yearIndex; 
+            return View(calendar);
+        }
+
+        public IActionResult ViewCalendarDay(string username, int calendarId, int month, int year, int day)
+        {
+            CalendarDataModel calendarDataModel = CalendarDataAccess.GetCalendar(calendarId);
+            Models.Calendar calendar = new Models.Calendar(calendarDataModel);
+            ViewData["User"] = username;
+            ViewData["Month"] = month;
+            ViewData["Year"] = year;
+            ViewData["Day"] = day;
+            return View(calendar);
+        }
+
 
         public IActionResult LogOut()
         {

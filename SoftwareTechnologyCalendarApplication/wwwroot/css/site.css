@@ -69,3 +69,13 @@ body {
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
 }
+
+.arrow-icon {
+    opacity: 0.5;
+    transition: opacity 0.3s;
+}
+
+.arrow-icon:hover {
+    opacity: 1;
+    color: #000;
+}

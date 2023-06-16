@@ -1,0 +1,267 @@
+﻿@model Calendar
+
+@{
+    ViewData["Title"] = "Calendar View";
+    int dayCount = 1;
+    int previousMonth = (int)ViewData["Month"] - 1;
+    int nextMonth = (int)ViewData["Month"] + 1;
+    int previousYear = (int)ViewData["Year"] - 1;
+    int nextYear = (int)ViewData["Year"] + 1;
+    bool isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
+                          && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                          (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                          (DateTime.Today.Year > (int)ViewData["Year"]);
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center mb-5">
+        <h2 class="h2">@Model.Title</h2>
+    </div>
+</div>
+<div class="row justify-content-center align-items-center mb-2">
+    <div class="col-auto">
+        @if ((string)ViewData["MonthName"] != "January")
+        {
+            <a class="btn btn-link text-muted mr-4" style="margin-bottom:3px;" aria-label="Previous"
+               asp-action="ViewCalendar" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+               asp-route-month="@previousMonth" asp-route-year="@ViewData["Year"]">
+                <span class="fas fa-chevron-left fa-lg arrow-icon"></span>
+            </a>
+        }
+        else
+        {
+            <a class="btn btn-link text-muted ml-4" style="margin-bottom:3px;" aria-label="Next"
+               asp-action="ViewCalendar" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+               asp-route-month="12" asp-route-year="@previousYear">
+                <span class="fas fa-chevron-left fa-lg arrow-icon"></span>
+            </a>
+        }
+
+    </div>
+    <div class="col-auto">
+        <h2 class="h3">@ViewData["MonthName"] @ViewData["Year"]</h2>
+    </div>
+    <div class="col-auto">
+        @if ((string)ViewData["MonthName"] != "December")
+        {
+            <a class="btn btn-link text-muted ml-4" style="margin-bottom:3px;" aria-label="Next"
+               asp-action="ViewCalendar" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+               asp-route-month="@nextMonth" asp-route-year="@ViewData["Year"]">
+                <span class="fas fa-chevron-right fa-lg arrow-icon"></span>
+            </a>
+        }
+        else
+        {
+            <a class="btn btn-link text-muted ml-4" style="margin-bottom:3px;" aria-label="Next"
+               asp-action="ViewCalendar" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+               asp-route-month="1" asp-route-year="@nextYear">
+                <span class="fas fa-chevron-right fa-lg arrow-icon"></span>
+            </a>
+        }
+
+    </div>
+</div>
+<div class="row">
+    <table class="table table-bordered table-striped shadow col-8 mx-auto" style="table-layout: fixed;">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center h4 p-3">Mon</th>
+                <th class="text-center h4 p-3">Tue</th>
+                <th class="text-center h4 p-3">Wed</th>
+                <th class="text-center h4 p-3">Thu</th>
+                <th class="text-center h4 p-3">Fri</th>
+                <th class="text-center h4 p-3">Sat</th>
+                <th class="text-center h4 p-3">Sun</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                @for (int i = 0; i < 7; i++)
+                {
+                    if (i >= (int)ViewData["Offset"])
+                    {
+                        @if (isBeforeCurrentDate)
+                        {
+                            <td class="text-center p-3" style="opacity:0.25;">
+                                <a class="text-reset text-decoration-none"
+                                   asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="text-center p-3">
+                                <a class="text-reset text-decoration-none"
+                                   asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                            </td>
+                        }
+                        dayCount++;
+
+                        isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
+                          && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                          (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                          (DateTime.Today.Year > (int)ViewData["Year"]);
+                    }
+                    else
+                    {
+                        <td class="text-center p-3"></td>
+                    }
+
+                }
+            </tr>
+            <tr>
+                @for (int i = 0; i < 7; i++)
+                {
+                    @if (isBeforeCurrentDate)
+                    {
+                        <td class="text-center p-3" style="opacity:0.25;">
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                        </td>
+                    }
+                    else
+                    {
+                        <td class="text-center p-3">
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount" >@dayCount</a>
+                        </td>
+                    }
+                    dayCount++;
+
+                    isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
+                          && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                          (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                          (DateTime.Today.Year > (int)ViewData["Year"]);
+                }
+            </tr>
+            <tr>
+                @for (int i = 0; i < 7; i++)
+                {
+                    @if (isBeforeCurrentDate)
+                    {
+                        <td class="text-center p-3" style="opacity:0.25;">
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                        </td>
+                    }
+                    else
+                    {
+                        <td class="text-center p-3">
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                        </td>
+                    }
+                    dayCount++;
+
+                    isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
+                          && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                          (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                          (DateTime.Today.Year > (int)ViewData["Year"]);
+                }
+            </tr>
+            <tr>
+                @for (int i = 0; i < 7; i++)
+                {
+                    @if (isBeforeCurrentDate)
+                    {
+                        <td class="text-center p-3" style="opacity:0.25;">
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                        </td>
+                    }
+                    else
+                    {
+                        <td class="text-center p-3">
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                        </td>
+                    }
+                    dayCount++;
+
+                    isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
+                          && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                          (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                          (DateTime.Today.Year > (int)ViewData["Year"]);
+                }
+            </tr>
+
+            @if (dayCount < (int)ViewData["MonthLength"])
+            {
+                <tr>
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        @if (dayCount <= (int)ViewData["MonthLength"])
+                        {
+                            @if (isBeforeCurrentDate)
+                            {
+                                <td class="text-center p-3" style="opacity:0.25;">
+                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="text-center p-3">
+                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                                </td>
+                            }
+                            dayCount++;
+
+                            isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
+                            && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                            (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                            (DateTime.Today.Year > (int)ViewData["Year"]);
+                        }
+                        else{ break; };
+
+                    }
+                </tr>
+            }
+
+            @if (dayCount < (int)ViewData["MonthLength"])
+            {
+                <tr>
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        @if (dayCount <= (int)ViewData["MonthLength"])
+                        {
+                            @if (isBeforeCurrentDate)
+                            {
+                                <td class="text-center p-3" style="opacity:0.25;">
+                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="text-center p-3">
+                                    <a class="text-reset text-decoration-none"asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                                </td>
+                            }
+                            dayCount++;
+
+                            isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
+                            && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                            (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                            (DateTime.Today.Year > (int)ViewData["Year"]);
+                        }
+                        else { break; };
+                     }               
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="row justify-content-center mt-3">
+    <div class="col-auto">
+        <a class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3"
+           asp-action="HomePage" asp-route-username="@ViewData["User"]" asp-route-pagination="1">Return To Home Page</a>
+    </div>
+    <div class="col-auto">
+        <a href="#" class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3">View Documentation</a>
+    </div>
+</div>
+

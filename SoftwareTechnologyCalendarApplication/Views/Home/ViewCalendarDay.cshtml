@@ -1,0 +1,292 @@
+﻿@model Calendar
+
+@{
+    ViewData["Title"] = "Calendar Day Events";
+    int hourCount = 0;
+    bool doNotGoUp = true;
+    int minCount = 0;
+    int classCount = 0;
+    Dictionary<int, int> teams = new Dictionary<int, int>();
+
+    string dayName = new DateTime((int)ViewData["Year"], (int)ViewData["Month"], (int)ViewData["Day"]).DayOfWeek.ToString();
+}
+
+<style>
+    .table-bordered td {
+        position: relative;
+    }
+
+    .calendar-event {
+        position: absolute;
+        background-color: #3466aa;
+        z-index: 1;
+        box-shadow: 0 0 3px black;
+    }
+
+    .event-top {
+        top: 20%;
+        left: 10%;
+        right: 10%;
+        bottom: 0;
+        box-shadow: 0 0 3px black;
+    }
+
+        .event-top::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0px;
+            right: 0px;
+            height: 2px;
+            z-index: 2;
+            background-color: #3466aa;
+        }
+
+    .event-middle {
+        top: 0;
+        left: 10%;
+        right: 10%;
+        bottom: 0;
+    }
+
+        .event-middle::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            top: -1px;
+            left: 0px;
+            right: 0px;
+            height: 2px;
+            z-index: 2;
+            background-color: #3466aa;
+        }
+
+    .event-bottom {
+        top: 0;
+        left: 10%;
+        right: 10%;
+        bottom: 20%;
+    }
+
+        .event-bottom::after {
+            content: "";
+            position: absolute;
+            top: -1px;
+            left: 0px;
+            right: 0px;
+            height: 2px;
+            z-index: 2;
+            background-color: #3466aa;
+        }
+
+    .event-inside {
+        position: relative;
+        z-index: 2;
+    }
+</style>
+
+<div class="text-center">
+    <h2 class="h3">@ViewData["Day"]/@ViewData["Month"]/@ViewData["Year"]</h2>
+</div>
+<div class="text-center mb-1">
+    <h2 class="h2">@dayName</h2>
+</div>
+<div class="row">
+    <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center h4 p-3">Hour</th>
+                <th class="text-center h4 p-3">Col 1</th>
+                <th class="text-center h4 p-3">Col 2</th>
+                <th class="text-center h4 p-3">Col 3</th>
+                <th class="text-center h4 p-3">Col 4</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < 48; i++)
+            {
+
+                <tr class="team-@classCount" style="display: @(classCount > 0 ? "none" : "table-row")">
+                    <td class="text-center align-middle">
+                        @(hourCount.ToString("D2")) : @(minCount.ToString("D2"))
+                    </td>
+
+                    @{
+                        List<int> prevId = new List<int>();
+                        DateTime cellDateTime = new DateTime((int)ViewData["Year"],
+                            (int)ViewData["Month"], (int)ViewData["Day"], hourCount, minCount, 0);
+                    }
+                    @for (int j = 0; j < 4; j++)
+                    {
+                        <td class="text-center p-4">
+                            @foreach (Event calendarEvent in Model.Events)
+                            {
+                                if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
+                                    calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
+                                    calendarEvent.StartingTime.Year == (int)ViewData["Year"] &&
+                                    calendarEvent.StartingTime.Hour == hourCount &&
+                                    calendarEvent.StartingTime.Minute == minCount)
+                                {
+                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
+                                    {
+                                        <div class="calendar-event event-top"></div>
+                                        <div class="text-white event-inside">@calendarEvent.Title</div>
+                                        prevId.Add(calendarEvent.Id);
+                                        if (!teams.ContainsKey(calendarEvent.Id))
+                                            teams.Add(calendarEvent.Id, j);
+                                        break;
+                                    }
+                                }
+                                else if (cellDateTime.Ticks > calendarEvent.StartingTime.Ticks &&
+                                    cellDateTime.Ticks < calendarEvent.EndingTime.Ticks)
+                                {
+                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
+                                    {
+                                        <div class="calendar-event event-middle"></div>
+                                        prevId.Add(calendarEvent.Id);
+                                        if (!teams.ContainsKey(calendarEvent.Id))
+                                            teams.Add(calendarEvent.Id, j);
+                                        break;
+                                    }
+                                }
+                                else if (calendarEvent.EndingTime.Day == (int)ViewData["Day"] &&
+                                    calendarEvent.EndingTime.Month == (int)ViewData["Month"] &&
+                                    calendarEvent.EndingTime.Year == (int)ViewData["Year"] &&
+                                    calendarEvent.EndingTime.Hour == hourCount &&
+                                    calendarEvent.EndingTime.Minute == minCount)
+                                {
+                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
+                                    {
+                                        <div class="calendar-event event-bottom "></div>
+                                        <div class="event-inside text-center">
+                                            <button type="button" class="btn btn-danger mr-2 mb-1"
+                                                    data-target="#deleteModal-@calendarEvent.Id" data-toggle="modal">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+
+                                            <a class="btn btn-dark ml-2 mb-1" href="#"><i class="fa-sharp fa-solid fa-eye"></i></a>
+
+                                        </div>
+                                        prevId.Add(calendarEvent.Id);
+                                        if (!teams.ContainsKey(calendarEvent.Id))
+                                            teams.Add(calendarEvent.Id, j);
+                                        break;
+
+
+                                    }
+                                }
+                            }
+                        </td>
+                    }
+                </tr>
+
+                classCount = (i + 1) % 8 == 0 ? classCount + 1 : classCount;
+
+                if (!doNotGoUp)
+                {
+                    doNotGoUp = true;
+                    hourCount++;
+                }
+                else
+                {
+                    doNotGoUp = false;
+                }
+                minCount = minCount == 0 ? 30 : 0;
+            }
+        </tbody>
+    </table>
+</div>
+<div class="row justify-content-center mt-3">
+    <div class="col-auto">
+        <a href="#" class="btn btn-lg  btn-secondary text-center text-white font-weight-bold pt-3 pb-3 load-less-btn" disabled>Load Less</a>
+    </div>
+    <div class="col-auto">
+        <a href="#" class="btn btn-lg btn-secondary text-center text-white font-weight-bold pt-3 pb-3 load-more-btn">Load More</a>
+    </div>
+</div>
+<div class="row justify-content-center mt-3">
+    <div class="col-auto">
+        <a class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3"
+           asp-action="ViewCalendar" asp-route-username="@ViewData["User"]"
+           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-pagination="1">Return To Calendar View</a>
+    </div>
+    <div class="col-auto">
+        <a href="#" class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3">View Documentation</a>
+    </div>
+</div>
+
+@foreach (KeyValuePair<int, int> kvp in teams)
+{
+    <div class="modal fade" id="deleteModal-@kvp.Key">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel-@kvp.Key">Event Deletion Confirmation Dialog</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the event?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width:75px;">No</button>
+                    <!--fill the form-->
+                    <form method="post">
+                        @*<input type="hidden" name="username" value="@Model.Username" />
+                            <input type="hidden" name="calendarId" value="@Model.Calendars.ElementAt(i).Id" />*@
+                        <button type="submit" class="btn btn-danger" style="width:75px;">Yes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var currentTeam = 0;
+            var totalTeams = $('.table tbody tr').length;
+
+            if (totalTeams <= 1) {
+                $('.load-more-btn').attr('disabled', true);
+            }
+
+            $('.load-less-btn').attr('disabled', true);
+
+            $('.load-more-btn').click(function (e) {
+                e.preventDefault();
+
+                if (currentTeam < totalTeams - 1 && currentTeam < 5) {
+                    $('.team-' + currentTeam).hide();
+                    currentTeam++;
+                    $('.team-' + currentTeam).show();
+
+                    $('.load-less-btn').attr('disabled', false);
+                }
+
+                if (currentTeam === totalTeams - 1) {
+                    $('.load-more-btn').attr('disabled', true);
+                }
+            });
+
+            $('.load-less-btn').click(function (e) {
+                e.preventDefault();
+
+                if (currentTeam > 0) {
+                    $('.team-' + currentTeam).hide();
+                    currentTeam--;
+                    $('.team-' + currentTeam).show();
+
+                    $('.load-more-btn').attr('disabled', false);
+                }
+
+                if (currentTeam === 0) {
+                    $('.load-less-btn').attr('disabled', true);
+                }
+            });
+        });
+    </script>
+}
