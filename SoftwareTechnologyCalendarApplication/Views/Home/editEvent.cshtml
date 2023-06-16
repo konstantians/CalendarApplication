@@ -1,0 +1,175 @@
+﻿@model SoftwareTechnologyCalendarApplication.Models.Event
+
+@{
+    ViewData["Title"] = "editEvent";
+    // placeholder=@Model.Title
+}
+
+<h1 class="text-center">Event editing form</h1>
+
+<h4 class="text-center">Please edit the following event as you like:</h4>
+<hr />
+
+
+<form asp-action="editEvent" asp-route-username="@ViewData["User"]" asp-route-eventId="@ViewData["EventId"]">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <!--<input name="username" value="@ViewData["User"]" hidden />
+    <input name="calendarId" value="@ViewData["CalendarId"]" hidden />-->
+    <div class="row">
+        <div class="col-md-5">
+            <div style="margin-top: 25px;">
+                <div class="form-group">
+                    <label asp-for="Title" class="control-label"></label>
+                    <div class="input-group mb-3">
+                        <input asp-for="Title" class="form-control" id="title" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('title')">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    ::before
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <div class="form-group">
+                    <label asp-for="StartingTime" class="control-label"></label>
+                    <div class="input-group mb-3">
+                        <input asp-for="StartingTime" class="form-control" id="startingTime" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                        <span asp-validation-for="StartingTime" class="text-danger"></span>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('startingTime')">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    ::before
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <div class="form-group">
+                    <label asp-for="EndingTime" class="control-label"></label>
+                    <div class="input-group mb-3">
+                        <input asp-for="EndingTime" class="form-control" id="endingTime" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                        <span asp-validation-for="EndingTime" class="text-danger"></span>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('endingTime')">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    ::before
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 offset-md-1">
+            <div class="row" style="margin-top: 25px;">
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <div class="input-group mb-3">
+                        <textarea asp-for="Description" class="form-control" id="description" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" rows="4" cols="65"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('description')">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    ::before
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 50px; margin-left: 10px;">
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="AlertStatus" /> I want to be notified when the event begins
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center" style="margin-top: 35px;">
+        <a class="btn btn-outline-primary" asp-action="Index">Back to Calendar</a>
+        <div class="ml-3">
+            <input type="submit" value="Submit Changes" class="btn btn-outline-primary" onclick="EnableAll(); Validation();" />
+        </div>
+    </div>
+</form>
+
+
+<script type="text/javascript">
+    function Validation() {
+        var startingTime = document.getElementById("startingtime");
+        var endingTime = document.getElementById("endingtime");
+        if (endingTime.getAttribute("value").getMinutes() != 00 || endingTime.getAttribute("value").getMinutes() != 30) {
+            alert("The minute field of the ending time of the event must be :00 or :30. Nothing else.");
+            return false;
+        }
+        if (startingTime.getAttribute("value").getMinutes() != 00 || startingTime.getAttribute("value").getMinutes() != 30) {
+            alert("The minute field of the starting time of the event must be :00 or :30. Nothing else.");
+            return false;
+        }
+        if (endingTime.getAttribute("value") >= startingTime.getAttribute("value")) {
+            alert("The ending time of the event must cannot be greater than or equal to the starting time.");
+            return false;
+        }
+        var title = document.getElementById("title");
+        if (title.getAttribute("value") == null) {
+            alert("You need to provide a title for the event before submiting.");
+            return false;
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    function EnableDisableTextBox(textboxId) {
+        textboxId=String(textboxId)
+        var textBox = document.getElementById(textboxId);
+        if (textBox.disabled) {
+            textBox.removeAttribute("disabled");
+        } else {
+            textBox.setAttribute("disabled", "disabled");
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    function EnableAll() {
+        document.getElementById("title").removeAttribute("disabled");
+        document.getElementById("description").removeAttribute("disabled");
+        document.getElementById("startingTime").removeAttribute("disabled");
+        document.getElementById("endingTime").removeAttribute("disabled");
+    }
+</script>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -304,6 +304,16 @@ namespace DataAccess.Logic
 
             connection.Close();
         }
+        //public void UpdateEvent(EventDataModel calendarEvent)
+        //{
+        //    connection.Open();
+        //    string sqlQuery = $"Update Event set Title = {calendarEvent.Title}, Description = {calendarEvent.Description}, StartingTime = {calendarEvent.StartingTime}, EndingTime = {calendarEvent.EndingTime}, AlertStatus = {calendarEvent.AlertStatus} where Id = {calendarEvent.Id}";
+        //    SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+        //
+        //    command.ExecuteNonQuery();
+        //
+        //    connection.Close();
+        //}
 
         /// <summary>
         /// This method deletes the specified event and removes all the direct and indirect connections it has with 

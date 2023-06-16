@@ -1,0 +1,134 @@
+﻿@model SoftwareTechnologyCalendarApplication.Models.Event
+
+@{
+    ViewData["Title"] = "addEvent";
+    // placeholder=@Model.Title
+}
+
+<h1 class="text-center">Let's add a new event!</h1>
+
+<h4 class="text-center">Please fill out the following form:</h4>
+<hr />
+<!--<input id="username" name="username" value="@ViewData["User"]" hidden />
+<input id="calendarId" name="calendarId" value="@ViewData["CalendarId"]" hidden />-->
+
+<form asp-action="addEvent" asp-route-username="@ViewData["User"]" asp-route-calendarId="@ViewData["CalendarId"]">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <!--<input id="username" name="username" value="@ViewData["User"]" hidden/>
+    <input id="calendarId" name="calendarId" value="@ViewData["CalendarId"]" hidden />-->
+    <div class="row">
+        <div class="col-md-5">
+            <div style="margin-top: 25px;">
+                <div class="form-group">
+                    <label asp-for="Title" class="control-label"></label>
+                    <input asp-for="Title" id="title" class="form-control"/>
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <div class="form-group">
+                    <label asp-for="StartingTime" class="control-label"></label>
+                    <input asp-for="StartingTime" id="startingtime" class="form-control"/>
+                    <span asp-validation-for="StartingTime" class="text-danger"></span>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <div class="form-group">
+                    <label asp-for="EndingTime" class="control-label"></label>
+                    <input asp-for="EndingTime" id="endingtime" class="form-control"/>
+                    <span asp-validation-for="EndingTime" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 offset-md-1">
+            <div class="row" style="margin-top: 25px;">
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="4" cols="65"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 50px; margin-left: 10px;">
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="AlertStatus" /> I want to be notified when the event begins
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center" style="margin-top: 35px;">
+            <a class="btn btn-outline-primary" asp-action="Index">Back to Calendar</a>
+            <div class="ml-3">
+            <input type="submit" value="Create new event" class="btn btn-outline-primary" onclick="Validation()" />
+            </div>
+    </div>
+
+</form>
+
+
+<script type="text/javascript">
+    function Validation(){
+        alert("1");
+        var startingTime = document.getElementById("startingtime").value;
+        var endingTime = document.getElementById("endingtime").value;
+        const Start = Date.parse(startingTime);
+        const End = Date.parse(endingTime);
+        //alert(Start);
+        alert(typeof endingTime);
+        alert(endingTime);
+        let minsOfStart=startingTime.split(":")[1];
+        let minsOfEnd = endingTime.split(":")[1];
+        //alert(typeof minsOfStart);
+        if (minsOfStart != "00" && minsOfStart != "30") { 
+            alert("The minute field of the starting time of the event must be :00 or :30. Nothing else.");
+            return false;
+        }
+        alert("2");
+        if (minsOfEnd != "00" && minsOfEnd != "30") {
+            alert("The minute field of the ending time of the event must be :00 or :30. Nothing else.");
+            return false;
+        }
+        alert("3");
+        //const Start = Date.parse(startingTime);
+        if (Start >= End){
+            alert("The starting time of the event must cannot be greater than or equal to the ending time.");
+            return false;
+        }
+        alert("4");
+        var title = document.getElementById("title").value;
+        if (title == null || title == "") {
+            alert("You need to provide a title for the event before submiting.");
+            return false;
+        }
+        alert("5");
+        console.log(endingTime.getAttribute("value").getMinutes());
+        console.log(endingTime.getAttribute("value"));
+        console.log(typeof endingTime.getAttribute("value"));
+        //alert(typeof endingTime.getAttribute("value"));
+        //alert(endingTime.getAttribute("value").toString());
+        alert("oooo");
+    }
+</script>
+
+<!--<script type="text/javascript">
+    function UsernameAndCalId() {
+        var inpuut1 = document.getElementById("username");
+        var inpuut2 = document.getElementById("calendarId");
+        inpuut1.setAttribute("value", @ViewData["User"]);
+        inpuut2.setAttribute("value", @ViewData["CalendarId"]);
+        if (inpuut1.getAttribute("value")) {
+            
+        } else {
+            inpuut1.setAttribute("value", @ViewData["User"]);
+            inpuut2.setAttribute("value", @ViewData["CalendarId"]);
+        }
+
+    }
+</script>-->
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
