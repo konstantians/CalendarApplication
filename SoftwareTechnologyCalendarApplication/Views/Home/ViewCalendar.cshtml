@@ -23,7 +23,7 @@
         @if ((string)ViewData["MonthName"] != "January")
         {
             <a class="btn btn-link text-muted mr-4" style="margin-bottom:3px;" aria-label="Previous"
-               asp-action="ViewCalendar" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+               asp-action="ViewCalendar" asp-route-calendarId="@Model.Id"
                asp-route-month="@previousMonth" asp-route-year="@ViewData["Year"]">
                 <span class="fas fa-chevron-left fa-lg arrow-icon"></span>
             </a>
@@ -31,7 +31,7 @@
         else
         {
             <a class="btn btn-link text-muted ml-4" style="margin-bottom:3px;" aria-label="Next"
-               asp-action="ViewCalendar" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+               asp-action="ViewCalendar" asp-route-calendarId="@Model.Id"
                asp-route-month="12" asp-route-year="@previousYear">
                 <span class="fas fa-chevron-left fa-lg arrow-icon"></span>
             </a>
@@ -45,7 +45,7 @@
         @if ((string)ViewData["MonthName"] != "December")
         {
             <a class="btn btn-link text-muted ml-4" style="margin-bottom:3px;" aria-label="Next"
-               asp-action="ViewCalendar" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+               asp-action="ViewCalendar" asp-route-calendarId="@Model.Id"
                asp-route-month="@nextMonth" asp-route-year="@ViewData["Year"]">
                 <span class="fas fa-chevron-right fa-lg arrow-icon"></span>
             </a>
@@ -53,7 +53,7 @@
         else
         {
             <a class="btn btn-link text-muted ml-4" style="margin-bottom:3px;" aria-label="Next"
-               asp-action="ViewCalendar" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+               asp-action="ViewCalendar" asp-route-calendarId="@Model.Id"
                asp-route-month="1" asp-route-year="@nextYear">
                 <span class="fas fa-chevron-right fa-lg arrow-icon"></span>
             </a>
@@ -75,6 +75,7 @@
             </tr>
         </thead>
         <tbody>
+            @*TODO add event marker for dates that have an event*@
             <tr>
                 @for (int i = 0; i < 7; i++)
                 {
@@ -84,7 +85,7 @@
                         {
                             <td class="text-center p-3" style="opacity:0.25;">
                                 <a class="text-reset text-decoration-none"
-                                   asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                             </td>
                         }
@@ -92,7 +93,7 @@
                         {
                             <td class="text-center p-3">
                                 <a class="text-reset text-decoration-none"
-                                   asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                   asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                             </td>
                         }
@@ -116,14 +117,14 @@
                     @if (isBeforeCurrentDate)
                     {
                         <td class="text-center p-3" style="opacity:0.25;">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                         </td>
                     }
                     else
                     {
                         <td class="text-center p-3">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount" >@dayCount</a>
                         </td>
                     }
@@ -141,14 +142,14 @@
                     @if (isBeforeCurrentDate)
                     {
                         <td class="text-center p-3" style="opacity:0.25;">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                         </td>
                     }
                     else
                     {
                         <td class="text-center p-3">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                         </td>
                     }
@@ -166,14 +167,14 @@
                     @if (isBeforeCurrentDate)
                     {
                         <td class="text-center p-3" style="opacity:0.25;">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                         </td>
                     }
                     else
                     {
                         <td class="text-center p-3">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                         </td>
                     }
@@ -196,14 +197,14 @@
                             @if (isBeforeCurrentDate)
                             {
                                 <td class="text-center p-3" style="opacity:0.25;">
-                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                                 </td>
                             }
                             else
                             {
                                 <td class="text-center p-3">
-                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                                 </td>
                             }
@@ -230,14 +231,14 @@
                             @if (isBeforeCurrentDate)
                             {
                                 <td class="text-center p-3" style="opacity:0.25;">
-                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                                 </td>
                             }
                             else
                             {
                                 <td class="text-center p-3">
-                                    <a class="text-reset text-decoration-none"asp-action="ViewCalendarDay" asp-route-username="@ViewData["User"]" asp-route-calendarId="@Model.Id"
+                                    <a class="text-reset text-decoration-none"asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
                                    asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
                                 </td>
                             }
@@ -258,7 +259,7 @@
 <div class="row justify-content-center mt-3">
     <div class="col-auto">
         <a class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3"
-           asp-action="HomePage" asp-route-username="@ViewData["User"]" asp-route-pagination="1">Return To Home Page</a>
+           asp-action="HomePage" asp-route-pagination="1">Return To Home Page</a>
     </div>
     <div class="col-auto">
         <a href="#" class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3">View Documentation</a>

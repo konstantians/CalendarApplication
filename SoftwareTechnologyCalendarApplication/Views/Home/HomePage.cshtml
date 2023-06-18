@@ -11,11 +11,13 @@
 
 @if ((bool)ViewData["DeletedCalendar"])
 {
-    <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-    </symbol>
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+        </symbol>
+    </svg>
     <div class="alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill" /></svg>
+        <svg class="bi flex-shrink-0 mr-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill" /></svg>
         <div>
             The calendar was deleted successfully!
             <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -33,7 +35,7 @@
         <a class="btn btn-secondary pt-3 pb-3 mr-4 font-weight-bold" style="width:220px"
            href="#">Show Documentation</a>
         <a class="btn btn-primary pt-3 pb-3 font-weight-bold" style="width:220px"
-           asp-controller="Home" asp-action="AddCalendar" asp-route-username="@Model.Username">Add A Calendar</a>
+           asp-controller="Home" asp-action="AddCalendar">Add A Calendar</a>
     </div>
 }
 else
@@ -74,9 +76,7 @@ else
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width:75px;">No</button>
-                                                        <form method="post" asp-controller="Home" asp-action="DeleteCalendar"
-                                                              asp-route-username="@Model.Username" asp-route-calendarId="@Model.Calendars.ElementAt(i).Id">
-                                                            <input type="hidden" name="username" value="@Model.Username" />
+                                                        <form method="post" asp-controller="Home" asp-action="DeleteCalendar" asp-route-calendarId="@Model.Calendars.ElementAt(i).Id">
                                                             <input type="hidden" name="calendarId" value="@Model.Calendars.ElementAt(i).Id" />
                                                             <button type="submit" class="btn btn-danger" style="width:75px;">Yes</button>
                                                         </form>
@@ -86,8 +86,7 @@ else
                                         </div>
                                     </div>
                                     <div class="offset-xl-4 offset-lg-4 offset-md-4 offset-sm-4 offset-4">
-                                        <a asp-controller="Home" asp-action="ViewCalendar" asp-route-username="@Model.Username"
-                                           asp-route-calendarId = "@Model.Calendars.ElementAt(i).Id"
+                                        <a asp-controller="Home" asp-action="ViewCalendar" asp-route-calendarId = "@Model.Calendars.ElementAt(i).Id"
                                            class="btn btn-primary font-weight-bold" style="width:75px">View</a>
                                     </div>
                                 </div>
@@ -117,8 +116,7 @@ else
             else
             {
                 <li class="page-item">
-                    <a class="page-link" asp-action="HomePage" asp-route-username="@Model.Username"
-                       asp-route-pagination="@paginationPrevious" aria-label="Previous">
+                    <a class="page-link" asp-action="HomePage" asp-route-pagination="@paginationPrevious" aria-label="Previous">
                         <span aria-hidden="true">&laquo; Previous</span>
                         <span class="sr-only">Previous</span>
                     </a>
@@ -131,8 +129,7 @@ else
                 if (paginationCount == pagination / 6)
                 {
                     <li class="page-item active">
-                        <a class="page-link" asp-action="HomePage"
-                           asp-route-username="@Model.Username" asp-route-pagination="@paginationCount">
+                        <a class="page-link" asp-action="HomePage" asp-route-pagination="@paginationCount">
                             @paginationCount
                         </a>
                     </li>
@@ -140,8 +137,7 @@ else
                 else
                 {
                     <li class="page-item">
-                        <a class="page-link" asp-action="HomePage"
-                           asp-route-username="@Model.Username" asp-route-pagination="@paginationCount">
+                        <a class="page-link" asp-action="HomePage" asp-route-pagination="@paginationCount">
                             @paginationCount
                         </a>
                     </li>
@@ -164,8 +160,7 @@ else
             else
             {
                 <li class="page-item">
-                    <a class="page-link" asp-action="HomePage" asp-route-username="@Model.Username"
-                       asp-route-pagination="@paginationNext" aria-label="Next">
+                    <a class="page-link" asp-action="HomePage" asp-route-pagination="@paginationNext" aria-label="Next">
                         <span aria-hidden="true">Next &raquo;</span>
                         <span class="sr-only">Next</span>
                     </a>

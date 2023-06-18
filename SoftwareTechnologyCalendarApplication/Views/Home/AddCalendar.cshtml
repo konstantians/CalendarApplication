@@ -12,7 +12,7 @@
         </symbol>
     </svg>
     <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
+        <svg class="bi flex-shrink-0 mr-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
         <div>
             You have already created a calendar with the given title.
             Please choose a different title and try again.
@@ -25,7 +25,7 @@
 <hr />
 <div class="row">
     <div class="col-md-6 d-flex align-items-center justify-content-center" style="margin: 0 auto;">
-        <form asp-action="AddCalendar" asp-route-username="@ViewData["User"]">
+        <form asp-action="AddCalendar">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group mb-3">
                 <label asp-for="Title" class="control-label"></label>
@@ -76,7 +76,7 @@
             </div>
             <div class="form-group d-flex justify-content-between mt-2">
                 <a class="btn btn-secondary pb-2 pt-2" style="width:200px;"
-                   asp-action="HomePage" asp-route-username="@ViewData["User"]" asp-route-pagination="1">Back To Home</a>
+                   asp-action="HomePage" asp-route-pagination="1">Back To Home</a>
                 <input type="submit" value="Create Calendar" class="btn btn-primary pb-2 pt-2" style="width: 200px;" />
             </div>
         </form>
