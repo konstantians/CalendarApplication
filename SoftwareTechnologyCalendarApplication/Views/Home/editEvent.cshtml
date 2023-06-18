@@ -11,9 +11,8 @@
 <hr />
 
 
-<form asp-action="editEvent" asp-route-username="@ViewData["User"]" asp-route-eventId="@ViewData["EventId"]">
+<form asp-action="editEvent" asp-route-eventId="@ViewData["EventId"]">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <!--<input name="username" value="@ViewData["User"]" hidden />
     <input name="calendarId" value="@ViewData["CalendarId"]" hidden />-->
     <div class="row">
         <div class="col-md-5">

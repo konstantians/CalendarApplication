@@ -1,15 +1,15 @@
 ﻿using DataAccess.Logic;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SoftwareTechnologyCalendarApplication.Models;
+using SoftwareTechnologyCalendarApplicationMVC;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
-using Calendar = SoftwareTechnologyCalendarApplication.Models.Calendar;
 
 namespace SoftwareTechnologyCalendarApplication.Controllers
 {
@@ -29,29 +29,31 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             _logger = logger;
         }
 
-        public IActionResult AddCalendar(string username)
+        public IActionResult AddCalendar()
         {
+            AuthorizeUser();
+
             ViewData["DuplicateCalendarTitle"] = false;
-            ViewData["User"] = username;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddCalendar(string username,Models.Calendar calendar)
+        public IActionResult AddCalendar(Models.Calendar calendar)
         {
+            AuthorizeUser();
+
             ViewData["DuplicateCalendarTitle"] = false;
             if (!ModelState.IsValid)
             {
                 return View();
             }
-            UserDataModel user = UserDataAccess.GetUser(username);
+            UserDataModel user = UserDataAccess.GetUser(ActiveUser.User.Username);
             foreach(CalendarDataModel calendarDataModelTemp in user.Calendars)
             {
                 if (calendarDataModelTemp.Title == calendar.Title)
                 {
                     ViewData["DuplicateCalendarTitle"] = true;
-                    ViewData["User"] = username;
                     return View();
                 };
             }
@@ -71,29 +73,51 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 calendarDataModel.Categories.Add(category);
             }
 
-            CalendarDataAccess.CreateCalendar(calendarDataModel, username);
-            return RedirectToAction("HomePage", "Home", new { username = username, pagination = 1 });
+            CalendarDataAccess.CreateCalendar(calendarDataModel, user.Username);
+            return RedirectToAction("HomePage", "Home", new {pagination = 1 });
         }
 
-        public IActionResult HomePage(string username, int pagination, bool calendarWasDeleted)
+        public IActionResult HomePage(int pagination, bool calendarWasDeleted)
         {
-            UserDataModel userDataModel = UserDataAccess.GetUser(username);
+            AuthorizeUser();
+
+            UserDataModel userDataModel = UserDataAccess.GetUser(ActiveUser.User.Username);
             User user = new User(userDataModel);
             ViewData["DeletedCalendar"] = calendarWasDeleted;
             ViewData["pagination"] = pagination * 6;
-            ViewData["User"] = username;
             return View(user);
         }
 
-        public IActionResult DeleteCalendar(string username,int calendarId)
+        public IActionResult DeleteCalendar(int calendarId)
         {
+            AuthorizeUser();
+
             CalendarDataAccess.DeleteCalendar(calendarId);
-            return RedirectToAction("HomePage", "Home", new { username = username, pagination = 1 ,
+            return RedirectToAction("HomePage", "Home", new { pagination = 1 ,
                 calendarWasDeleted = true});
         }
 
-        public IActionResult ViewCalendar(string username, int calendarId, int month, int year)
+        [HttpPost]
+        public IActionResult DeleteEvent(int calendarId,int eventId,int year,int month, int day)
         {
+            AuthorizeUser();
+
+            EventDataAccess.DeleteEvent(eventId);
+            return RedirectToAction("ViewCalendarDay", "Home", new
+            {
+                username = ActiveUser.User.Username,
+                calendarId = calendarId,
+                year = year,
+                month = month,
+                day = day,
+                eventWasDeleted = true
+            });
+        }
+
+        public IActionResult ViewCalendar(int calendarId, int month, int year)
+        {
+            AuthorizeUser();
+
             int monthIndex = month == 0? DateTime.Today.Month : month;
             int yearIndex = year == 0 ? DateTime.Today.Year : year; 
 
@@ -125,7 +149,6 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
             CalendarDataModel calendarDataModel = CalendarDataAccess.GetCalendar(calendarId);
             Models.Calendar calendar = new Models.Calendar(calendarDataModel);
-            ViewData["User"] = username;
             ViewData["MonthLength"] = monthlength;
             ViewData["Offset"] = offset;
             ViewData["MonthName"] = CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(monthIndex);
@@ -134,21 +157,17 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             return View(calendar);
         }
 
-        public IActionResult ViewCalendarDay(string username, int calendarId, int month, int year, int day)
+        public IActionResult ViewCalendarDay(int calendarId, int month, int year, int day, bool eventWasDeleted)
         {
+            AuthorizeUser();
+
             CalendarDataModel calendarDataModel = CalendarDataAccess.GetCalendar(calendarId);
             Models.Calendar calendar = new Models.Calendar(calendarDataModel);
-            ViewData["User"] = username;
             ViewData["Month"] = month;
             ViewData["Year"] = year;
             ViewData["Day"] = day;
+            ViewData["EventWasDeleted"] = eventWasDeleted;
             return View(calendar);
-        }
-
-
-        public IActionResult LogOut()
-        {
-            return RedirectToAction("Login", "Authentication");
         }
 
 
@@ -158,10 +177,11 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult editEvent( string username, int eventId)
+        public IActionResult editEvent(int eventId)
         {
+            AuthorizeUser();
+
             ViewData["DuplicateEventTitle"] = false;
-            ViewData["User"] = username;
             ViewData["Editing"] = true;
             ViewData["EventId"] = eventId;
             EventDataModel eventDataModelTemp = EventDataAccess.GetEvent(eventId);
@@ -177,8 +197,10 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult editEvent(string username, int eventId, Event eventt)
+        public IActionResult editEvent(int eventId, Event eventt)
         {
+            AuthorizeUser();
+
             if (!ModelState.IsValid)
             {
                 return View();
@@ -191,13 +213,14 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventDataModel.EndingTime = eventt.EndingTime;
             eventDataModel.AlertStatus = eventt.AlertStatus;
             EventDataAccess.UpdateEvent(eventDataModel);
-            return RedirectToAction("HomePage", "Home", new { username = username, pagination = 1 });
+            return RedirectToAction("HomePage", "Home", new { pagination = 1 });
         }
 
-        public IActionResult addEvent(string username, int calendarId)
+        public IActionResult addEvent(int calendarId)
         {
+            AuthorizeUser();
+
             ViewData["DuplicateEventTitle"] = false;
-            ViewData["User"] = username;
             ViewData["CalendarId"] = calendarId;
             ViewData["Editing"] = false;
             return View();
@@ -205,16 +228,10 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult addEvent(string username, int calendarId, Event eventt)
+        public IActionResult addEvent(int calendarId, Event eventt)
         {
-            //username = ModelState.GetValueOrDefault("username").ToString();
-            //calendarId = (int)ModelState.GetValueOrDefault("calendarId").ToString();
-            //username = ModelState["username"].RawValue.ToString();
-            //string calendarId2 = ModelState["calendarId"].RawValue.ToString();
-            //calendarId = Convert.ToInt32(calendarId2);
+            AuthorizeUser();
 
-            //ModelState.Remove("username");
-            //ModelState.Remove("calendarId");
             ViewData["DuplicateEventTitle"] = false;
             if (!ModelState.IsValid)
             {
@@ -227,7 +244,6 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 if(eventDataModelTemp.Title == eventt.Title)
                 {
                     ViewData["DuplicateEventTitle"] = true;
-                    ViewData["User"] = username;
                     return View();
                 }
             }
@@ -240,8 +256,22 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventDataModel.EndingTime = eventt.EndingTime;
             eventDataModel.AlertStatus = eventt.AlertStatus;
 
-            EventDataAccess.CreateEvent(eventDataModel, username, calendarId);
-            return RedirectToAction("HomePage", "Home", new { username = username, pagination = 1 });
+            EventDataAccess.CreateEvent(eventDataModel, ActiveUser.User.Username, calendarId);
+            return RedirectToAction("HomePage", "Home", new {pagination = 1 });
+        }
+        
+        public IActionResult ViewNotifications(string username)
+        {
+            AuthorizeUser();
+            throw new NotImplementedException();
+        }
+
+        private static void AuthorizeUser()
+        {
+            if (ActiveUser.User == null)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

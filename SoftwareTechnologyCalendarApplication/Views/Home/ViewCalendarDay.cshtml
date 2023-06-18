@@ -85,13 +85,33 @@
     }
 </style>
 
+@if ((bool)ViewData["EventWasDeleted"])
+{
+
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+        </symbol>
+    </svg>
+    <div class="alert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
+        <svg class="bi flex-shrink-0 mr-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill" /></svg>
+        <div>
+            The event was deleted successfully!
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+    </div>
+}
 <div class="text-center">
     <h2 class="h3">@ViewData["Day"]/@ViewData["Month"]/@ViewData["Year"]</h2>
 </div>
-<div class="text-center mb-1">
-    <h2 class="h2">@dayName</h2>
-</div>
-<div class="row">
+<!--desktop view-->
+<div class="row d-none d-lg-block d-xl-block" id="desktopView">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <div style="margin-left:6rem;"></div>
+        <h2 class="h2" style="margin-left:4.3rem;">@dayName</h2>
+        <a asp-controller="Home" asp-action="addEvent" asp-route-calendarId="@Model.Id"
+           class="btn btn-outline-primary" style="margin-left:3rem;">Add Event <i class="fa-solid fa-plus"></i></a>
+    </div>
     <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
         <thead class="thead-dark">
             <tr>
@@ -118,6 +138,8 @@
                     }
                     @for (int j = 0; j < 4; j++)
                     {
+                        //TODO fix bug where. I need to check the end of the event too.
+                        //Here it works correctly for the start, but not the end
                         <td class="text-center p-4">
                             @foreach (Event calendarEvent in Model.Events)
                             {
@@ -158,21 +180,262 @@
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
                                         <div class="calendar-event event-bottom "></div>
-                                        <div class="event-inside text-center">
-                                            <button type="button" class="btn btn-danger mr-2 mb-1"
+                                        <div class="event-inside d-flex justify-content-around">
+                                            <button type="button" class="btn btn-danger ml-2 mb-1"
                                                     data-target="#deleteModal-@calendarEvent.Id" data-toggle="modal">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
 
-                                            <a class="btn btn-dark ml-2 mb-1" href="#"><i class="fa-sharp fa-solid fa-eye"></i></a>
-
+                                            <a class="btn btn-dark mr-2 mb-1" href="#"><i class="fa-sharp fa-solid fa-eye"></i></a>
                                         </div>
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))
                                             teams.Add(calendarEvent.Id, j);
                                         break;
+                                    }
+                                }
+                            }
+                        </td>
+                    }
+                </tr>
 
+                classCount = (i + 1) % 8 == 0 ? classCount + 1 : classCount;
 
+                if (!doNotGoUp)
+                {
+                    doNotGoUp = true;
+                    hourCount++;
+                }
+                else
+                {
+                    doNotGoUp = false;
+                }
+                minCount = minCount == 0 ? 30 : 0;
+            }
+        </tbody>
+    </table>
+</div>
+<!--tablet view-->
+<div class="row d-none d-md-block d-lg-none" id="tabletView">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <button onclick="changeTabletTeams()" class="btn btn-outline-dark">Change Cols <i class="fa-solid fa-table-columns"></i></button>
+        <h2 class="h2" style="margin-right:1rem;">@dayName</h2>
+        <a asp-controller="Home" asp-action="addEvent" asp-route-calendarId="@Model.Id"
+           class="btn btn-outline-primary">Add Event <i class="fa-solid fa-plus"></i></a>
+    </div>
+    <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center h4 p-3">Hour</th>
+                <th class="text-center h4 p-3 tabletColTeam-0">Col 1</th>
+                <th class="text-center h4 p-3 tabletColTeam-0">Col 2</th>
+                <th class="text-center h4 p-3 tabletColTeam-1">Col 3</th>
+                <th class="text-center h4 p-3 tabletColTeam-1">Col 4</th>
+            </tr>
+        </thead>
+        <tbody>
+            @*reset the min and hour counts*@
+            @{
+                minCount = 0;
+                hourCount = 0;
+                doNotGoUp = true;
+                classCount = 0;
+            }
+
+            @for (int i = 0; i < 48; i++)
+            {
+
+                <tr class="team-@classCount" style="display: @(classCount > 0 ? "none" : "table-row")">
+                    <td class="text-center align-middle">
+                        @(hourCount.ToString("D2")) : @(minCount.ToString("D2"))
+                    </td>
+
+                    @{
+                        List<int> prevId = new List<int>();
+                        DateTime cellDateTime = new DateTime((int)ViewData["Year"],
+                            (int)ViewData["Month"], (int)ViewData["Day"], hourCount, minCount, 0);
+                    }
+                    @for (int j = 0; j < 4; j++)
+                    {
+                        int tabletColTeam;
+
+                        @if (j < 2)
+                        {
+                            tabletColTeam = 0;
+                        }
+                        else
+                        {
+                            tabletColTeam = 1;
+                        }
+                        <td class="text-center p-4 tabletColTeam-@tabletColTeam">
+                            @foreach (Event calendarEvent in Model.Events)
+                            {
+                                if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
+                                    calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
+                                    calendarEvent.StartingTime.Year == (int)ViewData["Year"] &&
+                                    calendarEvent.StartingTime.Hour == hourCount &&
+                                    calendarEvent.StartingTime.Minute == minCount)
+                                {
+                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
+                                    {
+                                        <div class="calendar-event event-top"></div>
+                                        <div class="text-white event-inside">@calendarEvent.Title</div>
+                                        prevId.Add(calendarEvent.Id);
+                                        if (!teams.ContainsKey(calendarEvent.Id))
+                                            teams.Add(calendarEvent.Id, j);
+                                        break;
+                                    }
+                                }
+                                else if (cellDateTime.Ticks > calendarEvent.StartingTime.Ticks &&
+                                    cellDateTime.Ticks < calendarEvent.EndingTime.Ticks)
+                                {
+                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
+                                    {
+                                        <div class="calendar-event event-middle"></div>
+                                        prevId.Add(calendarEvent.Id);
+                                        if (!teams.ContainsKey(calendarEvent.Id))
+                                            teams.Add(calendarEvent.Id, j);
+                                        break;
+                                    }
+                                }
+                                else if (calendarEvent.EndingTime.Day == (int)ViewData["Day"] &&
+                                    calendarEvent.EndingTime.Month == (int)ViewData["Month"] &&
+                                    calendarEvent.EndingTime.Year == (int)ViewData["Year"] &&
+                                    calendarEvent.EndingTime.Hour == hourCount &&
+                                    calendarEvent.EndingTime.Minute == minCount)
+                                {
+                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
+                                    {
+                                        <div class="calendar-event event-bottom "></div>
+                                        <div class="event-inside d-flex justify-content-around">
+                                            <button type="button" class="btn btn-danger ml-2 mb-1"
+                                                    data-target="#deleteModal-@calendarEvent.Id" data-toggle="modal">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+
+                                            <a class="btn btn-dark mr-2 mb-1" href="#"><i class="fa-sharp fa-solid fa-eye"></i></a>
+                                        </div>
+                                        prevId.Add(calendarEvent.Id);
+                                        if (!teams.ContainsKey(calendarEvent.Id))
+                                            teams.Add(calendarEvent.Id, j);
+                                        break;
+                                    }
+                                }
+                            }
+                        </td>
+                    }
+                </tr>
+
+                classCount = (i + 1) % 8 == 0 ? classCount + 1 : classCount;
+
+                if (!doNotGoUp)
+                {
+                    doNotGoUp = true;
+                    hourCount++;
+                }
+                else
+                {
+                    doNotGoUp = false;
+                }
+                minCount = minCount == 0 ? 30 : 0;
+            }
+        </tbody>
+    </table>
+</div>
+<!--mobile view-->
+<div class="row d-block d-sm-block d-md-none" id="mobileView">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <button onclick="changeMobileTeams()" class="btn btn-outline-dark">Change Cols <i class="fa-solid fa-table-columns"></i></button>
+        <h2 class="h2" style="margin-right:1rem;">@dayName</h2>
+        <a asp-controller="Home" asp-action="addEvent" asp-route-calendarId="@Model.Id"
+           class="btn btn-outline-primary">Add Event <i class="fa-solid fa-plus"></i></a>
+    </div>
+    <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
+        <thead class="thead-dark">
+            <tr>
+                <th class="text-center h4 p-3">Hour</th>
+                <th class="text-center h4 p-3 mobileColTeam-0">Col 1</th>
+                <th class="text-center h4 p-3 mobileColTeam-1">Col 2</th>
+                <th class="text-center h4 p-3 mobileColTeam-2">Col 3</th>
+                <th class="text-center h4 p-3 mobileColTeam-3">Col 4</th>
+            </tr>
+        </thead>
+        <tbody>
+            @*reset the min and hour counts*@
+            @{
+                minCount = 0;
+                hourCount = 0;
+                doNotGoUp = true;
+                classCount = 0;
+            }
+
+            @for (int i = 0; i < 48; i++)
+            {
+
+                <tr class="team-@classCount" style="display: @(classCount > 0 ? "none" : "table-row")">
+                    <td class="text-center align-middle">
+                        @(hourCount.ToString("D2")) : @(minCount.ToString("D2"))
+                    </td>
+
+                    @{
+                        List<int> prevId = new List<int>();
+                        DateTime cellDateTime = new DateTime((int)ViewData["Year"],
+                            (int)ViewData["Month"], (int)ViewData["Day"], hourCount, minCount, 0);
+                    }
+                    @for (int j = 0; j < 4; j++)
+                    {
+                        <td class="text-center p-4 mobileColTeam-@j">
+                            @foreach (Event calendarEvent in Model.Events)
+                            {
+                                if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
+                                    calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
+                                    calendarEvent.StartingTime.Year == (int)ViewData["Year"] &&
+                                    calendarEvent.StartingTime.Hour == hourCount &&
+                                    calendarEvent.StartingTime.Minute == minCount)
+                                {
+                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
+                                    {
+                                        <div class="calendar-event event-top"></div>
+                                        <div class="text-white event-inside">@calendarEvent.Title</div>
+                                        prevId.Add(calendarEvent.Id);
+                                        if (!teams.ContainsKey(calendarEvent.Id))
+                                            teams.Add(calendarEvent.Id, j);
+                                        break;
+                                    }
+                                }
+                                else if (cellDateTime.Ticks > calendarEvent.StartingTime.Ticks &&
+                                    cellDateTime.Ticks < calendarEvent.EndingTime.Ticks)
+                                {
+                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
+                                    {
+                                        <div class="calendar-event event-middle"></div>
+                                        prevId.Add(calendarEvent.Id);
+                                        if (!teams.ContainsKey(calendarEvent.Id))
+                                            teams.Add(calendarEvent.Id, j);
+                                        break;
+                                    }
+                                }
+                                else if (calendarEvent.EndingTime.Day == (int)ViewData["Day"] &&
+                                    calendarEvent.EndingTime.Month == (int)ViewData["Month"] &&
+                                    calendarEvent.EndingTime.Year == (int)ViewData["Year"] &&
+                                    calendarEvent.EndingTime.Hour == hourCount &&
+                                    calendarEvent.EndingTime.Minute == minCount)
+                                {
+                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
+                                    {
+                                        <div class="calendar-event event-bottom "></div>
+                                        <div class="event-inside d-flex justify-content-around">
+                                            <button type="button" class="btn btn-danger ml-2 mb-1"
+                                                    data-target="#deleteModal-@calendarEvent.Id" data-toggle="modal">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+
+                                            <a class="btn btn-dark mr-2 mb-1" href="#"><i class="fa-sharp fa-solid fa-eye"></i></a>
+                                        </div>
+                                        prevId.Add(calendarEvent.Id);
+                                        if (!teams.ContainsKey(calendarEvent.Id))
+                                            teams.Add(calendarEvent.Id, j);
+                                        break;
                                     }
                                 }
                             }
@@ -207,8 +470,8 @@
 <div class="row justify-content-center mt-3">
     <div class="col-auto">
         <a class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3"
-           asp-action="ViewCalendar" asp-route-username="@ViewData["User"]"
-           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-pagination="1">Return To Calendar View</a>
+           asp-action="ViewCalendar" asp-route-year="@ViewData["Year"]"
+           asp-route-month="@ViewData["Month"]" asp-route-pagination="1">Return To Calendar View</a>
     </div>
     <div class="col-auto">
         <a href="#" class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3">View Documentation</a>
@@ -232,9 +495,12 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width:75px;">No</button>
                     <!--fill the form-->
-                    <form method="post">
-                        @*<input type="hidden" name="username" value="@Model.Username" />
-                            <input type="hidden" name="calendarId" value="@Model.Calendars.ElementAt(i).Id" />*@
+                    <form method="post" asp-controller="Home" asp-action="DeleteEvent">
+                        <input type="hidden" name="calendarId" value="@Model.Id" />
+                        <input type="hidden" name="eventId" value="@kvp.Key" />
+                        <input type="hidden" name="year" value="@ViewData["Year"]" />
+                        <input type="hidden" name="month" value="@ViewData["Month"]" />
+                        <input type="hidden" name="day" value="@ViewData["Day"]" />
                         <button type="submit" class="btn btn-danger" style="width:75px;">Yes</button>
                     </form>
                 </div>
@@ -289,4 +555,83 @@
             });
         });
     </script>
+
+    <script>
+        let colMobNum = 0;
+
+        window.addEventListener('load', function () {
+            //tablet columns
+            TabletTeam1Items = document.getElementsByClassName("tabletColTeam-1");
+
+            //mobile columns
+            MobileTeam1Items = document.getElementsByClassName("mobileColTeam-1");
+            MobileTeam2Items = document.getElementsByClassName("mobileColTeam-2");
+            MobileTeam3Items = document.getElementsByClassName("mobileColTeam-3");
+
+            for (let i = 0; i < TabletTeam1Items.length; i++) {
+                TabletTeam1Items[i].classList.toggle("d-none");
+            }
+
+            for (let i = 0; i < MobileTeam1Items.length; i++) {
+                MobileTeam1Items[i].classList.toggle("d-none");
+                MobileTeam2Items[i].classList.toggle("d-none");
+                MobileTeam3Items[i].classList.toggle("d-none");
+            }
+        });
+
+        function changeTabletTeams() {
+            TabletTeam0Items = document.getElementsByClassName("tabletColTeam-0");
+            TabletTeam1Items = document.getElementsByClassName("tabletColTeam-1");
+            if (TabletTeam0Items[0].style.display == "none") {
+                for (let i = 0; i < TabletTeam0Items.length; i++) {
+                    TabletTeam0Items[i].classList.toggle("d-none");
+                    TabletTeam1Items[i].classList.toggle("d-none");
+                }
+            }
+            else {
+                for (let i = 0; i < TabletTeam1Items.length; i++) {
+                    TabletTeam0Items[i].classList.toggle("d-none");
+                    TabletTeam1Items[i].classList.toggle("d-none");
+                }
+            }
+        }
+
+        function changeMobileTeams() {
+            MobileTeam0Items = document.getElementsByClassName("mobileColTeam-0");
+            MobileTeam1Items = document.getElementsByClassName("mobileColTeam-1");
+            MobileTeam2Items = document.getElementsByClassName("mobileColTeam-2");
+            MobileTeam3Items = document.getElementsByClassName("mobileColTeam-3");
+            switch (colMobNum) {
+                case 0:
+                    for (let i = 0; i < MobileTeam0Items.length; i++) {
+                        MobileTeam0Items[i].classList.toggle("d-none");
+                        MobileTeam1Items[i].classList.toggle("d-none");
+                    }
+                    colMobNum++;
+                    break;
+                case 1:
+                    for (let i = 0; i < MobileTeam0Items.length; i++) {
+                        MobileTeam1Items[i].classList.toggle("d-none");
+                        MobileTeam2Items[i].classList.toggle("d-none");
+                    }
+                    colMobNum++;
+                    break;
+                case 2:
+                    for (let i = 0; i < MobileTeam0Items.length; i++) {
+                        MobileTeam2Items[i].classList.toggle("d-none");
+                        MobileTeam3Items[i].classList.toggle("d-none");
+                    }
+                    colMobNum++;
+                    break;
+                case 3:
+                    for (let i = 0; i < MobileTeam0Items.length; i++) {
+                        MobileTeam3Items[i].classList.toggle("d-none");
+                        MobileTeam0Items[i].classList.toggle("d-none");
+                    }
+                    colMobNum = 0;
+                    break;
+            }
+        }
+    </script>
+
 }

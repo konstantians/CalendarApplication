@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -14,7 +15,8 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-2 fixed-top">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="HomePage">SoftwareTechnologyCalendarApplication</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home"
+                   asp-action="HomePage" asp-route-pagination="1">SoftwareTechnologyCalendarApplication</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -22,15 +24,14 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="HomePage"
-                               asp-route-username="@ViewData["User"]" asp-route-pagination="1">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" 
+                               asp-action="HomePage" asp-route-pagination="1">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="AddCalendar"
-                               asp-route-username="@ViewData["User"]">Add Calendar</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="AddCalendar">Add Calendar</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="LogOut">Log Out</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Authentication" asp-action="LogOut">Log Out</a>
                         </li>
                     </ul>
                 </div>
@@ -44,7 +45,6 @@
     </div>
 
     <footer class="border-top footer text-muted">
-
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

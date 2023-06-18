@@ -9,13 +9,9 @@
 
 <h4 class="text-center">Please fill out the following form:</h4>
 <hr />
-<!--<input id="username" name="username" value="@ViewData["User"]" hidden />
-<input id="calendarId" name="calendarId" value="@ViewData["CalendarId"]" hidden />-->
 
-<form asp-action="addEvent" asp-route-username="@ViewData["User"]" asp-route-calendarId="@ViewData["CalendarId"]">
+<form asp-action="addEvent" asp-route-calendarId="@ViewData["CalendarId"]">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <!--<input id="username" name="username" value="@ViewData["User"]" hidden/>
-    <input id="calendarId" name="calendarId" value="@ViewData["CalendarId"]" hidden />-->
     <div class="row">
         <div class="col-md-5">
             <div style="margin-top: 25px;">
@@ -112,22 +108,6 @@
         alert("oooo");
     }
 </script>
-
-<!--<script type="text/javascript">
-    function UsernameAndCalId() {
-        var inpuut1 = document.getElementById("username");
-        var inpuut2 = document.getElementById("calendarId");
-        inpuut1.setAttribute("value", @ViewData["User"]);
-        inpuut2.setAttribute("value", @ViewData["CalendarId"]);
-        if (inpuut1.getAttribute("value")) {
-            
-        } else {
-            inpuut1.setAttribute("value", @ViewData["User"]);
-            inpuut2.setAttribute("value", @ViewData["CalendarId"]);
-        }
-
-    }
-</script>-->
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
