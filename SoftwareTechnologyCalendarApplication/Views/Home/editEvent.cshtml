@@ -11,7 +11,7 @@
 <hr />
 
 
-<form asp-action="editEvent" asp-route-username="@ViewData["User"]" asp-route-eventId="@ViewData["EventId"]">
+<form asp-action="editEvent" asp-route-username="@ViewData["User"]" asp-route-eventId="@ViewData["EventId"]" onsubmit="return Validation()">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <!--<input name="username" value="@ViewData["User"]" hidden />
     <input name="calendarId" value="@ViewData["CalendarId"]" hidden />-->
@@ -116,7 +116,7 @@
     <div class="d-flex justify-content-center" style="margin-top: 35px;">
         <a class="btn btn-outline-primary" asp-action="Index">Back to Calendar</a>
         <div class="ml-3">
-            <input type="submit" value="Submit Changes" class="btn btn-outline-primary" onclick="EnableAll(); Validation();" />
+            <input type="submit" value="Submit Changes" class="btn btn-outline-primary" onclick="EnableAll()" />
         </div>
     </div>
 </form>
@@ -124,22 +124,26 @@
 
 <script type="text/javascript">
     function Validation() {
-        var startingTime = document.getElementById("startingtime");
-        var endingTime = document.getElementById("endingtime");
-        if (endingTime.getAttribute("value").getMinutes() != 00 || endingTime.getAttribute("value").getMinutes() != 30) {
-            alert("The minute field of the ending time of the event must be :00 or :30. Nothing else.");
-            return false;
-        }
-        if (startingTime.getAttribute("value").getMinutes() != 00 || startingTime.getAttribute("value").getMinutes() != 30) {
+        var startingTime = document.getElementById("startingtime").value;
+        var endingTime = document.getElementById("endingtime").value;
+        const Start = Date.parse(startingTime);
+        const End = Date.parse(endingTime);
+        let minsOfStart = startingTime.split(":")[1];
+        let minsOfEnd = endingTime.split(":")[1];
+        if (minsOfStart != "00" && minsOfStart != "30") {
             alert("The minute field of the starting time of the event must be :00 or :30. Nothing else.");
             return false;
         }
-        if (endingTime.getAttribute("value") >= startingTime.getAttribute("value")) {
-            alert("The ending time of the event must cannot be greater than or equal to the starting time.");
+        if (minsOfEnd != "00" && minsOfEnd != "30") {
+            alert("The minute field of the ending time of the event must be :00 or :30. Nothing else.");
             return false;
         }
-        var title = document.getElementById("title");
-        if (title.getAttribute("value") == null) {
+        if (Start >= End) {
+            alert("The starting time of the event must cannot be greater than or equal to the ending time.");
+            return false;
+        }
+        var title = document.getElementById("title").value;
+        if (title == null || title == "") {
             alert("You need to provide a title for the event before submiting.");
             return false;
         }

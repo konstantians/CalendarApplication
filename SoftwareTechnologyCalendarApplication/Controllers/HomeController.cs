@@ -19,6 +19,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         private readonly IUserDataAccess UserDataAccess;
         private readonly ICalendarDataAccess CalendarDataAccess;
         private readonly IEventDataAccess EventDataAccess;
+        //private string UserName="";
 
         public HomeController(ILogger<HomeController> logger, IUserDataAccess userDataAccess, 
             ICalendarDataAccess calendarDataAccess, IEventDataAccess eventDataAccess)
@@ -241,6 +242,82 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventDataModel.AlertStatus = eventt.AlertStatus;
 
             EventDataAccess.CreateEvent(eventDataModel, username, calendarId);
+            return RedirectToAction("HomePage", "Home", new { username = username, pagination = 1 });
+        }
+        public IActionResult editAccount(string username)
+        {
+            ViewData["DuplicateEventTitle"] = false;
+            ViewData["User"] = username;
+            UserDataModel userDataModelTemp = UserDataAccess.GetUser(username);
+            User userr = new User(userDataModelTemp);
+            //eventt.Id = eventDataModelTemp.Id;
+            //eventt.Description = eventDataModelTemp.Description;
+            //eventt.Title = eventDataModelTemp.Title;
+            //eventt.StartingTime = eventDataModelTemp.StartingTime;
+            //eventt.EndingTime = eventDataModelTemp.EndingTime;
+            //eventt.AlertStatus = eventDataModelTemp.AlertStatus;
+            //UserName = username;
+            return View(userr);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult editAccount(string username, User userr)
+        {
+            //if (UserName == "")
+            //{
+            //    return View();
+            //}
+            ViewData["DuplicateEventTitle"] = false;
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
+            List<UserDataModel> userList = UserDataAccess.GetUsers();
+            foreach (UserDataModel userDataModelTemp in userList)
+            {
+                if (userDataModelTemp.Username == userr.Username && userDataModelTemp.Username!=username)//UserName)
+                {
+                    ViewData["DuplicateUsername"] = true;
+                    ViewData["User"] = username;
+                    //Prepei edo na valo UserName=""; ?
+                    return View();
+                }
+                //if (userDataModelTemp.Password == userr.Password && userDataModelTemp.Username !=username)// UserName)
+                //{
+                //    ViewData["DuplicateEventTitle"] = true;
+                //    ViewData["User"] = username;
+                //    return View();
+                //}
+                //if (userDataModelTemp.Fullname == userr.Fullname && userDataModelTemp.Username != username)// UserName)
+                //{
+                //    ViewData["DuplicateEventTitle"] = true;
+                //    ViewData["User"] = username;
+                //    return View();
+                //}
+                if (userDataModelTemp.Email == userr.Email && userDataModelTemp.Username != username)// UserName)
+                {
+                    ViewData["DuplicateEmail"] = true;
+                    ViewData["User"] = username;
+                    return View();
+                }
+                //if (userDataModelTemp.Phone == userr.Phone && userDataModelTemp.Username != username)// UserName)
+                //{
+                //    ViewData["DuplicateEventTitle"] = true;
+                //    ViewData["User"] = username;
+                //    return View();
+                //}
+
+            }
+            UserDataModel userDataModel = new UserDataModel();
+            userDataModel.Username = userr.Username;
+            userDataModel.Password = userr.Password;
+            userDataModel.Phone = userr.Phone;
+            userDataModel.Email = userr.Email;
+            userDataModel.Fullname = userr.Fullname;
+            UserDataAccess.UpdateUser(userDataModel);
+            //UserDataAccess.UpdateUserAndUsername(userDataModel, username);// UserName);
             return RedirectToAction("HomePage", "Home", new { username = username, pagination = 1 });
         }
     }
