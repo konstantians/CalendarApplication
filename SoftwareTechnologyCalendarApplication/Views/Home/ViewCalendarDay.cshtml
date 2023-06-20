@@ -109,7 +109,8 @@
     <div class="d-flex justify-content-between align-items-center mb-1">
         <div style="margin-left:6rem;"></div>
         <h2 class="h2" style="margin-left:4.3rem;">@dayName</h2>
-        <a asp-controller="Home" asp-action="addEvent" asp-route-calendarId="@Model.Id"
+        <a asp-controller="Home" asp-action="addEvent" asp-route-calendarId="@Model.Id" asp-route-day="@ViewData["Day"]"
+           asp-route-month="@ViewData["Month"]" asp-route-year="@ViewData["Year"]"
            class="btn btn-outline-primary" style="margin-left:3rem;">Add Event <i class="fa-solid fa-plus"></i></a>
     </div>
     <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
