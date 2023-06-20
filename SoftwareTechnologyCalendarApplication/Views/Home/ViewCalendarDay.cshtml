@@ -110,6 +110,7 @@
         <div style="margin-left:6rem;"></div>
         <h2 class="h2" style="margin-left:4.3rem;">@dayName</h2>
         <a asp-controller="Home" asp-action="addEvent" asp-route-calendarId="@Model.Id"
+           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]"
            class="btn btn-outline-primary" style="margin-left:3rem;">Add Event <i class="fa-solid fa-plus"></i></a>
     </div>
     <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
@@ -141,7 +142,7 @@
                         //TODO fix bug where. I need to check the end of the event too.
                         //Here it works correctly for the start, but not the end
                         <td class="text-center p-4">
-                            @foreach (Event calendarEvent in Model.Events)
+                            @foreach (Event calendarEvent in Model.Events.OrderBy(e => e.StartingTime).ToList())
                             {
                                 if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
@@ -186,7 +187,11 @@
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
 
-                                            <a class="btn btn-dark mr-2 mb-1" href="#"><i class="fa-sharp fa-solid fa-eye"></i></a>
+                                            <a class="btn btn-dark mr-2 mb-1" asp-controller="home"
+                                               asp-action="editEvent" asp-route-calendarId="@Model.Id" asp-route-eventId="@calendarEvent.Id"
+                                               asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" 
+                                               asp-route-day="@ViewData["Day"]">
+                                            <i class="fa-sharp fa-solid fa-eye"></i></a>
                                         </div>
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))
@@ -221,6 +226,7 @@
         <button onclick="changeTabletTeams()" class="btn btn-outline-dark">Change Cols <i class="fa-solid fa-table-columns"></i></button>
         <h2 class="h2" style="margin-right:1rem;">@dayName</h2>
         <a asp-controller="Home" asp-action="addEvent" asp-route-calendarId="@Model.Id"
+           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]"
            class="btn btn-outline-primary">Add Event <i class="fa-solid fa-plus"></i></a>
     </div>
     <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
@@ -268,7 +274,7 @@
                             tabletColTeam = 1;
                         }
                         <td class="text-center p-4 tabletColTeam-@tabletColTeam">
-                            @foreach (Event calendarEvent in Model.Events)
+                            @foreach (Event calendarEvent in Model.Events.OrderBy(e => e.StartingTime).ToList())
                             {
                                 if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
@@ -313,7 +319,12 @@
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
 
-                                            <a class="btn btn-dark mr-2 mb-1" href="#"><i class="fa-sharp fa-solid fa-eye"></i></a>
+                                            <a class="btn btn-dark mr-2 mb-1" asp-controller="home"
+                                               asp-action="editEvent" asp-route-calendarId="@Model.Id" asp-route-eventId="@calendarEvent.Id"
+                                               asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]"
+                                               asp-route-day="@ViewData["Day"]">
+                                                <i class="fa-sharp fa-solid fa-eye"></i>
+                                            </a>
                                         </div>
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))
@@ -348,6 +359,7 @@
         <button onclick="changeMobileTeams()" class="btn btn-outline-dark">Change Cols <i class="fa-solid fa-table-columns"></i></button>
         <h2 class="h2" style="margin-right:1rem;">@dayName</h2>
         <a asp-controller="Home" asp-action="addEvent" asp-route-calendarId="@Model.Id"
+           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]"
            class="btn btn-outline-primary">Add Event <i class="fa-solid fa-plus"></i></a>
     </div>
     <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
@@ -385,7 +397,7 @@
                     @for (int j = 0; j < 4; j++)
                     {
                         <td class="text-center p-4 mobileColTeam-@j">
-                            @foreach (Event calendarEvent in Model.Events)
+                            @foreach (Event calendarEvent in Model.Events.OrderBy(e => e.StartingTime).ToList())
                             {
                                 if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
@@ -430,7 +442,12 @@
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
 
-                                            <a class="btn btn-dark mr-2 mb-1" href="#"><i class="fa-sharp fa-solid fa-eye"></i></a>
+                                            <a class="btn btn-dark mr-2 mb-1" asp-controller="home"
+                                               asp-action="editEvent" asp-route-calendarId="@Model.Id" asp-route-eventId="@calendarEvent.Id"
+                                               asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]"
+                                               asp-route-day="@ViewData["Day"]">
+                                                <i class="fa-sharp fa-solid fa-eye"></i>
+                                            </a>
                                         </div>
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))

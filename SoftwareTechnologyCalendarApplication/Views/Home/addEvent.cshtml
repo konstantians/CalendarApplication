@@ -129,28 +129,28 @@
 <h4 class="text-center">Please fill out the following form:</h4>
 <hr />
 
-<form asp-action="addEvent" asp-route-calendarId="@ViewData["CalendarId"]">
+<form asp-action="addEvent">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="row">
         <div class="col-md-5">
             <div style="margin-top: 25px;">
                 <div class="form-group">
                     <label asp-for="Title" class="control-label"></label>
-                    <input asp-for="Title" id="title" class="form-control"/>
+                    <input asp-for="Title" id="title" class="form-control" />
                     <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
             </div>
             <div style="margin-top: 15px;">
                 <div class="form-group">
                     <label asp-for="StartingTime" class="control-label"></label>
-                    <input asp-for="StartingTime" id="startingtime" class="form-control"/>
+                    <input asp-for="StartingTime" id="startingtime" class="form-control" />
                     <span asp-validation-for="StartingTime" class="text-danger"></span>
                 </div>
             </div>
             <div style="margin-top: 15px;">
                 <div class="form-group">
                     <label asp-for="EndingTime" class="control-label"></label>
-                    <input asp-for="EndingTime" id="endingtime" class="form-control"/>
+                    <input asp-for="EndingTime" id="endingtime" class="form-control" />
                     <span asp-validation-for="EndingTime" class="text-danger"></span>
                 </div>
             </div>
@@ -173,12 +173,16 @@
             </div>
         </div>
     </div>
-
+    <input type="hidden" name="calendarId" value="@ViewData["CalendarId"]" />
+    <input type="hidden" name="year" value="@ViewData["Year"]" />
+    <input type="hidden" name="month" value="@ViewData["Month"]" />
+    <input type="hidden" name="day" value="@ViewData["Day"]" />
     <div class="d-flex justify-content-center" style="margin-top: 35px;">
-            <a class="btn btn-outline-primary" asp-action="Index">Back to Calendar</a>
-            <div class="ml-3">
+        <a class="btn btn-outline-primary" asp-controller="Home" asp-action="ViewCalendarDay" asp-route-calendarId="@ViewData["CalendarId"]"
+           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]">Back to Calendar</a>
+        <div class="ml-3">
             <input type="submit" value="Create new event" class="btn btn-outline-primary" />
-            </div>
+        </div>
     </div>
 
 </form>

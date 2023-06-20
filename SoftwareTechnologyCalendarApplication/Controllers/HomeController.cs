@@ -178,13 +178,18 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult editEvent(int eventId)
+        public IActionResult editEvent(int calendarId,int eventId, int year, int month, int day)
         {
             AuthorizeUser();
 
             ViewData["DuplicateEventTitle"] = false;
             ViewData["Editing"] = true;
+            ViewData["CalendarId"] = calendarId;
             ViewData["EventId"] = eventId;
+
+            ViewData["Year"] = year;
+            ViewData["Month"] = month;
+            ViewData["Day"] = day;
             EventDataModel eventDataModelTemp = EventDataAccess.GetEvent(eventId);
             Event eventt = new Event();
             eventt.Id=eventDataModelTemp.Id;
@@ -198,7 +203,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult editEvent(int eventId, Event eventt)
+        public IActionResult editEvent(int calendarId,int eventId, Event eventt, int year, int month, int day)
         {
             AuthorizeUser();
 
@@ -214,22 +219,26 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventDataModel.EndingTime = eventt.EndingTime;
             eventDataModel.AlertStatus = eventt.AlertStatus;
             EventDataAccess.UpdateEvent(eventDataModel);
-            return RedirectToAction("HomePage", "Home", new { pagination = 1 });
+            return RedirectToAction("ViewCalendarDay", "Home", new
+            {   calendarId = calendarId, year = year,
+                month = month, day = day});
         }
 
-        public IActionResult addEvent(int calendarId)
+        public IActionResult addEvent(int calendarId, int year, int month, int day)
         {
             AuthorizeUser();
 
             ViewData["DuplicateEventTitle"] = false;
             ViewData["CalendarId"] = calendarId;
-            ViewData["Editing"] = false;
+            ViewData["Year"] = year;
+            ViewData["Month"] = month;
+            ViewData["Day"] = day;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult addEvent(int calendarId, Event eventt)
+        public IActionResult addEvent(int calendarId, Event eventt, int year, int month, int day)
         {
             AuthorizeUser();
 
@@ -258,13 +267,16 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventDataModel.AlertStatus = eventt.AlertStatus;
 
             EventDataAccess.CreateEvent(eventDataModel, ActiveUser.User.Username, calendarId);
-            return RedirectToAction("HomePage", "Home", new {pagination = 1 });
+            return RedirectToAction("ViewCalendarDay", "Home", new {calendarId = calendarId ,
+            year = year, month = month, day = day});
         }
         
-        public IActionResult ViewNotifications(string username)
+        public IActionResult ViewNotifications()
         {
             AuthorizeUser();
-            throw new NotImplementedException();
+
+            User user = new User(UserDataAccess.GetUser(ActiveUser.User.Username));
+            return View(user);
         }
 
         private static void AuthorizeUser()
@@ -274,11 +286,10 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 throw new NotImplementedException();
             }
         }
-        public IActionResult editAccount(string username)
+        public IActionResult editAccount()
         {
             ViewData["DuplicateEventTitle"] = false;
-            ViewData["User"] = username;
-            UserDataModel userDataModelTemp = UserDataAccess.GetUser(username);
+            UserDataModel userDataModelTemp = UserDataAccess.GetUser(ActiveUser.User.Username);
             User userr = new User(userDataModelTemp);
             //eventt.Id = eventDataModelTemp.Id;
             //eventt.Description = eventDataModelTemp.Description;
@@ -292,7 +303,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult editAccount(string username, User userr)
+        public IActionResult editAccount(User userr)
         {
             //if (UserName == "")
             //{
@@ -307,10 +318,9 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             List<UserDataModel> userList = UserDataAccess.GetUsers();
             foreach (UserDataModel userDataModelTemp in userList)
             {
-                if (userDataModelTemp.Username == userr.Username && userDataModelTemp.Username!=username)//UserName)
+                if (userDataModelTemp.Username == userr.Username && userDataModelTemp.Username!= ActiveUser.User.Username)//UserName)
                 {
                     ViewData["DuplicateUsername"] = true;
-                    ViewData["User"] = username;
                     //Prepei edo na valo UserName=""; ?
                     return View();
                 }
@@ -326,10 +336,9 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 //    ViewData["User"] = username;
                 //    return View();
                 //}
-                if (userDataModelTemp.Email == userr.Email && userDataModelTemp.Username != username)// UserName)
+                if (userDataModelTemp.Email == userr.Email && userDataModelTemp.Username != ActiveUser.User.Username)// UserName)
                 {
                     ViewData["DuplicateEmail"] = true;
-                    ViewData["User"] = username;
                     return View();
                 }
                 //if (userDataModelTemp.Phone == userr.Phone && userDataModelTemp.Username != username)// UserName)
@@ -348,7 +357,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             userDataModel.Fullname = userr.Fullname;
             UserDataAccess.UpdateUser(userDataModel);
             //UserDataAccess.UpdateUserAndUsername(userDataModel, username);// UserName);
-            return RedirectToAction("HomePage", "Home", new { username = username, pagination = 1 });
+            return RedirectToAction("HomePage", "Home", new { pagination = 1 });
         }
     }
 }

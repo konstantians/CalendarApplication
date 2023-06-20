@@ -11,7 +11,7 @@
 <hr />
 
 
-<form asp-action="editEvent" asp-route-eventId="@ViewData["EventId"]">
+<form asp-action="editEvent">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input name="calendarId" value="@ViewData["CalendarId"]" hidden />-->
     <div class="row">
@@ -112,8 +112,14 @@
             </div>
         </div>
     </div>
+    <input type="hidden" name="calendarId" value="@ViewData["CalendarId"]" />
+    <input type="hidden" name="eventId" value="@ViewData["EventId"]" />
+    <input type="hidden" name="year" value="@ViewData["Year"]" />
+    <input type="hidden" name="month" value="@ViewData["Month"]" />
+    <input type="hidden" name="day" value="@ViewData["Day"]" />
     <div class="d-flex justify-content-center" style="margin-top: 35px;">
-        <a class="btn btn-outline-primary" asp-action="Index">Back to Calendar</a>
+        <a class="btn btn-outline-primary" asp-controller="Home" asp-action="ViewCalendarDay" asp-route-calendarId="@ViewData["CalendarId"]"
+           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]">Back to Calendar</a>
         <div class="ml-3">
             <input type="submit" value="Submit Changes" class="btn btn-outline-primary" onclick="EnableAll()" />
         </div>
