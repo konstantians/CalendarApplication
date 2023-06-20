@@ -19,7 +19,6 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         private readonly IUserDataAccess UserDataAccess;
         private readonly ICalendarDataAccess CalendarDataAccess;
         private readonly IEventDataAccess EventDataAccess;
-        //private string UserName="";
 
         public HomeController(ILogger<HomeController> logger, IUserDataAccess userDataAccess, 
             ICalendarDataAccess calendarDataAccess, IEventDataAccess eventDataAccess)
@@ -230,6 +229,14 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
             ViewData["DuplicateEventTitle"] = false;
             ViewData["CalendarId"] = calendarId;
+            ViewData["Editing"] = false;
+            //DateTime dt = DateTime.Now;
+            DateTime dateTime = new DateTime(year, month, day);//,dt.Hour,dt.Minute,dt.Second);
+            //DateTime.ParseExact()
+            Event eventt = new Event();
+            eventt.EndingTime = dateTime;
+            eventt.StartingTime = dateTime;
+            return View(eventt);
             ViewData["Year"] = year;
             ViewData["Month"] = month;
             ViewData["Day"] = day;

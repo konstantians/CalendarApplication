@@ -136,8 +136,9 @@
             <div style="margin-top: 25px;">
                 <div class="form-group">
                     <label asp-for="Title" class="control-label"></label>
-                    <input asp-for="Title" id="title" class="form-control" />
+                    <input asp-for="Title" id="title" class="form-control" placeholder="Title"/>
                     <span asp-validation-for="Title" class="text-danger"></span>
+                    <span class="text-danger" id="titleProblem" style="display:none">You need to provide a title for the event before submiting.</span>
                 </div>
             </div>
             <div style="margin-top: 15px;">
@@ -145,6 +146,9 @@
                     <label asp-for="StartingTime" class="control-label"></label>
                     <input asp-for="StartingTime" id="startingtime" class="form-control" />
                     <span asp-validation-for="StartingTime" class="text-danger"></span>
+                    <span class="text-danger" id="startProblem" style="display:none">
+                        The minute field of the starting time of the event must be :00 or :30.Nothing else.
+                    </span>
                 </div>
             </div>
             <div style="margin-top: 15px;">
@@ -152,6 +156,9 @@
                     <label asp-for="EndingTime" class="control-label"></label>
                     <input asp-for="EndingTime" id="endingtime" class="form-control" />
                     <span asp-validation-for="EndingTime" class="text-danger"></span>
+                    <span class="text-danger" id="endProblem" style="display:none">
+                        The minute field of the ending time of the event must be :00 or :30.Nothing else.
+                    </span>
                 </div>
             </div>
         </div>
@@ -160,7 +167,7 @@
             <div class="row" style="margin-top: 25px;">
                 <div class="form-group">
                     <label asp-for="Description" class="control-label"></label>
-                    <textarea asp-for="Description" class="form-control" rows="4" cols="65"></textarea>
+                    <textarea asp-for="Description" class="form-control" rows="4" cols="65" placeholder="Description"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
             </div>
@@ -181,11 +188,17 @@
         <a class="btn btn-outline-primary" asp-controller="Home" asp-action="ViewCalendarDay" asp-route-calendarId="@ViewData["CalendarId"]"
            asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]">Back to Calendar</a>
         <div class="ml-3">
-            <input type="submit" value="Create new event" class="btn btn-outline-primary" />
+            <input type="submit" value="Create new event" onclick="return Validation();" class="btn btn-outline-primary" />
         </div>
     </div>
-
 </form>
+<div class="row align-items-center">
+    <div class="mx-auto col-md-5">
+        <span class="text-danger" id="start>endProblem" style="display:none">
+            The starting time of the event cannot be greater than or equal to the ending time.
+        </span>
+    </div>
+</div>
 
 
 <script type="text/javascript">
@@ -194,27 +207,45 @@
     //    modal.style.display='none';
     //}
     function Validation(){
+        if (document.getElementById("startProblem").style.display=="block"){
+            hideDisplayAlert("startProblem");
+        }
+        if (document.getElementById("endProblem").style.display=="block"){
+            hideDisplayAlert("endProblem");
+        }
+        if (document.getElementById("start>endProblem").style.display == "block") {
+            hideDisplayAlert("start>endProblem");
+        }
+        if (document.getElementById("titleProblem").style.display == "block") {
+            hideDisplayAlert("titleProblem");
+        }
+        let i=0;
         var startingTime = document.getElementById("startingtime").value;
         var endingTime = document.getElementById("endingtime").value;
         const Start = Date.parse(startingTime);
         const End = Date.parse(endingTime);
         let minsOfStart=startingTime.split(":")[1];
         let minsOfEnd = endingTime.split(":")[1];
-        if (minsOfStart != "00" && minsOfStart != "30") { 
-            document.getElementById("startProblem").style.display='block';  //hideDisplayAlert("startProblem")//alert("The minute field of the starting time of the event must be :00 or :30. Nothing else."); //na kano unhidden to ena alert <div> opos tou kinna
-            return false;
+        console.log(startingTime);
+        console.log(typeof startingTime);
+        if (minsOfStart != "00" && minsOfStart != "30") {
+            hideDisplayAlert("startProblem")//document.getElementById("startProblem").style.display='block';  //hideDisplayAlert("startProblem")//alert("The minute field of the starting time of the event must be :00 or :30. Nothing else."); //na kano unhidden to ena alert <div> opos tou kinna
+            i=1;
         }
         if (minsOfEnd != "00" && minsOfEnd != "30") {
             hideDisplayAlert("endProblem")//alert("The minute field of the ending time of the event must be :00 or :30. Nothing else.");
-            return false;
+            i=1;
         }
         if (Start >= End){
             hideDisplayAlert("start>endProblem")//alert("The starting time of the event must cannot be greater than or equal to the ending time.");
-            return false;
+            i=1;
         }
         var title = document.getElementById("title").value;
         if (title == null || title == "") {
             hideDisplayAlert("titleProblem")//alert("You need to provide a title for the event before submiting.");
+            i=1;
+        }
+        if(i!=0){
             return false;
         }
     }
@@ -224,7 +255,7 @@
     function hideDisplayAlert(id){
         let alertDiv = document.getElementById(id);
         if (alertDiv.style.display == "none"){
-            alertDiv.style.display = "initial";
+            alertDiv.style.display = "block";
         }
         else{
             alertDiv.style.display = "none";
