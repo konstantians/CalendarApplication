@@ -11,6 +11,8 @@
     string dayName = new DateTime((int)ViewData["Year"], (int)ViewData["Month"], (int)ViewData["Day"]).DayOfWeek.ToString();
 }
 
+@*TODO figure out why when you have a foreign event and a native event there is an issue*@
+
 <style>
     .table-bordered td {
         position: relative;
@@ -18,9 +20,16 @@
 
     .calendar-event {
         position: absolute;
-        background-color: #3466aa;
         z-index: 1;
         box-shadow: 0 0 3px black;
+    }
+
+    .native{
+        background-color: #3466aa;
+    }
+
+    .foreign {
+        background-color: #5534aa;
     }
 
     .event-top {
@@ -31,16 +40,16 @@
         box-shadow: 0 0 3px black;
     }
 
-        .event-top::after {
-            content: "";
-            position: absolute;
-            bottom: -1px;
-            left: 0px;
-            right: 0px;
-            height: 2px;
-            z-index: 2;
-            background-color: #3466aa;
-        }
+    .event-top::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        left: 0px;
+        right: 0px;
+        height: 2px;
+        z-index: 2;
+        background-color: inherit;
+    }
 
     .event-middle {
         top: 0;
@@ -49,17 +58,17 @@
         bottom: 0;
     }
 
-        .event-middle::after {
-            content: "";
-            position: absolute;
-            bottom: -1px;
-            top: -1px;
-            left: 0px;
-            right: 0px;
-            height: 2px;
-            z-index: 2;
-            background-color: #3466aa;
-        }
+    .event-middle::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        top: -1px;
+        left: 0px;
+        right: 0px;
+        height: 2px;
+        z-index: 2;
+        background-color: inherit;
+    }
 
     .event-bottom {
         top: 0;
@@ -68,16 +77,16 @@
         bottom: 20%;
     }
 
-        .event-bottom::after {
-            content: "";
-            position: absolute;
-            top: -1px;
-            left: 0px;
-            right: 0px;
-            height: 2px;
-            z-index: 2;
-            background-color: #3466aa;
-        }
+    .event-bottom::after {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: 0px;
+        right: 0px;
+        height: 2px;
+        z-index: 2;
+            background-color: inherit;
+    }
 
     .event-inside {
         position: relative;
@@ -139,8 +148,6 @@
                     }
                     @for (int j = 0; j < 4; j++)
                     {
-                        //TODO fix bug where. I need to check the end of the event too.
-                        //Here it works correctly for the start, but not the end
                         <td class="text-center p-4">
                             @foreach (Event calendarEvent in Model.Events.OrderBy(e => e.StartingTime).ToList())
                             {
@@ -152,8 +159,18 @@
                                 {
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        <div class="calendar-event event-top"></div>
-                                        <div class="text-white event-inside">@calendarEvent.Title</div>
+                                        //check if event foreign or not
+                                        if(calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        {
+                                            <div class="calendar-event native event-top"></div>
+                                            <div class="text-white event-inside">@calendarEvent.Title</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="calendar-event foreign event-top"></div>
+                                            <div class="text-white event-inside">@calendarEvent.Title - Foreign Event</div>
+                                        }
+
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))
                                             teams.Add(calendarEvent.Id, j);
@@ -165,7 +182,15 @@
                                 {
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        <div class="calendar-event event-middle"></div>
+                                        //check if event foreign or not
+                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        {
+                                            <div class="calendar-event native event-middle"></div>
+                                        }
+                                        else
+                                        {
+                                            <div class="calendar-event foreign event-middle"></div>
+                                        }
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))
                                             teams.Add(calendarEvent.Id, j);
@@ -180,7 +205,15 @@
                                 {
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        <div class="calendar-event event-bottom "></div>
+                                        //check if event foreign or not
+                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        {
+                                            <div class="calendar-event native event-bottom"></div>
+                                        }
+                                        else
+                                        {
+                                            <div class="calendar-event foreign event-bottom"></div>
+                                        }
                                         <div class="event-inside d-flex justify-content-around">
                                             <button type="button" class="btn btn-danger ml-2 mb-1"
                                                     data-target="#deleteModal-@calendarEvent.Id" data-toggle="modal">
@@ -189,9 +222,10 @@
 
                                             <a class="btn btn-dark mr-2 mb-1" asp-controller="home"
                                                asp-action="editEvent" asp-route-calendarId="@Model.Id" asp-route-eventId="@calendarEvent.Id"
-                                               asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" 
+                                               asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]"
                                                asp-route-day="@ViewData["Day"]">
-                                            <i class="fa-sharp fa-solid fa-eye"></i></a>
+                                                <i class="fa-sharp fa-solid fa-eye"></i>
+                                            </a>
                                         </div>
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))
