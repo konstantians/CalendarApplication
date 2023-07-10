@@ -1,19 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SoftwareTechnologyCalendarApplication.Models;
 using DataAccess.Logic;
 using DataAccess.Models;
 using System.Collections.Generic;
 using System;
+using SoftwareTechnologyCalendarApplication.Models;
+using SoftwareTechnologyCalendarApplicationMVC.Models;
+using System.Linq;
+using System.Threading;
 
-namespace SoftwareTechnologyCalendarApplicationMVC.Controllers
+namespace SoftwareTechnologyCalendarApplication.Controllers
 {
     public class AuthenticationController : Controller
     {
         private readonly IUserDataAccess _userDataAccess;
-        public AuthenticationController(IUserDataAccess userDataAccess)
+        private readonly IEventDataAccess _eventDataAccess;
+        public AuthenticationController(IUserDataAccess userDataAccess, IEventDataAccess eventDataAccess)
         {
 
             _userDataAccess = userDataAccess;
+            _eventDataAccess = eventDataAccess;
 
         }
         public IActionResult Register()
@@ -82,6 +87,12 @@ namespace SoftwareTechnologyCalendarApplicationMVC.Controllers
             }
             //authenticates the user
             ActiveUser.User = new User(userDataModel);
+
+            if(ActiveUser.User.Notifications.Count != 0)
+            {
+                ActiveUser.HasNotifications = true;
+            }
+
             return RedirectToAction("HomePage","Home", new {pagination = 1});
         }
 

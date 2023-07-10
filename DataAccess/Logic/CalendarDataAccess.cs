@@ -112,8 +112,12 @@ namespace DataAccess.Logic
         /// <returns>The events that exist in the calendar</returns>
         private List<EventDataModel> ReturnEventsOfCalendar(int id)
         {
-            string sqlQuery = "Select Event.Id from Event join Calendar on " +
-               "Calendar.Id = Event.CalendarId where Calendar.Id = @id ";
+            /*string sqlQuery = "SELECT Event.Id FROM Event " +
+                "JOIN Calendar ON Calendar.Id = Event.CalendarId where Calendar.Id = @id;";*/
+            string sqlQuery = "SELECT Event.Id FROM Calendar " +
+                "JOIN ParticipationInEvent ON ParticipationInEvent.CalendarId = Calendar.Id " +
+                "JOIN Event ON ParticipationInEvent.EventId = Event.Id AND ParticipationInEvent.CalendarId = Calendar.Id " +
+                "WHERE Calendar.Id = @id;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@id", id);

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SoftwareTechnologyCalendarApplication.Models;
-using SoftwareTechnologyCalendarApplicationMVC;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -102,7 +101,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         {
             AuthorizeUser();
 
-            EventDataAccess.DeleteEvent(eventId);
+            EventDataAccess.DeleteEvent(eventId, ActiveUser.User.Username);
             return RedirectToAction("ViewCalendarDay", "Home", new
             {
                 username = ActiveUser.User.Username,
@@ -217,7 +216,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventDataModel.StartingTime = eventt.StartingTime;
             eventDataModel.EndingTime = eventt.EndingTime;
             eventDataModel.AlertStatus = eventt.AlertStatus;
-            EventDataAccess.UpdateEvent(eventDataModel);
+            EventDataAccess.UpdateEvent(eventDataModel,ActiveUser.User.Username);
             return RedirectToAction("ViewCalendarDay", "Home", new
             {   calendarId = calendarId, year = year,
                 month = month, day = day});
@@ -230,6 +229,9 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             ViewData["DuplicateEventTitle"] = false;
             ViewData["CalendarId"] = calendarId;
             ViewData["Editing"] = false;
+            ViewData["Year"] = year;
+            ViewData["Month"] = month;
+            ViewData["Day"] = day;
             //DateTime dt = DateTime.Now;
             DateTime dateTime = new DateTime(year, month, day);//,dt.Hour,dt.Minute,dt.Second);
             //DateTime.ParseExact()
@@ -237,10 +239,6 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventt.EndingTime = dateTime;
             eventt.StartingTime = dateTime;
             return View(eventt);
-            ViewData["Year"] = year;
-            ViewData["Month"] = month;
-            ViewData["Day"] = day;
-            return View();
         }
 
         [HttpPost]
@@ -278,12 +276,52 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             year = year, month = month, day = day});
         }
         
-        public IActionResult ViewNotifications()
+        public IActionResult ViewNotifications(bool NoCalendarSelected)
         {
             AuthorizeUser();
 
+            ActiveUser.HasNotifications = false;
             User user = new User(UserDataAccess.GetUser(ActiveUser.User.Username));
+
+            ViewData["NoCalendarSelected"] = NoCalendarSelected ? true : false;
             return View(user);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteNotification(int eventId, DateTime notificationTime)
+        {
+            AuthorizeUser();
+
+            EventDataAccess.DeleteNotification(eventId, ActiveUser.User.Username, notificationTime);
+            return RedirectToAction("ViewNotifications", "Home");
+        }
+
+        [HttpPost]
+        public IActionResult AcceptInvitation(int eventId, DateTime notificationTime, int calendarId/*, bool alertStatus*/)
+        {
+            AuthorizeUser();
+
+            //This must be a bug with MVC. alertStatus exists on Request.Form["alertStatus"], but can not be binded from the 
+            // actions parameters. 
+            bool alertStatus = Request.Form["alertStatus"] == "on" ? true : false; 
+            
+            //if the user does not have a calendar return an error
+            if(calendarId == 0)
+            {
+                return RedirectToAction("ViewNotifications", "Home", new { NoCalendarSelected = true});
+            }
+            
+            EventDataAccess.AcceptInvitation(eventId, ActiveUser.User.Username, notificationTime, calendarId, alertStatus);
+            return RedirectToAction("ViewNotifications", "Home");
+        }
+
+        [HttpPost]
+        public IActionResult RejectInvitation(int eventId, DateTime notificationTime)
+        {
+            AuthorizeUser();
+
+            EventDataAccess.RejectInvitation(eventId, ActiveUser.User.Username, notificationTime);
+            return RedirectToAction("ViewNotifications", "Home");
         }
 
         private static void AuthorizeUser()

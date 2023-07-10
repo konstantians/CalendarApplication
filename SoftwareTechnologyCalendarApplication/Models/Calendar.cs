@@ -23,23 +23,7 @@ namespace SoftwareTechnologyCalendarApplication.Models
 
             foreach (EventDataModel calendarEvent in calendarDataModel.Events)
             {
-                Event tempEvent = new Event();
-                tempEvent.Id = calendarEvent.Id;
-                tempEvent.Title = calendarEvent.Title;
-                tempEvent.Description = calendarEvent.Description;
-                tempEvent.StartingTime = calendarEvent.StartingTime;
-                tempEvent.EndingTime = calendarEvent.EndingTime;
-                tempEvent.AlertStatus = calendarEvent.AlertStatus;
-                foreach(UserDataModel userDataModel in calendarEvent.UsersThatParticipateInTheEvent)
-                {
-                    User tempUser = new User();
-                    tempUser.Username = userDataModel.Username;
-                    tempUser.Password = userDataModel.Password;
-                    tempUser.Fullname = userDataModel.Fullname;
-                    tempUser.Phone = userDataModel.Phone;
-                    tempEvent.UsersThatParticipateInTheEvent.Add(tempUser);
-                }
-                Events.Add(tempEvent);
+                Events.Add(new Event(calendarEvent));
             }
         }
     }
