@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SoftwareTechnologyCalendarApplication.Models;
-using SoftwareTechnologyCalendarApplicationMVC;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,7 +18,6 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         private readonly IUserDataAccess UserDataAccess;
         private readonly ICalendarDataAccess CalendarDataAccess;
         private readonly IEventDataAccess EventDataAccess;
-        //private string UserName="";
 
         public HomeController(ILogger<HomeController> logger, IUserDataAccess userDataAccess, 
             ICalendarDataAccess calendarDataAccess, IEventDataAccess eventDataAccess)
@@ -103,7 +101,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         {
             AuthorizeUser();
 
-            EventDataAccess.DeleteEvent(eventId);
+            EventDataAccess.DeleteEvent(eventId, ActiveUser.User.Username);
             return RedirectToAction("ViewCalendarDay", "Home", new
             {
                 username = ActiveUser.User.Username,
@@ -178,14 +176,19 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult editEvent(int eventId)
+        public IActionResult editEvent(int calendarId,int eventId, int year, int month, int day)
         {
             AuthorizeUser();
 
             ViewData["DuplicateEventTitle"] = false;
             ViewData["Editing"] = true;
+            ViewData["CalendarId"] = calendarId;
             ViewData["EventId"] = eventId;
-            EventDataModel eventDataModelTemp = EventDataAccess.GetEvent(eventId);
+
+            ViewData["Year"] = year;
+            ViewData["Month"] = month;
+            ViewData["Day"] = day;
+            EventDataModel eventDataModelTemp = EventDataAccess.GetEvent(eventId, ActiveUser.User.Username);
             Event eventt = new Event();
             eventt.Id=eventDataModelTemp.Id;
             eventt.Description = eventDataModelTemp.Description;
@@ -198,7 +201,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult editEvent(int eventId, Event eventt)
+        public IActionResult editEvent(int calendarId,int eventId, Event eventt, int year, int month, int day)
         {
             AuthorizeUser();
 
@@ -213,23 +216,34 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventDataModel.StartingTime = eventt.StartingTime;
             eventDataModel.EndingTime = eventt.EndingTime;
             eventDataModel.AlertStatus = eventt.AlertStatus;
-            EventDataAccess.UpdateEvent(eventDataModel);
-            return RedirectToAction("HomePage", "Home", new { pagination = 1 });
+            EventDataAccess.UpdateEvent(eventDataModel,ActiveUser.User.Username);
+            return RedirectToAction("ViewCalendarDay", "Home", new
+            {   calendarId = calendarId, year = year,
+                month = month, day = day});
         }
 
-        public IActionResult addEvent(int calendarId)
+        public IActionResult addEvent(int calendarId, int year, int month, int day)
         {
             AuthorizeUser();
 
             ViewData["DuplicateEventTitle"] = false;
             ViewData["CalendarId"] = calendarId;
             ViewData["Editing"] = false;
-            return View();
+            ViewData["Year"] = year;
+            ViewData["Month"] = month;
+            ViewData["Day"] = day;
+            //DateTime dt = DateTime.Now;
+            DateTime dateTime = new DateTime(year, month, day);//,dt.Hour,dt.Minute,dt.Second);
+            //DateTime.ParseExact()
+            Event eventt = new Event();
+            eventt.EndingTime = dateTime;
+            eventt.StartingTime = dateTime;
+            return View(eventt);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult addEvent(int calendarId, Event eventt)
+        public IActionResult addEvent(int calendarId, Event eventt, int year, int month, int day)
         {
             AuthorizeUser();
 
@@ -258,13 +272,56 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventDataModel.AlertStatus = eventt.AlertStatus;
 
             EventDataAccess.CreateEvent(eventDataModel, ActiveUser.User.Username, calendarId);
-            return RedirectToAction("HomePage", "Home", new {pagination = 1 });
+            return RedirectToAction("ViewCalendarDay", "Home", new {calendarId = calendarId ,
+            year = year, month = month, day = day});
         }
         
-        public IActionResult ViewNotifications(string username)
+        public IActionResult ViewNotifications(bool NoCalendarSelected)
         {
             AuthorizeUser();
-            throw new NotImplementedException();
+
+            ActiveUser.HasNotifications = false;
+            User user = new User(UserDataAccess.GetUser(ActiveUser.User.Username));
+
+            ViewData["NoCalendarSelected"] = NoCalendarSelected ? true : false;
+            return View(user);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteNotification(int eventId, DateTime notificationTime)
+        {
+            AuthorizeUser();
+
+            EventDataAccess.DeleteNotification(eventId, ActiveUser.User.Username, notificationTime);
+            return RedirectToAction("ViewNotifications", "Home");
+        }
+
+        [HttpPost]
+        public IActionResult AcceptInvitation(int eventId, DateTime notificationTime, int calendarId/*, bool alertStatus*/)
+        {
+            AuthorizeUser();
+
+            //This must be a bug with MVC. alertStatus exists on Request.Form["alertStatus"], but can not be binded from the 
+            // actions parameters. 
+            bool alertStatus = Request.Form["alertStatus"] == "on" ? true : false; 
+            
+            //if the user does not have a calendar return an error
+            if(calendarId == 0)
+            {
+                return RedirectToAction("ViewNotifications", "Home", new { NoCalendarSelected = true});
+            }
+            
+            EventDataAccess.AcceptInvitation(eventId, ActiveUser.User.Username, notificationTime, calendarId, alertStatus);
+            return RedirectToAction("ViewNotifications", "Home");
+        }
+
+        [HttpPost]
+        public IActionResult RejectInvitation(int eventId, DateTime notificationTime)
+        {
+            AuthorizeUser();
+
+            EventDataAccess.RejectInvitation(eventId, ActiveUser.User.Username, notificationTime);
+            return RedirectToAction("ViewNotifications", "Home");
         }
 
         private static void AuthorizeUser()
@@ -274,11 +331,10 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 throw new NotImplementedException();
             }
         }
-        public IActionResult editAccount(string username)
+        public IActionResult editAccount()
         {
             ViewData["DuplicateEventTitle"] = false;
-            ViewData["User"] = username;
-            UserDataModel userDataModelTemp = UserDataAccess.GetUser(username);
+            UserDataModel userDataModelTemp = UserDataAccess.GetUser(ActiveUser.User.Username);
             User userr = new User(userDataModelTemp);
             //eventt.Id = eventDataModelTemp.Id;
             //eventt.Description = eventDataModelTemp.Description;
@@ -292,7 +348,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult editAccount(string username, User userr)
+        public IActionResult editAccount(User userr)
         {
             //if (UserName == "")
             //{
@@ -307,10 +363,9 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             List<UserDataModel> userList = UserDataAccess.GetUsers();
             foreach (UserDataModel userDataModelTemp in userList)
             {
-                if (userDataModelTemp.Username == userr.Username && userDataModelTemp.Username!=username)//UserName)
+                if (userDataModelTemp.Username == userr.Username && userDataModelTemp.Username!= ActiveUser.User.Username)//UserName)
                 {
                     ViewData["DuplicateUsername"] = true;
-                    ViewData["User"] = username;
                     //Prepei edo na valo UserName=""; ?
                     return View();
                 }
@@ -326,10 +381,9 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 //    ViewData["User"] = username;
                 //    return View();
                 //}
-                if (userDataModelTemp.Email == userr.Email && userDataModelTemp.Username != username)// UserName)
+                if (userDataModelTemp.Email == userr.Email && userDataModelTemp.Username != ActiveUser.User.Username)// UserName)
                 {
                     ViewData["DuplicateEmail"] = true;
-                    ViewData["User"] = username;
                     return View();
                 }
                 //if (userDataModelTemp.Phone == userr.Phone && userDataModelTemp.Username != username)// UserName)
@@ -348,7 +402,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             userDataModel.Fullname = userr.Fullname;
             UserDataAccess.UpdateUser(userDataModel);
             //UserDataAccess.UpdateUserAndUsername(userDataModel, username);// UserName);
-            return RedirectToAction("HomePage", "Home", new { username = username, pagination = 1 });
+            return RedirectToAction("HomePage", "Home", new { pagination = 1 });
         }
     }
 }

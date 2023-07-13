@@ -13,5 +13,7 @@ namespace DataAccess.Models
         public string Phone { get; set; }
         public List<CalendarDataModel> Calendars { get; set; } = new List<CalendarDataModel>();
         public List<EventDataModel> EventsThatTheUserParticipates { get; set; } = new List<EventDataModel>();
+        public List<NotificationDataModel> Notifications { get; set; } = new List<NotificationDataModel>();
+        public List<CommentDataModel> Comments { get; set; } = new List<CommentDataModel>();
     }
 }

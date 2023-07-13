@@ -32,7 +32,7 @@ namespace DataAccess.Logic
         public List<UserDataModel> GetUsers()
         {
             connection.Open();
-            string sqlQuery = "Select * from User";
+            string sqlQuery = "SELECT * FROM User;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
             SQLiteDataReader reader = command.ExecuteReader();
 
@@ -48,6 +48,9 @@ namespace DataAccess.Logic
                 user.Email = reader.GetString(3);
                 user.Phone = reader.GetString(4);
                 user.Calendars = ReturnCalendarsOfUser(user.Username);
+                user.EventsThatTheUserParticipates = ReturnEventsOfUser(user.Username);
+                user.Notifications = GetNotificationsOfUser(user.Username);
+                user.Comments = GetCommentsOfUser(user.Username);
 
                 users.Add(user);
             }
@@ -65,7 +68,7 @@ namespace DataAccess.Logic
         public UserDataModel GetUser(string username)
         {
             connection.Open();
-            string sqlQuery = "Select * from User where Username = @username";
+            string sqlQuery = "SELECT * FROM User WHERE Username = @username;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@username", username);
@@ -82,6 +85,8 @@ namespace DataAccess.Logic
                 user.Phone = reader.GetString(4);
                 user.Calendars = ReturnCalendarsOfUser(username);
                 user.EventsThatTheUserParticipates = ReturnEventsOfUser(username);
+                user.Notifications = GetNotificationsOfUser(user.Username);
+                user.Comments = GetCommentsOfUser(user.Username);
 
             }
             connection.Close();
@@ -98,8 +103,8 @@ namespace DataAccess.Logic
         /// <returns>All the user's calendars</returns>
         private List<CalendarDataModel> ReturnCalendarsOfUser(string username)
         {
-            string sqlQuery = "Select Id from Calendar join User on " +
-                "Calendar.UserUsername = User.Username where Username = @username ";
+            string sqlQuery = "SELECT Id FROM Calendar JOIN User ON " +
+                "Calendar.UserUsername = User.Username WHERE Username = @username;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@username", username);
@@ -119,6 +124,8 @@ namespace DataAccess.Logic
         /// This is a private helper method that is used by the GetUser and GetUsers methods to connect the
         /// the user with all the events he has a connection with. This connection can bedirect in case he has created those 
         /// events or indirect if he has not created those events and he has been referenced by another user.
+        /// The events created, might be created by the user, foreign accepted and foreign non-accepted(yet).
+        /// Use this method to do the initial check on whether or not to show notifications for invitations.
         /// </summary>
         /// <param name="username"></param>
         /// <returns>The events that the user is associated with</returns>
@@ -127,7 +134,8 @@ namespace DataAccess.Logic
             string sqlQuery = "SELECT Event.Id FROM Event " +
                               "JOIN ParticipationInEvent ON ParticipationInEvent.EventId = Event.Id " +
                               "JOIN User ON ParticipationInEvent.UserUsername = User.Username " +
-                              "WHERE User.Username = @username";
+                              "WHERE User.Username = @username;";
+
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@username", username);
@@ -137,14 +145,77 @@ namespace DataAccess.Logic
 
             while (reader.Read())
             {
-                EventDataModel calendarEvent = EventDataAccess.GetEvent(reader.GetInt32(0));
+                //TODO think about that
+
+                EventDataModel calendarEvent = EventDataAccess.GetEvent(reader.GetInt32(0), username);
+
+                //This is the alert status of the active user and not of the user that made the event.
+                //This should be I think the correct way of retrieving the dynamic information of an event(things that change from user to user for a specific event)
                 events.Add(calendarEvent);
             }
 
             return events;
         }
 
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        public List<NotificationDataModel> GetNotificationsOfUser(string username)
+        {
+            string sqlQuery = "SELECT EventId, NotificationTime, InvitationPending, EventAccepted, EventRejected, " +
+                "EventChanged, CommentAdded, CommentDeleted, EventDeleted, AlertNotification FROM Notification WHERE Notification.UserUsername = @userUsername;";
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+
+            command.Parameters.AddWithValue("@userUsername", username);
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            List<NotificationDataModel> notificationDataModels = new List<NotificationDataModel>();
+            while (reader.Read())
+            {
+                NotificationDataModel notificationDataModel = new NotificationDataModel();
+
+                notificationDataModel.EventOfNotification = EventDataAccess.GetEventForNotifications(reader.GetInt32(0));
+                notificationDataModel.NotificationTime = DateTime.Parse(reader.GetString(1));
+                notificationDataModel.InvitationPending = Convert.ToBoolean(reader.GetInt32(2));
+                notificationDataModel.EventAccepted = Convert.ToBoolean(reader.GetInt32(3));
+                notificationDataModel.EventRejected = Convert.ToBoolean(reader.GetInt32(4));
+                notificationDataModel.EventChanged = Convert.ToBoolean(reader.GetInt32(5));
+                notificationDataModel.CommentAdded = Convert.ToBoolean(reader.GetInt32(6));
+                notificationDataModel.CommentDeleted = Convert.ToBoolean(reader.GetInt32(7));
+                notificationDataModel.EventDeleted = Convert.ToBoolean(reader.GetInt32(8));
+                notificationDataModel.AlertNotification = Convert.ToBoolean(reader.GetInt32(9));
+
+                notificationDataModels.Add(notificationDataModel);
+            }
+            return notificationDataModels;
+        }
+
+        List<CommentDataModel> GetCommentsOfUser(string username)
+        {
+            string sqlQuery = "SELECT EventId, UserUsername, CommentText, CommentDate FROM Comment WHERE Comment.UserUsername = @userUsername;";
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+
+            command.Parameters.AddWithValue("@userUsername", username);
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            List<CommentDataModel> commentDataModels = new List<CommentDataModel>();
+            while (reader.Read())
+            {
+                CommentDataModel commentDataModel = new CommentDataModel();
+
+                commentDataModel.EventOfComment = EventDataAccess.GetEvent(reader.GetInt32(0));
+                commentDataModel.UserWhoMadeTheComment = GetUserBasicInformation(username);
+                commentDataModel.CommentText = reader.GetString(2);
+                commentDataModel.CommentDate = DateTime.Parse(reader.GetString(3));
+
+                commentDataModels.Add(commentDataModel);
+            }
+            return commentDataModels;
+        }
+
+
 
         /// <summary>
         /// This method creates a user. It must be mentioned that this method does not create calendars or events.
@@ -163,7 +234,7 @@ namespace DataAccess.Logic
 
             connection.Open();
             string sqlQuery = "INSERT INTO User (Username, Password, FullName, Email, Phone) " +
-                              "VALUES (@username, @password, @fullName, @email, @phone)";
+                              "VALUES (@username, @password, @fullName, @email, @phone);";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@username", user.Username);
@@ -194,8 +265,8 @@ namespace DataAccess.Logic
 
             //now remove the user entries from the participationInEvent table
             //delete the user itself
-            string sqlQuery = "Delete From ParticipationInEvent where UserUsername = @username;" +
-                              "Delete from User where Username = @username";
+            string sqlQuery = "DELETE FROM ParticipationInEvent WHERE UserUsername = @username;" +
+                              "DELETE FROM User WHERE Username = @username;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@username", username);
             command.ExecuteNonQuery();
@@ -211,9 +282,9 @@ namespace DataAccess.Logic
         public void UpdateUser(UserDataModel user)
         {
             connection.Open();
-            string sqlQuery = "Update User set Password = @password,FullName = @fullname, " +
+            string sqlQuery = "UPDATE User SET Password = @password,FullName = @fullname, " +
                 "Email = @email,Phone = @phone " +
-                "where Username = @username";
+                "WHERE Username = @username;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@password", user.Password);
@@ -235,10 +306,11 @@ namespace DataAccess.Logic
         /// <param name="oldUsername"></param>
         public void UpdateUserAndUsername(UserDataModel user, string oldUsername)
         {
+            //TODO fix that. That is not working
             connection.Open();
-            string sqlQuery = "Update User set Username = @username,Password = @password,FullName = @fullname, " +
-                "Email = @email,Phone = @phone " +
-                "where Username = @oldUsername";
+            string sqlQuery = "UPDATE User SET Username = @username, Password = @password, FullName = @fullname, " +
+                "Email = @email, Phone = @phone " +
+                "WHERE Username = @oldUsername;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@username", user.Username);
@@ -249,6 +321,29 @@ namespace DataAccess.Logic
             command.Parameters.AddWithValue("@oldUsername", oldUsername);
             command.ExecuteNonQuery();
             connection.Close();
+        }
+
+        private UserDataModel GetUserBasicInformation(string username)
+        {
+            string sqlQuery = "SELECT Username, Password, FullName, Email, Phone From User WHERE User.Username = @username;";
+
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+            command.Parameters.AddWithValue("@username", username);
+
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            UserDataModel user = new UserDataModel();
+
+            while (reader.Read())
+            {
+                user.Username = reader.GetString(0);
+                user.Password = reader.GetString(1);
+                user.Fullname = reader.GetString(2);
+                user.Email = reader.GetString(3);
+                user.Phone = reader.GetString(4);
+            }
+
+            return user;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System;
 
-namespace SoftwareTechnologyCalendarApplicationMVC.SpareClasses
+namespace SoftwareTechnologyCalendarApplication.SpareClasses
 {
     public sealed class CheckMinutes : ValidationAttribute
     {

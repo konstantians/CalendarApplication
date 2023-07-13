@@ -23,6 +23,7 @@ namespace SoftwareTechnologyCalendarApplication.Models
         public string Phone { get; set; }
         public List<Calendar> Calendars { get; set; } = new List<Calendar>();
         public List<Event> EventsThatTheUserParticipates { get; set; } = new List<Event>();
+        public List<Notification> Notifications { get; set; } = new List<Notification>();
 
         //default constructor
         public User(){}
@@ -57,37 +58,19 @@ namespace SoftwareTechnologyCalendarApplication.Models
 
             foreach (EventDataModel calendarEvent in userDataModel.EventsThatTheUserParticipates)
             {
-                Event tempCalendarEvent = new Event();
-                tempCalendarEvent.Id = calendarEvent.Id;
-                tempCalendarEvent.Title = calendarEvent.Title;
-                tempCalendarEvent.AlertStatus = calendarEvent.AlertStatus;
-                tempCalendarEvent.StartingTime = calendarEvent.StartingTime;
-                tempCalendarEvent.EndingTime = calendarEvent.EndingTime;
-
-                EventsThatTheUserParticipates.Add(tempCalendarEvent);
+                EventsThatTheUserParticipates.Add(new Event(calendarEvent));
             }
 
 
             foreach (CalendarDataModel calendar in userDataModel.Calendars)
             {
-                Calendar tempCalendar = new Calendar();
-                tempCalendar.Id = calendar.Id;
-                foreach(EventDataModel calendarEvent in calendar.Events) {
-                    Event tempCalendarEvent = new Event();
-                    tempCalendarEvent.Id = calendarEvent.Id;
-                    tempCalendarEvent.Title = calendarEvent.Title;
-                    tempCalendarEvent.AlertStatus = calendarEvent.AlertStatus;
-                    tempCalendarEvent.StartingTime = calendarEvent.StartingTime;
-                    tempCalendarEvent.EndingTime = calendarEvent.EndingTime;
-
-                    tempCalendar.Events.Add(tempCalendarEvent);  
-                }
-                tempCalendar.Categories = calendar.Categories;
-                tempCalendar.Title = calendar.Title;
-
-                Calendars.Add(tempCalendar);
+                Calendars.Add(new Calendar(calendar));
             }
 
+            foreach (NotificationDataModel notification in userDataModel.Notifications)
+            {
+                Notifications.Add(new Notification(notification));
+            }
         }
     }
 }
