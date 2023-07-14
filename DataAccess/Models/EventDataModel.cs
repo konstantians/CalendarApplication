@@ -19,6 +19,14 @@ namespace DataAccess.Models
         
         //default constructor
         public EventDataModel() {}
+        public EventDataModel(string title, string description, DateTime startingTime, DateTime endingTime, string eventCreator)
+        {
+            Title = title;
+            Description = description;
+            StartingTime = startingTime;
+            EndingTime = endingTime;
+            EventCreatorName = eventCreator;
+        }
 
         public EventDataModel(int id, string title, string description, DateTime startingTime, DateTime endingTime, string eventCreator)
         {

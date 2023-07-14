@@ -188,7 +188,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             ViewData["Year"] = year;
             ViewData["Month"] = month;
             ViewData["Day"] = day;
-            EventDataModel eventDataModelTemp = EventDataAccess.GetEvent(eventId);
+            EventDataModel eventDataModelTemp = EventDataAccess.GetEvent(eventId, ActiveUser.User.Username);
             Event eventt = new Event();
             eventt.Id=eventDataModelTemp.Id;
             eventt.Description = eventDataModelTemp.Description;
@@ -262,7 +262,6 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                     return View();
                 }
             }
-            //username = Request("username").toString();
             EventDataModel eventDataModel = new EventDataModel();
             eventDataModel.Id = eventt.Id;
             eventDataModel.Title = eventt.Title;

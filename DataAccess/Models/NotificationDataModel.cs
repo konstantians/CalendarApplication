@@ -15,12 +15,13 @@ namespace DataAccess.Models
         public bool CommentAdded { get; set; }
         public bool CommentDeleted { get; set; }
         public bool EventDeleted { get; set; }
+        public bool AlertNotification { get; set; }
 
         //default constructor
         public NotificationDataModel(){}
 
         public NotificationDataModel(int id, DateTime notificationTime, bool invitationPending,
-            bool eventAccepted, bool eventRejected, bool eventChanged, bool commentAdded, bool commentDeleted, bool eventDeleted)
+            bool eventAccepted, bool eventRejected, bool eventChanged, bool commentAdded, bool commentDeleted, bool eventDeleted, bool alertNotification)
         {
             EventOfNotification.Id = id;
             NotificationTime = notificationTime;
@@ -31,6 +32,7 @@ namespace DataAccess.Models
             CommentAdded = commentAdded;
             CommentDeleted = commentDeleted;
             EventDeleted = eventDeleted;
+            AlertNotification = alertNotification;
         }
     }
 }
