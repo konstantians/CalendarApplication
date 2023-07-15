@@ -4,16 +4,28 @@
     ViewData["Title"] = "editEvent";
     // placeholder=@Model.Title
 }
+@{
+    if ((int)ViewData["forein"] == 0)
+    {
+        <h1 class="text-center">Event editing form</h1>
 
-<h1 class="text-center">Event editing form</h1>
+        <h4 class="text-center">Please edit the following event as you like:</h4>
+        <hr />
+    }
+    else if ((int)ViewData["forein"] == 1)
+    {
+        <h1 class="text-center">Event details</h1>
 
-<h4 class="text-center">Please edit the following event as you like:</h4>
-<hr />
+        <h4 class="text-center">It seems, you are not the creator of the event. Thus, you can not alter its details, but you can always add a comment and toggle your personal alertstatus.</h4>
+        <hr />
+    }
+}
+
 
 
 <form asp-action="editEvent">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input name="calendarId" value="@ViewData["CalendarId"]" hidden />-->
+    <input name="calendarId" value="@ViewData["CalendarId"]" hidden />
     <div class="row">
         <div class="col-md-5">
             <div style="margin-top: 25px;">
@@ -23,7 +35,7 @@
                         <input asp-for="Title" class="form-control" id="title" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
                         <span asp-validation-for="Title" class="text-danger"></span>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('title')">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('title',@ViewData["forein"])">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     ::before
@@ -44,7 +56,7 @@
                         <input asp-for="StartingTime" class="form-control" id="startingTime" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
                         <span asp-validation-for="StartingTime" class="text-danger"></span>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('startingTime')">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('startingTime',@ViewData["forein"])">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     ::before
@@ -65,7 +77,7 @@
                         <input asp-for="EndingTime" class="form-control" id="endingTime" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
                         <span asp-validation-for="EndingTime" class="text-danger"></span>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('endingTime')">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('endingTime',@ViewData["forein"])">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     ::before
@@ -89,7 +101,7 @@
                         <textarea asp-for="Description" class="form-control" id="description" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" rows="4" cols="65"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('description')">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('description',@ViewData["forein"])">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     ::before
@@ -156,7 +168,10 @@
 </script>
 
 <script type="text/javascript">
-    function EnableDisableTextBox(textboxId) {
+    function EnableDisableTextBox(textboxId,forein) {
+        if (forein == 1) {
+            return 0;
+        }
         textboxId=String(textboxId)
         var textBox = document.getElementById(textboxId);
         if (textBox.disabled) {

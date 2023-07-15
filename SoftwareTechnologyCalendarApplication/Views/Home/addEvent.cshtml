@@ -4,126 +4,45 @@
     ViewData["Title"] = "addEvent";
     // placeholder=@Model.Title
 }
-<!--    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-        </symbol>
-    </svg>
-<div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert" id="startProblem">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
-        <div>
-            The minute field of the starting time of the event must be :00 or :30. Nothing else.
-        </div>
-        <button type="button" class="close" onclick="hideDisplayAlert(startProblem)">&times;</button> data-dismiss="alert">&times;</button>
-</div>
+<style>
+    .notification-box {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #fafafa
+    }
 
-    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-        </symbol>
-    </svg>
-<div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert" id="endProblem">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
-        <div>
-            The minute field of the ending time of the event must be :00 or :30. Nothing else.
-        </div>
-        <button type="button" class="close" onclick="hideDisplayAlert(endProblem)">&times;</button> data-dismiss="alert">&times;</button>
-    </div>
+    .notification-title {
+        margin: 0;
+    }
 
-    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-        </symbol>
-    </svg>
-<div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert" id="start>endProblem">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
-        <div>
-            The starting time of the event cannot be greater than or equal to the ending time.
-        </div>
-        <button type="button" class="close" onclick="hideDisplayAlert(start>endProblem)">&times;</button>data-dismiss="alert">&times;</button>
-    </div>
-    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-        </symbol>
-    </svg>
-<div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert" id="titleProblem">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
-        <div>
-            The starting time of the event must cannot be greater than or equal to the ending time.
-        </div>
-        <button type="button" class="close" onclick="hideDisplayAlert(titleProblem)">&times;</button> data-dismiss="alert">&times;</button>
-</div>-->
+    .notification-btn {
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
 
-<!--<div class="modal fade" id="startProblem">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Warning!</h2>
-            </div>
-            <div class="modal-body">
-                <p>The minute field of the starting time of the event must be :00 or :30.
-                    Nothing else.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="closeModal('startProblem')">Understood</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="endProblem">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Warning!</h2>
-            </div>
-            <div class="modal-body">
-                <p>
-                    The minute field of the ending time of the event must be :00 or :30.
-                    Nothing else.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="closeModal('endProblem')">Understood</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="start>endProblem">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Warning!</h2>
-            </div>
-            <div class="modal-body">
-                <p>
-                    The starting time of the event cannot be greater than or equal to the ending time.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="closeModal('start>endProblem')">Understood</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="titleProblem">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Warning!</h2>
-            </div>
-            <div class="modal-body">
-                <p>
-                    You need to provide a title for the event before submiting.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="closeModal('titleProblem')">Understood</button>
-            </div>
-        </div>
-    </div>
-</div>-->
+    .notification-check-btn {
+        color: blue;
+    }
 
+    .notification-close-btn {
+        color: red;
+    }
+
+    .marker {
+    }
+
+</style>
+<!--<style>
+    .mul-select {
+        width: 100%;
+    }
+</style>-->
 <h1 class="text-center">Let's add a new event!</h1>
 
 <h4 class="text-center">Please fill out the following form:</h4>
@@ -131,6 +50,12 @@
 
 <form asp-action="addEvent">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    @*@Html.DropDownList()*@
+    <!--<label for="invitations">Who do you want to invite?</label><br />
+    <select name="invitations" id="invitations" class="mul-select" multiple>
+        <option value="EliasLgt">EliasLgt</option>
+        <option value="Kinnas">Kinnas</option>
+    </select>-->
     <div class="row">
         <div class="col-md-5">
             <div style="margin-top: 25px;">
@@ -180,6 +105,34 @@
             </div>
         </div>
     </div>
+    <!--<div class="row">
+        <div class="form-group">
+            <label for="invitations">Who do you want to invite?</label><br />
+            <select name="invitations" id="invitations" class="mul-select"  multiple="multiple">
+                <option value="EliasLgt">EliasLgt</option>
+                <option value="Kinnas">Kinnas</option>
+            </select>
+        </div>
+    </div>-->
+    <div class="row" style="margin-top: 25px;">
+        <div class="col-md-5">
+            <label for="Invitation">Who do you want add to the invitation list?</label>
+            <select name="Invitation" class="form-control" id="Invitation" onchange="addInvitation()">
+                <option value="">Choose One Of The Users Of The App</option>
+                @for (int i = 0; i <= (int)ViewData["LastNumber"]; i++)
+                {
+                    if (ViewData[i.ToString()] != ViewData["usernm"])
+                    {
+                        <option value="@ViewData[i.ToString()]">@ViewData[i.ToString()]</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-5 offset-md-1" id="invited">
+            Invitations to be sent:
+        </div>
+    </div>
+
     <input type="hidden" name="calendarId" value="@ViewData["CalendarId"]" />
     <input type="hidden" name="year" value="@ViewData["Year"]" />
     <input type="hidden" name="month" value="@ViewData["Month"]" />
@@ -200,6 +153,37 @@
     </div>
 </div>
 
+
+<script>
+    function addInvitation() {
+        var x = document.getElementById("Invitation").value;
+        if (x==""){
+            return 0;
+        }
+        console.log(x);
+        const newDiv = document.createElement("div");
+        newDiv.id = x;
+        newDiv.innerText=x;
+        newDiv.classList.add("notification-box");
+        const newButton = document.createElement("button");
+        newButton.type="button";
+        newButton.innerText="Remove";
+        newButton.classList.add("btn");
+        newButton.classList.add("btn-outline-danger");
+        //newButton.onclick("document.getElementById('x').remove()");
+        newButton.onclick = function () {
+            document.getElementById(x).remove();
+        };
+        const newSpan = document.createElement("span");
+        document.getElementById("invited").appendChild(newDiv);
+        newDiv.appendChild(newSpan);
+        newSpan.appendChild(newButton);
+        //document.getElementById("demo").innerHTML = "You selected: " + x;
+    }
+    function DeleteSpecificDiv(){
+
+    }
+</script>
 
 <script type="text/javascript">
     //function closeModal(id){
@@ -262,6 +246,7 @@
         }
     }
 </script>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

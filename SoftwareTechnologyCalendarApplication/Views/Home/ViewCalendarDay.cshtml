@@ -151,6 +151,7 @@
                         <td class="text-center p-4">
                             @foreach (Event calendarEvent in Model.Events.OrderBy(e => e.StartingTime).ToList())
                             {
+                                int foreignn;
                                 if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
                                     calendarEvent.StartingTime.Year == (int)ViewData["Year"] &&
@@ -209,10 +210,12 @@
                                         if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
                                         {
                                             <div class="calendar-event native event-bottom"></div>
+                                            foreignn = 0;
                                         }
                                         else
                                         {
                                             <div class="calendar-event foreign event-bottom"></div>
+                                            foreignn = 1;
                                         }
                                         <div class="event-inside d-flex justify-content-around">
                                             <button type="button" class="btn btn-danger ml-2 mb-1"
@@ -223,7 +226,7 @@
                                             <a class="btn btn-dark mr-2 mb-1" asp-controller="home"
                                                asp-action="editEvent" asp-route-calendarId="@Model.Id" asp-route-eventId="@calendarEvent.Id"
                                                asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]"
-                                               asp-route-day="@ViewData["Day"]">
+                                               asp-route-day="@ViewData["Day"]" asp-route-forein="@foreignn">
                                                 <i class="fa-sharp fa-solid fa-eye"></i>
                                             </a>
                                         </div>

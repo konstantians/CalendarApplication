@@ -176,7 +176,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult editEvent(int calendarId,int eventId, int year, int month, int day)
+        public IActionResult editEvent(int calendarId,int eventId, int year, int month, int day, int forein)
         {
             AuthorizeUser();
 
@@ -184,7 +184,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             ViewData["Editing"] = true;
             ViewData["CalendarId"] = calendarId;
             ViewData["EventId"] = eventId;
-
+            ViewData["forein"] = forein;
             ViewData["Year"] = year;
             ViewData["Month"] = month;
             ViewData["Day"] = day;
@@ -238,6 +238,23 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             Event eventt = new Event();
             eventt.EndingTime = dateTime;
             eventt.StartingTime = dateTime;
+            List<UserDataModel> li = UserDataAccess.GetUsers();
+            List<CalendarDataModel> lii;
+            int i = -1;
+            foreach (UserDataModel useer in li)
+            {
+                i = i + 1;
+                ViewData[i.ToString()]= useer.Username;
+                lii = useer.Calendars;
+                foreach (CalendarDataModel cal  in lii)
+                {
+                    if (cal.Id == calendarId)
+                    {
+                        ViewData["usernm"] = useer.Username;
+                    }
+                }
+            }
+            ViewData["LastNumber"] = i;
             return View(eventt);
         }
 
