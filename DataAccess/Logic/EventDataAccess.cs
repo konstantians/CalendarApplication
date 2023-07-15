@@ -22,6 +22,7 @@ namespace DataAccess.Logic
 
         }
 
+        //TODO maybe check it out more
         /// <summary>
         /// This method returns all the events of a specific calendar from the database. It also fills the 
         /// details the information of these events. It must be mentioned that the indirect connection of the users
@@ -34,7 +35,7 @@ namespace DataAccess.Logic
         public List<EventDataModel> GetEvents(int calendarId)
         {
             connection.Open();
-            string sqlQuery = "Select Id, Title, Description, StartingTime, EndingTime, EventCreator, AlertStatus from Event " +
+            string sqlQuery = "SELECT Id, Title, Description, StartingTime, EndingTime, EventCreator, AlertStatus FROM Event " +
                 "JOIN ParticipationInEvent ON Event.Id = ParticipationInEvent.EventId " +
                 "WHERE Event.CalendarId = @calendarId AND SoftDeleted = 0;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
@@ -67,7 +68,7 @@ namespace DataAccess.Logic
 
         /// <summary>
         /// This method returns the information of the specified event of the given calendar using their ids parameters. It also fills the 
-        /// details the information of this event. It must be mentioned that the indirect connection of the users
+        /// details the information of this event(only the static details of the event).It must be mentioned that the indirect connection of the users
         /// that the method returns do not have their calendars, events, categories(the complicated information) filled.
         /// In case you want to fill these information you can use the GetUser method in the UserDataAccess class using 
         /// the name of the user you want.
@@ -77,12 +78,51 @@ namespace DataAccess.Logic
         public EventDataModel GetEvent(int id)
         {
             connection.Open();
-            string sqlQuery = "Select Id, Title, Description, StartingTime, EndingTime, EventCreator, AlertStatus from Event " +
-                "JOIN ParticipationInEvent ON Event.Id = ParticipationInEvent.EventId " +
+            string sqlQuery = "SELECT Id, Title, Description, StartingTime, EndingTime, EventCreator FROM Event " +
                 "WHERE Event.Id = @id AND SoftDeleted = 0;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@id", id);
+            SQLiteDataReader reader = command.ExecuteReader();
+
+
+            EventDataModel calendarEvent = new EventDataModel();
+            while (reader.Read())
+            {
+                calendarEvent.Id = reader.GetInt32(0);
+                calendarEvent.Title = reader.GetString(1);
+                calendarEvent.Description = reader.GetString(2);
+                calendarEvent.StartingTime = DateTime.Parse(reader.GetString(3));
+                calendarEvent.EndingTime = DateTime.Parse(reader.GetString(4));
+                calendarEvent.EventCreatorName = reader.GetString(5);
+                calendarEvent.UsersThatParticipateInTheEvent = ReturnUsersOfEvent(calendarEvent.Id);
+                calendarEvent.EventComments = ReturnCommentsOfEvent(calendarEvent.Id);
+            }
+            connection.Close();
+
+            return calendarEvent;
+        }
+
+        /// <summary>
+        /// This method returns the information of the specified event of the given calendar using their ids parameters. It also fills the 
+        /// details the information of this event(also the dynamic information of the event). It must be mentioned that the indirect connection of the users
+        /// that the method returns do not have their calendars, events, categories(the complicated information) filled.
+        /// In case you want to fill these information you can use the GetUser method in the UserDataAccess class using 
+        /// the name of the user you want.
+        /// </summary>
+        /// <param name="id">The specified event's id</param>
+        /// <param name="username">The user who we want the their dynamic details</param>
+        /// <returns>The specified event of the calendar</returns>
+        public EventDataModel GetEvent(int id, string username)
+        {
+            connection.Open();
+            string sqlQuery = "SELECT Id, Title, Description, StartingTime, EndingTime, EventCreator, AlertStatus FROM Event " +
+                "JOIN ParticipationInEvent ON Event.Id = ParticipationInEvent.EventId " +
+                "WHERE Event.Id = @id AND ParticipationInEvent.UserUsername = @username AND SoftDeleted = 0;";
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+
+            command.Parameters.AddWithValue("@id", id);
+            command.Parameters.AddWithValue("@username", username);
             SQLiteDataReader reader = command.ExecuteReader();
 
             EventDataModel calendarEvent = new EventDataModel();
@@ -111,8 +151,8 @@ namespace DataAccess.Logic
         /// <returns>The specified event of the calendar</returns>
         public EventDataModel GetEventForNotifications(int id)
         {
-            //if it a soft deleted event
-            if(GetEvent(id).Title == null)
+            //if it a soft deleted event then the GetEvent method should return null
+            if (GetEvent(id).Title == null)
             {
                 connection.Open();
                 string sqlQuery = "SELECT Id, Title, Description, StartingTime, EndingTime, EventCreator FROM Event WHERE Event.Id = @id;";
@@ -154,10 +194,10 @@ namespace DataAccess.Logic
         List<UserDataModel> ReturnUsersOfEvent(int id)
         {
             //filter the users that have this event
-            string sqlQuery = "Select Username, Password, Fullname, Email, Phone from User " +
-                "join ParticipationInEvent on ParticipationInEvent.UserUsername = User.Username " +
-                "join Event on ParticipationInEvent.EventId = Event.Id " +
-                "where Event.Id = @id ";
+            string sqlQuery = "SELECT Username, Password, Fullname, Email, Phone FROM User " +
+                "JOIN ParticipationInEvent ON ParticipationInEvent.UserUsername = User.Username " +
+                "JOIN Event ON ParticipationInEvent.EventId = Event.Id " +
+                "WHERE Event.Id = @id;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@id", id);
             SQLiteDataReader reader = command.ExecuteReader();
@@ -184,7 +224,6 @@ namespace DataAccess.Logic
         {
             //filter the users that have this event
             string sqlQuery = "SELECT Title, Description, StartingTime, EndingTime, UserUsername, CommentText, CommentDate FROM Event " +
-                /*"JOIN ParticipationInEvent ON Participation ParticipationInEvent.Id = " +*/
                 "JOIN Comment ON Event.Id = Comment.EventId " +
                 "WHERE Event.Id = @id;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
@@ -210,7 +249,7 @@ namespace DataAccess.Logic
 
         UserDataModel ReturnUserOfComment(string userUsername)
         {
-            string sqlQuery = "SELECT Username, Password, FullName, Email, Phone From User WHERE User.Username = @username";
+            string sqlQuery = "SELECT Username, Password, FullName, Email, Phone From User WHERE User.Username = @username;";
 
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@username", userUsername);
@@ -247,7 +286,7 @@ namespace DataAccess.Logic
             connection.Open();
             string sqlQuery = "INSERT INTO Event (Title, Description, StartingTime, EndingTime, SoftDeleted, CalendarId, EventCreator) " +
                               "VALUES (@title, @description, @startingTime, @endingTime, @softDeleted, @calendarId, @eventCreator);" +
-                              "SELECT last_insert_rowid()";
+                              "SELECT last_insert_rowid();";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@title", calendarEvent.Title);
@@ -262,8 +301,8 @@ namespace DataAccess.Logic
             int eventId = Convert.ToInt32(command.ExecuteScalar());
 
             //add an entry for the user that created that event
-            sqlQuery = "INSERT INTO ParticipationInEvent (EventId, UserUsername, CalendarId, AlertStatus)" +
-                        "VALUES (@eventId, @userUsername, @calendarId, @alertStatus)";
+            sqlQuery = "INSERT INTO ParticipationInEvent (EventId, UserUsername, CalendarId, AlertStatus) " +
+                       "VALUES (@eventId, @userUsername, @calendarId, @alertStatus);";
             command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@eventId", eventId);
@@ -297,9 +336,9 @@ namespace DataAccess.Logic
         public int CreateEvent(EventDataModel calendarEvent, string usernameOfCreator, List<string> usernamesOfUsers, int calendarId)
         {
             connection.Open();
-            string sqlQuery = "insert into Event (Title, Description, StartingTime, EndingTime, SoftDeleted, CalendarId, EventCreator) " +
-                              "values (@title, @description, @startingTime, @endingTime, @softDeleted, @calendarId, @eventCreator);" +
-                              "SELECT last_insert_rowid()";
+            string sqlQuery = "INSERT INTO Event (Title, Description, StartingTime, EndingTime, SoftDeleted, CalendarId, EventCreator) " +
+                              "VALUES (@title, @description, @startingTime, @endingTime, @softDeleted, @calendarId, @eventCreator);" +
+                              "SELECT last_insert_rowid();";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@title", calendarEvent.Title);
@@ -318,8 +357,8 @@ namespace DataAccess.Logic
             connection.Open();
 
             //add an entry for the user that created that event
-            sqlQuery = "insert into ParticipationInEvent (EventId, UserUsername, CalendarId, AlertStatus)" +
-                        "values (@eventId,@userUsername, @calendarId, @alertStatus)";
+            sqlQuery = "INSERT INTO ParticipationInEvent (EventId, UserUsername, CalendarId, AlertStatus) " +
+                       "VALUES (@eventId,@userUsername, @calendarId, @alertStatus);";
             command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@eventId", eventId);
@@ -352,7 +391,7 @@ namespace DataAccess.Logic
             foreach (string comment in comments)
             {
                 sqlQuery = "INSERT INTO Comment (EventId, UserUsername, CommentText, CommentDate) " +
-                           "VALUES (@eventId, @userUsername, @commentText, @commentDate)";
+                           "VALUES (@eventId, @userUsername, @commentText, @commentDate);";
 
                 command = new SQLiteCommand(sqlQuery, connection);
 
@@ -364,13 +403,13 @@ namespace DataAccess.Logic
             }
 
             //find everyone who participates in the event and is not the person who created the comment
-            sqlQuery = "SELECT UserUsername FROM ParticipationInEvent WHERE ParticipationInEvent.EventId = @eventId AND ParticipationInEvent.UserUsername != @userUsername";
+            sqlQuery = "SELECT UserUsername FROM ParticipationInEvent WHERE ParticipationInEvent.EventId = @eventId AND ParticipationInEvent.UserUsername != @userUsername;";
 
             command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@eventId", eventId);
             command.Parameters.AddWithValue("@userUsername", creatorOfComment);
-            
+
             SQLiteDataReader reader = command.ExecuteReader();
 
             List<string> membersOfEvent = new List<string>();
@@ -386,7 +425,7 @@ namespace DataAccess.Logic
             foreach (string comment in comments)
             {
                 CreateNotifications(new NotificationDataModel(eventId, DateTime.Now,
-                    false, false, false, false, true,false,false), membersOfEvent, count);
+                    false, false, false, false, true, false, false, false), membersOfEvent, count);
                 count++;
             }
         }
@@ -394,7 +433,7 @@ namespace DataAccess.Logic
         public void DeleteComment(CommentDataModel commentDataModel)
         {
             connection.Open();
-            string sqlQuery = "DELETE FROM Comment WHERE EventId = @eventId AND UserUsername = @userUsername AND CommentText = @commentText AND CommentDate = @commentDate";
+            string sqlQuery = "DELETE FROM Comment WHERE EventId = @eventId AND UserUsername = @userUsername AND CommentText = @commentText AND CommentDate = @commentDate;";
 
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
@@ -405,7 +444,7 @@ namespace DataAccess.Logic
             command.ExecuteNonQuery();
 
             //find everyone who participates in the event and is not the person who created the comment
-            sqlQuery = "SELECT UserUsername FROM ParticipationInEvent WHERE ParticipationInEvent.EventId = @eventId AND ParticipationInEvent.UserUsername != @userUsername";
+            sqlQuery = "SELECT UserUsername FROM ParticipationInEvent WHERE ParticipationInEvent.EventId = @eventId AND ParticipationInEvent.UserUsername != @userUsername;";
 
             command = new SQLiteCommand(sqlQuery, connection);
 
@@ -424,7 +463,7 @@ namespace DataAccess.Logic
             connection.Close();
 
             CreateNotifications(new NotificationDataModel(commentDataModel.EventOfComment.Id, DateTime.Now,
-                false, false, false, false, false, true,false), membersOfEvent);
+                false, false, false, false, false, true, false, false), membersOfEvent);
         }
 
         private void CreateNotifications(NotificationDataModel notificationDataModel, List<string> receiversOfNotification, int count = 0)
@@ -434,9 +473,11 @@ namespace DataAccess.Logic
             //create a notification for each one of them
             foreach (string memberOfEvent in receiversOfNotification)
             {
-                
-                string sqlQuery = "INSERT INTO Notification (EventId, UserUsername, NotificationTime, InvitationPending, EventAccepted, EventRejected, EventChanged, CommentAdded, CommentDeleted, EventDeleted)" +
-                           "VALUES (@eventId, @userUsername, @notificationTime, @invitationPending ,@eventAccepted, @eventRejected, @eventChanged, @commentAdded, @commentDeleted, @eventDeleted);";
+
+                string sqlQuery = "INSERT INTO Notification (EventId, UserUsername, NotificationTime, InvitationPending, EventAccepted, " +
+                    "EventRejected, EventChanged, CommentAdded, CommentDeleted, EventDeleted, AlertNotification) " +
+                           "VALUES (@eventId, @userUsername, @notificationTime, @invitationPending ,@eventAccepted, " +
+                           "@eventRejected, @eventChanged, @commentAdded, @commentDeleted, @eventDeleted, @alertNotification);";
                 SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
                 command.Parameters.AddWithValue("@eventId", notificationDataModel.EventOfNotification.Id);
@@ -449,6 +490,7 @@ namespace DataAccess.Logic
                 command.Parameters.AddWithValue("@commentAdded", Convert.ToInt32(notificationDataModel.CommentAdded));
                 command.Parameters.AddWithValue("@commentDeleted", Convert.ToInt32(notificationDataModel.CommentDeleted));
                 command.Parameters.AddWithValue("@eventDeleted", Convert.ToInt32(notificationDataModel.EventDeleted));
+                command.Parameters.AddWithValue("@alertNotification", Convert.ToInt32(notificationDataModel.AlertNotification));
 
                 command.ExecuteNonQuery();
             }
@@ -467,23 +509,15 @@ namespace DataAccess.Logic
         /// <param name="calendarId">The calendar's id that contains the event</param>
         public void InviteUsersToEvent(int eventId, string usernameOfCreator, List<string> usernamesOfUsers)
         {
-            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now,true,false,false,false,false,false,false), usernamesOfUsers);
+            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, true, false, false, false, false, false, false, false), usernamesOfUsers);
         }
 
-        /// <summary>
-        /// This method is used to create the connection between a user that participate in that event with the event.
-        /// The reason why this method exists is to be used after the creation of the event, which means that
-        /// the user can add a user to the event at a later time.
-        /// </summary
-        /// <param name="eventId">The event's id</param>
-        /// <param name="username">The user's username with which the indirect connection will be created</param>
-        /// <param name="calendarId">The calendar's id that contains the event</param>
-        public void InviteUserToEvent(int eventId,string usernameOfCreator, string usernameOfInvitedUser)
+        public void InviteUserToEvent(int eventId, string usernameOfCreator, string usernameOfInvitedUser)
         {
-            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, true, false, false, false, false, false, false), new List<string> { usernameOfInvitedUser });
+            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, true, false, false, false, false, false, false, false), new List<string> { usernameOfInvitedUser });
         }
 
-        public void AcceptInvitation(int eventId, string usernameOfInvitedUser, DateTime notificationTime, int calendarId,  bool alertStatus)
+        public void AcceptInvitation(int eventId, string usernameOfInvitedUser, DateTime notificationTime, int calendarId, bool alertStatus)
         {
             //delete the pending notification
             DeleteNotification(eventId, usernameOfInvitedUser, notificationTime);
@@ -521,7 +555,7 @@ namespace DataAccess.Logic
             connection.Close();
 
             //send accepted notification to the creator of the event
-            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, true, false, false, false, false, false), new List<string> { creatorName });
+            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, true, false, false, false, false, false, false), new List<string> { creatorName });
         }
 
         public void RejectInvitation(int eventId, string usernameOfInvitedUser, DateTime notificationTime)
@@ -546,7 +580,7 @@ namespace DataAccess.Logic
 
             connection.Close();
             //send rejected notification to the creator of the event
-            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, false, true, false, false, false, false), new List<string> { creatorName });
+            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, false, true, false, false, false, false, false), new List<string> { creatorName });
         }
 
         public void UpdateEvent(EventDataModel eventDataModel, string userWhoUpdatedTheEvent)
@@ -572,9 +606,9 @@ namespace DataAccess.Logic
         public void UpdateNativeEvent(EventDataModel calendarEvent, string username)
         {
             connection.Open();
-            string sqlQuery = "Update Event set Title = @title, Description = @description," +
-                "StartingTime = @startingTime, EndingTime = @endingTime" +
-                "where Id = @id";
+            string sqlQuery = "UPDATE Event SET Title = @title, Description = @description, " +
+                "StartingTime = @startingTime, EndingTime = @endingTime " +
+                "WHERE Id = @id;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@title", calendarEvent.Title);
@@ -586,10 +620,10 @@ namespace DataAccess.Logic
             command.ExecuteNonQuery();
 
             connection.Close();
-            
+
             connection.Open();
-            sqlQuery = "Update ParticipationInEvent set alertStatus = @alertStatus " +
-                "WHERE EventId = @eventId AND UserUsername = @userUsername";
+            sqlQuery = "UPDATE ParticipationInEvent SET alertStatus = @alertStatus " +
+                "WHERE EventId = @eventId AND UserUsername = @userUsername;";
             command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@alertStatus", Convert.ToInt32(calendarEvent.AlertStatus));
@@ -620,14 +654,14 @@ namespace DataAccess.Logic
             connection.Close();
 
             //send changed notification
-            CreateNotifications(new NotificationDataModel(calendarEvent.Id,DateTime.Now,false,false,false,true,false,false, false),membersOfEvent);
+            CreateNotifications(new NotificationDataModel(calendarEvent.Id, DateTime.Now, false, false, false, true, false, false, false, false), membersOfEvent);
         }
 
         public void UpdateForeignEvent(EventDataModel calendarEvent, string username)
         {
             connection.Open();
-            string sqlQuery = "Update ParticipationInEvent set alertStatus = @alertStatus " +
-                "WHERE EventId = @eventId AND UserUsername = @userUsername";
+            string sqlQuery = "UPDATE ParticipationInEvent SET alertStatus = @alertStatus " +
+                "WHERE EventId = @eventId AND UserUsername = @userUsername;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@alertStatus", Convert.ToInt32(calendarEvent.AlertStatus));
@@ -688,7 +722,7 @@ namespace DataAccess.Logic
             connection.Open();
 
             //if noone else has been invited to the event, then hard delete immediatelly
-            if(membersOfEvent.Count == 0)
+            if (membersOfEvent.Count == 0)
             {
                 sqlQuery = "DELETE FROM ParticipationInEvent WHERE EventId = @id;" +
                            "DELETE FROM Notification WHERE EventId = @id AND InvitationPending = 1;" +
@@ -711,7 +745,7 @@ namespace DataAccess.Logic
             connection.Close();
 
             //update for soft delete
-            if(membersOfEvent.Count != 0)
+            if (membersOfEvent.Count != 0)
             {
                 //TODO change the soft delete field
                 connection.Open();
@@ -724,7 +758,7 @@ namespace DataAccess.Logic
                 connection.Close();
 
                 //send notification that the event was deleted to everyone else(everyone who is not the creator)
-                CreateNotifications(new NotificationDataModel(id, DateTime.Now, false, false, false, false, false, false,true), membersOfEvent);
+                CreateNotifications(new NotificationDataModel(id, DateTime.Now, false, false, false, false, false, false, true, false), membersOfEvent);
             }
         }
 
@@ -753,14 +787,14 @@ namespace DataAccess.Logic
             //find the users
             connection.Open();
             sqlQuery = "SELECT UserUsername FROM ParticipationInEvent " +
-               "JOIN EVENT ON ParticipationInEvent.EventId = Event.Id " +
+               "JOIN Event ON ParticipationInEvent.EventId = Event.Id " +
                "WHERE Event.Id = @id;";
-            
+
             command = new SQLiteCommand(sqlQuery, connection);
-            
+
             command.Parameters.AddWithValue("@id", id);
             SQLiteDataReader reader = command.ExecuteReader();
-            
+
             List<string> membersOfEvent = new List<string>();
 
             while (reader.Read())
@@ -770,10 +804,29 @@ namespace DataAccess.Logic
 
             connection.Close();
             //send deleted notification to everyone else
-            CreateNotifications(new NotificationDataModel(id, DateTime.Now, false, false, false, false, false, false, true), membersOfEvent);
+            CreateNotifications(new NotificationDataModel(id, DateTime.Now, false, false, false, false, false, false, true, false), membersOfEvent);
         }
 
-        public void DeleteNotification(int eventId,string userUsername, DateTime notificationTime)
+        public void SendAlertNotification(int eventId, string username)
+        {
+            //send the notification
+            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, false, false, false, false, false, false, true), new List<string> { username });
+
+            //update the alert status
+            connection.Open();
+            string sqlQuery = "UPDATE ParticipationInEvent SET AlertStatus = 0 " +
+                "WHERE EventId = @eventId AND UserUsername = @username;";
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+
+            command.Parameters.AddWithValue("@eventId", eventId);
+            command.Parameters.AddWithValue("@username", username);
+
+            command.ExecuteNonQuery();
+
+            connection.Close();
+        }
+
+        public void DeleteNotification(int eventId, string userUsername, DateTime notificationTime)
         {
             //delete the notification
             //TODO fix that event id = 0;
@@ -829,7 +882,7 @@ namespace DataAccess.Logic
             }
 
             //if there are notifications of deletion to other users, do not delete the event
-            if(countOfSoftDeletedNotifications > 0)
+            if (countOfSoftDeletedNotifications > 0)
             {
                 connection.Close();
                 return;

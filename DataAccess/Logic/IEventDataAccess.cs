@@ -8,6 +8,7 @@ namespace DataAccess.Logic
     {
         List<EventDataModel> GetEvents(int calendarId);
         EventDataModel GetEvent(int id);
+        EventDataModel GetEvent(int id, string username);
         EventDataModel GetEventForNotifications(int id);
         int CreateEvent(EventDataModel calendarEvent, string username, int calendarId);
         int CreateEvent(EventDataModel calendarEvent, string usernameOfCreator, List<string> usernamesOfUsers, int calendarId);
@@ -19,6 +20,7 @@ namespace DataAccess.Logic
         void RejectInvitation(int eventId, string usernameOfInvitedUser, DateTime notificationTime);
         void UpdateEvent(EventDataModel calendarEvent, string username);
         void DeleteEvent(int id, string userWhoDeletedTheEvent);
+        void SendAlertNotification(int eventId, string username);
         void DeleteNotification(int eventId, string userUsername, DateTime notificationTime);
     }
 }

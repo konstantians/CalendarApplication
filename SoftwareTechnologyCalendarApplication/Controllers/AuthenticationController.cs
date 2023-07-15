@@ -88,7 +88,29 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             //authenticates the user
             ActiveUser.User = new User(userDataModel);
 
-            if(ActiveUser.User.Notifications.Count != 0)
+            //Test
+            if (ActiveUser.User.Username == "Konstantinos")
+            {
+                EventDataModel eventDataModel = new EventDataModel("Best Event Konstantinos", "bla bla", DateTime.Now.AddMinutes(30),
+                    DateTime.Now.AddMinutes(90), "Konstantinos");
+
+                int id = _eventDataAccess.CreateEvent(eventDataModel, "Konstantinos", 84);
+                _eventDataAccess.InviteUserToEvent(id,"Konstantinos","EliasLgt");
+            }
+            //
+
+            foreach (Event calendarEvent in ActiveUser.User.EventsThatTheUserParticipates)
+            {
+                if (calendarEvent.AlertStatus && (calendarEvent.StartingTime.AddHours(-1) < DateTime.Now && DateTime.Now < calendarEvent.EndingTime))
+                {
+                    _eventDataAccess.SendAlertNotification(calendarEvent.Id, ActiveUser.User.Username);
+                }
+            }
+
+            //get the new notifications of the user, which might have been created by the alert status
+            ActiveUser.User = new User(_userDataAccess.GetUser(user.Username));
+
+            if (ActiveUser.User.Notifications.Count != 0)
             {
                 ActiveUser.HasNotifications = true;
             }

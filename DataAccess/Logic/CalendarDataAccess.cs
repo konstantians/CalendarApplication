@@ -29,7 +29,7 @@ namespace DataAccess.Logic
         public List<CalendarDataModel> GetCalendars(string userUsername)
         {
             connection.Open();
-            string sqlQuery = "Select * from Calendar where UserUsername = @userUsername";
+            string sqlQuery = "SELECT * FROM Calendar WHERE UserUsername = @userUsername;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@userUsername", userUsername);
@@ -45,8 +45,8 @@ namespace DataAccess.Logic
                 calendar.Title = reader.GetString(1);
                 calendar.Events = ReturnEventsOfCalendar(calendar.Id);
 
-                sqlQuery = "Select Name from Category " +
-                "join Calendar on Calendar.Id = Category.CalendarId where Calendar.Id = @id";
+                sqlQuery = "SELECT Name FROM Category " +
+                "JOIN Calendar ON Calendar.Id = Category.CalendarId WHERE Calendar.Id = @id;";
                 command = new SQLiteCommand(sqlQuery, connection);
 
                 command.Parameters.AddWithValue("@id", calendar.Id);
@@ -73,7 +73,7 @@ namespace DataAccess.Logic
         public CalendarDataModel GetCalendar(int id)
         {
             connection.Open();
-            string sqlQuery = "Select * from Calendar where Id = @id";
+            string sqlQuery = "SELECT * FROM Calendar WHERE Id = @id;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@id", id);
@@ -87,8 +87,8 @@ namespace DataAccess.Logic
                 calendar.Title = reader.GetString(1);
                 calendar.Events = ReturnEventsOfCalendar(id);
 
-                sqlQuery = "Select Name from Category " +
-                "join Calendar on Calendar.Id = Category.CalendarId where Calendar.Id = @id";
+                sqlQuery = "SELECT Name FROM Category " +
+                "JOIN Calendar ON Calendar.Id = Category.CalendarId WHERE Calendar.Id = @id;";
                 command = new SQLiteCommand(sqlQuery, connection);
 
                 command.Parameters.AddWithValue("@id", id);
@@ -112,9 +112,7 @@ namespace DataAccess.Logic
         /// <returns>The events that exist in the calendar</returns>
         private List<EventDataModel> ReturnEventsOfCalendar(int id)
         {
-            /*string sqlQuery = "SELECT Event.Id FROM Event " +
-                "JOIN Calendar ON Calendar.Id = Event.CalendarId where Calendar.Id = @id;";*/
-            string sqlQuery = "SELECT Event.Id FROM Calendar " +
+            string sqlQuery = "SELECT Event.Id, ParticipationInEvent.UserUsername FROM Calendar " +
                 "JOIN ParticipationInEvent ON ParticipationInEvent.CalendarId = Calendar.Id " +
                 "JOIN Event ON ParticipationInEvent.EventId = Event.Id AND ParticipationInEvent.CalendarId = Calendar.Id " +
                 "WHERE Calendar.Id = @id;";
@@ -128,7 +126,7 @@ namespace DataAccess.Logic
             while (reader.Read())
             {
 
-                EventDataModel calendarEvent = EventDataAccess.GetEvent(reader.GetInt32(0));
+                EventDataModel calendarEvent = EventDataAccess.GetEvent(reader.GetInt32(0), reader.GetString(1));
 
                 events.Add(calendarEvent);
             }
@@ -148,7 +146,7 @@ namespace DataAccess.Logic
             connection.Open();
             string sqlQuery = "INSERT INTO Calendar (Title, UserUsername) " +
                               "VALUES (@title, @userUsername);" +
-                              "SELECT last_insert_rowid()";
+                              "SELECT last_insert_rowid();";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@title", calendar.Title);
@@ -176,7 +174,7 @@ namespace DataAccess.Logic
         {
             string sqlQuery = "INSERT INTO Category (Name, CalendarId) " +
                               "VALUES (@name, @calendarId);" +
-                              "SELECT last_insert_rowid()";
+                              "SELECT last_insert_rowid();";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@name", categoryName);
@@ -197,8 +195,8 @@ namespace DataAccess.Logic
         public void UpdateCalendar(CalendarDataModel calendar, bool writeCategory)
         {
             connection.Open();
-            string sqlQuery = "Update Calendar set Title = @title " +
-                              "where Calendar.Id = @calendarId";
+            string sqlQuery = "UPDATE Calendar SET Title = @title " +
+                              "WHERE Calendar.Id = @calendarId;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@title", calendar.Title);
@@ -219,8 +217,8 @@ namespace DataAccess.Logic
                     if (calendarInDatabase.Categories.Contains(category))
                         continue;
 
-                    sqlQuery = "Insert into Category(Name,CalendarId) " +
-                               "values(@name,@calendarId)";
+                    sqlQuery = "INSERT INTO Category(Name, CalendarId) " +
+                               "VALUES(@name, @calendarId);";
                     command = new SQLiteCommand(sqlQuery, connection);
 
                     command.Parameters.AddWithValue("@name", category);
@@ -234,8 +232,8 @@ namespace DataAccess.Logic
                     if (calendar.Categories.Contains(category))
                         continue;
 
-                    sqlQuery = "Delete from Category " +
-                               "where name = @name";
+                    sqlQuery = "DELETE FROM Category " +
+                               "WHERE name = @name;";
                     command = new SQLiteCommand(sqlQuery, connection);
 
                     command.Parameters.AddWithValue("@name", category);
@@ -264,7 +262,7 @@ namespace DataAccess.Logic
             //remove the events of the calendar from the participation table
             foreach (EventDataModel calendarEvent in events)
             {
-                string sqlQueryInside = "Delete From ParticipationInEvent where EventId = @eventId";
+                string sqlQueryInside = "DELETE FROM ParticipationInEvent WHERE EventId = @eventId;";
                 SQLiteCommand commandInside = new SQLiteCommand(sqlQueryInside, connection);
                 commandInside.Parameters.AddWithValue("@eventId", calendarEvent.Id);
                 commandInside.ExecuteNonQuery();
@@ -273,9 +271,9 @@ namespace DataAccess.Logic
             //delete all the categories of the calendar
             //then delete all the events of the calendar from the event table
             //and then delete the calendar itself
-            string sqlQuery = "Delete From Category where CalendarId = @id;" +
-                              "Delete From Event where CalendarId = @id;" +
-                              "Delete from Calendar where Id = @id";
+            string sqlQuery = "DELETE FROM Category WHERE CalendarId = @id;" +
+                              "DELETE FROM Event WHERE CalendarId = @id;" +
+                              "DELETE FROM Calendar WHERE Id = @id;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@id", id);
             command.ExecuteNonQuery();

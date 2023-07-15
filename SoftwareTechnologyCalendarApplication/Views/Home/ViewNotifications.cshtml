@@ -186,7 +186,7 @@
         }
         @foreach (Notification notification in Model.Notifications)
         {
-            @if (!notification.InvitationPending)
+            @if (!notification.InvitationPending && !notification.AlertNotification)
             {
                 <div class="notification-box" id="notification-box-@count">
                     <div class="flex-grow-1 d-flex justify-content-between align-items-center">
@@ -263,20 +263,46 @@
         @{
             initialCountSection3 = count;
         }
-        @foreach (Event userEvent in Model.EventsThatTheUserParticipates)
+        @foreach (Notification notification in Model.Notifications)
         {
-            if (userEvent.AlertStatus && (userEvent.StartingTime.AddHours(-1) < DateTime.Now && DateTime.Now < userEvent.EndingTime))
+            if (notification.AlertNotification)
             {
-                <div class="notification-box">
+                <div class="notification-box" id="notification-box-@count">
                     <div class="flex-grow-1 d-flex justify-content-between align-items-center">
-                        <p class="notification-title">The Event @userEvent.Title will start in 1 hour</p>
+                        <p class="notification-title">The Event @notification.EventOfNotification.Title will start in 1 hour</p>
                         <div>
-                            <button type="button" class="btn btn-danger notification-btn notification-close-btn">
+                            <button type="button" class="btn btn-danger notification-btn notification-close-btn" onclick="removeNotification('@count')">
                                 <i class="fa-solid fa-x"></i>
                             </button>
-                            <button type="button" class="btn btn-danger notification-btn notification-close-btn">
+                            <button type="button" class="btn btn-danger notification-btn notification-close-btn" data-toggle="modal" data-target="#myModal-@count">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="myModal-@count" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-@count" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="myModalLabel-@count">Notification Confirm Deletion Dialog</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete this notification?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <!--fill the form-->
+                                <form method="post" asp-controller="Home" asp-action="DeleteNotification">
+                                    <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
+                                    <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -292,11 +318,12 @@
             </div>
         }
     </div>
-    
+
 </div>
 
 @section Scripts {
     <script>
+
         // Add the "col-3-large" class to columns when screen size is above 1200px (col-xl)
         function addCol3LargeClass() {
             const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -306,10 +333,10 @@
                 columns.forEach((column) => {
                     column.classList.add('col-xl-4');
                     column.classList.remove('col-xl-6');
-                    
+
                 });
             }
-            else{
+            else {
                 const columns = document.querySelectorAll('.marker');
                 columns.forEach((column) => {
                     column.classList.add('col-xl-6');
