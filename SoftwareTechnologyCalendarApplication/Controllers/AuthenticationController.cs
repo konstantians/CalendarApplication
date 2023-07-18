@@ -4,7 +4,6 @@ using DataAccess.Models;
 using System.Collections.Generic;
 using System;
 using SoftwareTechnologyCalendarApplication.Models;
-using SoftwareTechnologyCalendarApplicationMVC.Models;
 using System.Linq;
 using System.Threading;
 

@@ -2,7 +2,7 @@
 using SoftwareTechnologyCalendarApplication.Models;
 using System;
 
-namespace SoftwareTechnologyCalendarApplicationMVC.Models
+namespace SoftwareTechnologyCalendarApplication.Models
 {
     public class Comment
     {

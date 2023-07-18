@@ -21,6 +21,7 @@ namespace SoftwareTechnologyCalendarApplication.Models
         public string EventCreatorName { get; set; }
         public List<User> UsersThatParticipateInTheEvent { get; set; } = new List<User>();
         public List<Notification> Notifications { get; set; } = new List<Notification>();
+        public List<Comment> EventComments { get; set; } = new List<Comment>();
 
         public Event(){}
 
@@ -42,6 +43,10 @@ namespace SoftwareTechnologyCalendarApplication.Models
                 tempUser.Phone = userDataModel.Phone;
 
                 UsersThatParticipateInTheEvent.Add(tempUser);
+            }
+            foreach (CommentDataModel commentDataModel in eventDataModel.EventComments)
+            {
+                EventComments.Add(new Comment(commentDataModel));
             }
         }
     }

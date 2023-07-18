@@ -188,14 +188,53 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             ViewData["Year"] = year;
             ViewData["Month"] = month;
             ViewData["Day"] = day;
-            EventDataModel eventDataModelTemp = EventDataAccess.GetEvent(eventId, ActiveUser.User.Username);
-            Event eventt = new Event();
-            eventt.Id=eventDataModelTemp.Id;
+            //EventDataModel eventDataModelTemp = EventDataAccess.GetEvent(eventId, ActiveUser.User.Username);
+            Event eventt = new Event(EventDataAccess.GetEvent(eventId, ActiveUser.User.Username));
+            /*eventt.Id=eventDataModelTemp.Id;
             eventt.Description = eventDataModelTemp.Description;
             eventt.Title = eventDataModelTemp.Title;
             eventt.StartingTime = eventDataModelTemp.StartingTime;
             eventt.EndingTime = eventDataModelTemp.EndingTime;
-            eventt.AlertStatus = eventDataModelTemp.AlertStatus;
+            eventt.AlertStatus = eventDataModelTemp.AlertStatus;*/
+            //List<CommentDataModel> li = eventDataModelTemp.EventComments;
+            List<string> alreadyParticipate = new List<string>();
+            foreach (User user in eventt.UsersThatParticipateInTheEvent)
+            {
+                alreadyParticipate.Add(user.Username);
+            }
+            List<string> usernmes = new List<string>();
+            foreach (UserDataModel userr in UserDataAccess.GetUsers())
+            {
+
+                if (userr.Username != ActiveUser.User.Username && !alreadyParticipate.Contains(userr.Username))
+                {
+                    bool goNext = false;
+                    foreach(NotificationDataModel notificationDataModel in userr.Notifications)
+                    {
+                        if(notificationDataModel.EventOfNotification.Id == eventId && notificationDataModel.InvitationPending)
+                        {
+                            goNext= true;
+                            break;
+                        }
+                    }
+                    if (goNext)
+                    {
+                        continue;
+                    }
+                    usernmes.Add(userr.Username);
+                }
+            }
+            ViewData["usernames"] = usernmes;
+
+
+            /*int i = 0;
+            foreach(CommentDataModel comment in li)
+            {
+                ViewData[i.ToString()] = comment;
+                ViewData[i.ToString()+"u"] = comment.UserWhoMadeTheComment;
+                i++;
+            }
+            ViewData["Last"] = i - 1;*/
             return View(eventt);
         }
 
@@ -238,29 +277,21 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             Event eventt = new Event();
             eventt.EndingTime = dateTime;
             eventt.StartingTime = dateTime;
-            List<UserDataModel> li = UserDataAccess.GetUsers();
-            List<CalendarDataModel> lii;
-            int i = -1;
-            foreach (UserDataModel useer in li)
+            List<string> usernmes = new List<string>();
+            foreach(UserDataModel userr in UserDataAccess.GetUsers())
             {
-                i = i + 1;
-                ViewData[i.ToString()]= useer.Username;
-                lii = useer.Calendars;
-                foreach (CalendarDataModel cal  in lii)
+                if (userr.Username != ActiveUser.User.Username)
                 {
-                    if (cal.Id == calendarId)
-                    {
-                        ViewData["usernm"] = useer.Username;
-                    }
+                    usernmes.Add(userr.Username);
                 }
             }
-            ViewData["LastNumber"] = i;
+            ViewData["usernames"]=usernmes;
             return View(eventt);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult addEvent(int calendarId, Event eventt, int year, int month, int day)
+        public IActionResult addEvent(int calendarId, Event eventt, int year, int month, int day, string[] Invitation)
         {
             AuthorizeUser();
 
@@ -286,8 +317,26 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventDataModel.StartingTime = eventt.StartingTime;
             eventDataModel.EndingTime = eventt.EndingTime;
             eventDataModel.AlertStatus = eventt.AlertStatus;
+            //List<UserDataModel> li1 = UserDataAccess.GetUsers();
+            //List<string> li2 = new List<string>();
+            //foreach (UserDataModel userr in li1)
+            //{
+                //if (Invitation.Contains(userr.Username))
+                //{
+                //    eventDataModel.UsersThatParticipateInTheEvent.Add(userr);
+                //}
 
-            EventDataAccess.CreateEvent(eventDataModel, ActiveUser.User.Username, calendarId);
+                //foreach(string usrnam in Invitation)
+                //{
+                //    if (usrnam == userr.Username)
+                //    {
+                //        eventDataModel.UsersThatParticipateInTheEvent.Add(userr);
+                //        li2.Add(usrnam);
+                //    }
+                //}
+            //}
+            int eventId=EventDataAccess.CreateEvent(eventDataModel, ActiveUser.User.Username, calendarId);
+            EventDataAccess.InviteUsersToEvent(eventId, ActiveUser.User.Username, Invitation.ToList());
             return RedirectToAction("ViewCalendarDay", "Home", new {calendarId = calendarId ,
             year = year, month = month, day = day});
         }
