@@ -1,230 +1,58 @@
 ﻿@model SoftwareTechnologyCalendarApplication.Models.Event
-
 @{
     ViewData["Title"] = "editEvent";
-    // placeholder=@Model.Title
 }
 
 <style>
-    .notification-box {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 10px;
-        margin-bottom: 5px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #fafafa
+    body {
+        background-color: #f0f2f5;
     }
 
-    .notification-title {
-        margin: 0;
+    /* Styles for the cool bubbles */
+    .badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        background-color: #007bff;
+        color: #fff;
     }
 
-    .notification-btn {
-        border: none;
-        background: none;
-        cursor: pointer;
+    /* Styles for the wrapper div to ensure proper alignment */
+    .d-flex.flex-wrap {
+        margin-top: 5px;
     }
-
-    .notification-check-btn {
-        color: blue;
-    }
-
-    .notification-close-btn {
-        color: red;
-    }
-
-    .marker {
-    }
-
-    .mult-select-tag {
-        display: flex;
-        width: 100%;
-        flex-direction: column;
-        align-items: center;
-        position: relative;
-        --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-        --tw-shadow-color: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
-        --border-color: rgb(218, 221, 224);
-        font-family: Verdana, sans-serif;
-    }
-
-        .mult-select-tag .wrapper {
-            width: 100%;
-        }
-
-        .mult-select-tag .body {
-            display: flex;
-            border: 1px solid var(--border-color);
-            background: white;
-            min-height: 2.15rem;
-            width: 100%;
-            min-width: 14rem;
-        }
-
-        .mult-select-tag .input-container {
-            display: flex;
-            flex-wrap: wrap;
-            flex: 1 1 auto;
-            padding: 0.1rem;
-        }
-
-        .mult-select-tag .input-body {
-            display: flex;
-            width: 100%;
-        }
-
-        .mult-select-tag .input {
-            flex: 1;
-            background: transparent;
-            border-radius: 0.25rem;
-            padding: 0.45rem;
-            margin: 10px;
-            color: #2d3748;
-            outline: 0;
-            border: 1px solid var(--border-color);
-        }
-
-        .mult-select-tag .btn-container {
-            color: #e2eBf0;
-            padding: 0.5rem;
-            display: flex;
-            border-left: 1px solid var(--border-color);
-        }
-
-        .mult-select-tag button {
-            cursor: pointer;
-            width: 100%;
-            color: #718096;
-            outline: 0;
-            height: 100%;
-            border: none;
-            padding: 0;
-            background: transparent;
-            background-image: none;
-            -webkit-appearance: none;
-            text-transform: none;
-            margin: 0;
-        }
-
-            .mult-select-tag button:first-child {
-                width: 1rem;
-                height: 90%;
-            }
-
-
-        .mult-select-tag .drawer {
-            position: absolute;
-            background: white;
-            max-height: 15rem;
-            z-index: 40;
-            top: 98%;
-            width: 100%;
-            overflow-y: scroll;
-            border: 1px solid var(--border-color);
-            border-radius: 0.25rem;
-        }
-
-        .mult-select-tag ul {
-            list-style-type: none;
-            padding: 0.5rem;
-            margin: 0;
-        }
-
-            .mult-select-tag ul li {
-                padding: 0.5rem;
-                border-radius: 0.25rem;
-                cursor: pointer;
-            }
-
-                .mult-select-tag ul li:hover {
-                    background: rgb(243 244 246);
-                }
-
-        .mult-select-tag .item-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #2c7a7b;
-            padding: 0.2rem 0.4rem;
-            margin: 0.2rem;
-            font-weight: 500;
-            border: 1px solid #81e6d9;
-            background: #e6fffa;
-            border-radius: 9999px;
-        }
-
-        .mult-select-tag .item-label {
-            max-width: 100%;
-            line-height: 1;
-            font-size: 0.75rem;
-            font-weight: 400;
-            flex: 0 1 auto;
-            color: #2c7a7b;
-        }
-
-        .mult-select-tag .item-close-container {
-            display: flex;
-            flex: 1 1 auto;
-            flex-direction: row-reverse;
-        }
-
-        .mult-select-tag .item-close-svg {
-            width: 1rem;
-            margin-left: 0.5rem;
-            height: 1rem;
-            cursor: pointer;
-            border-radius: 9999px;
-            display: block;
-        }
-
-    .hidden {
-        display: none;
-    }
-
-    .mult-select-tag .shadow {
-        box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-    }
-
-    .mult-select-tag .rounded {
-        border-radius: .375rem;
-    }
-
 </style>
 
-@{
-    if ((int)ViewData["forein"] == 0)
-    {
-        <h1 class="text-center">Event editing form</h1>
+<div class="mt-1 mb-2 pt-2 pb-2 shadow" style="background-color: white;">
+    @{
+        if ((int)ViewData["forein"] == 0)
+        {
+            <h1 class="text-center">Event editing form</h1>
 
-        <h4 class="text-center">Please edit the following event as you like:</h4>
-        <hr />
+            <h4 class="text-center">Please edit the following event as you like:</h4>
+        }
+        else if ((int)ViewData["forein"] == 1)
+        {
+            <h1 class="text-center">Event details</h1>
+
+            <h4 class="text-center">It seems, you are not the creator of the event. Thus, you can not alter its details, but you can always add a comment and toggle your personal alertstatus.</h4>
+        }
     }
-    else if ((int)ViewData["forein"] == 1)
-    {
-        <h1 class="text-center">Event details</h1>
-
-        <h4 class="text-center">It seems, you are not the creator of the event. Thus, you can not alter its details, but you can always add a comment and toggle your personal alertstatus.</h4>
-        <hr />
-    }
-}
-
-
-
-<form asp-action="editEvent">
+</div>
+<form asp-action="editEvent" style="background-color:white;">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input name="calendarId" value="@ViewData["CalendarId"]" hidden />
-    <div class="row">
-        <div class="col-md-3">
-            <div style="margin-top: 25px;">
+    <div class="shadow pt-4 pb-4 pl-4 pr-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h4 class="text-center">Event Information</h4>
                 <div class="form-group">
                     <label asp-for="Title" class="control-label"></label>
-                    <div class="input-group mb-3">
+                    <div class="input-group">
                         <input asp-for="Title" class="form-control" id="title" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                        <span asp-validation-for="Title" class="text-danger"></span>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('title',@ViewData["forein"])">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('title', @ViewData["forein"])">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     ::before
@@ -236,16 +64,14 @@
                             </button>
                         </div>
                     </div>
+                    <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
-            </div>
-            <div style="margin-top: 15px;">
                 <div class="form-group">
                     <label asp-for="StartingTime" class="control-label"></label>
-                    <div class="input-group mb-3">
+                    <div class="input-group">
                         <input asp-for="StartingTime" class="form-control" id="startingTime" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                        <span asp-validation-for="StartingTime" class="text-danger"></span>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('startingTime',@ViewData["forein"])">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('startingTime', @ViewData["forein"])">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     ::before
@@ -257,16 +83,14 @@
                             </button>
                         </div>
                     </div>
+                    <span asp-validation-for="StartingTime" class="text-danger"></span>
                 </div>
-            </div>
-            <div style="margin-top: 15px;">
                 <div class="form-group">
                     <label asp-for="EndingTime" class="control-label"></label>
-                    <div class="input-group mb-3">
+                    <div class="input-group">
                         <input asp-for="EndingTime" class="form-control" id="endingTime" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                        <span asp-validation-for="EndingTime" class="text-danger"></span>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('endingTime',@ViewData["forein"])">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('endingTime', @ViewData["forein"])">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     ::before
@@ -278,19 +102,14 @@
                             </button>
                         </div>
                     </div>
+                    <span asp-validation-for="EndingTime" class="text-danger"></span>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 offset-md-1">
-            <div class="row" style="margin-top: 25px;">
                 <div class="form-group">
                     <label asp-for="Description" class="control-label"></label>
-                    <div class="input-group mb-3">
-                        <textarea asp-for="Description" class="form-control" id="description" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" rows="4" cols="65"></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
+                    <div class="input-group">
+                        <textarea asp-for="Description" class="form-control" id="description" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" rows="3"></textarea>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('description',@ViewData["forein"])">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('description', @ViewData["forein"])">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     ::before
@@ -302,388 +121,450 @@
                             </button>
                         </div>
                     </div>
+                    <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
-            </div>
-            <div class="row" style="margin-top: 50px; margin-left: 10px;">
                 <div class="form-group form-check">
                     <label class="form-check-label">
                         <input class="form-check-input" asp-for="AlertStatus" /> I want to be notified when the event begins
                     </label>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 offset-md-1">
-            <div style="margin-top: 15px;">
-                <label for="Invitation">Who do you want to invite?</label>
-                <select name="Invitation[]" class="form-control" id="Invitation" multiple>
-                    @foreach (string username in (List<string>)ViewData["usernames"])
-                    {
-                        <option value="@username">@username</option>
-                    }
-                </select>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        Comments:
-        <div id="commentArea">
-            @foreach (Comment comment in Model.EventComments)
-            {
-                <div class="notification-box">
-                    <div>
-                        @comment.UserWhoMadeTheComment.Username - @comment.CommentDate.ToString()
+            <div class="col-md-6">
+                <div class="d-flex justify-content-between">
+                    <div></div>
+                    <h4>Participants Section</h4>
+                    <a class="btn btn-primary" data-toggle="collapse" href="#participationSection" role="button" aria-expanded="false" 
+                    aria-controls="participationSection" id="showParticipationButton">
+                        <i id="showParticipationButtonIcon" class="fa-solid fa-chevron-down"></i>
+                    </a>
+                </div>
+
+                <div id="participationSection" class="collapse">
+                    <p> Members Who Participate In The Event: </p>
+                    <div class="d-flex flex-wrap mt-3">
+                        @foreach (User user in Model.UsersThatParticipateInTheEvent)
+                        {
+                            <span class="badge badge-primary mr-2 mb-2">@user.Username</span>
+                        }
                     </div>
-                    <hr>
                     <div>
-                        @comment.CommentText
+                        <label for="invitations">Who do you want to invite?</label>
+                        <select name="invitations[]" class="form-control" id="invitations" multiple>
+                            @foreach (string username in (List<string>)ViewData["usernames"])
+                            {
+                                <option value="@username">@username</option>
+                            }
+                        </select>
                     </div>
                 </div>
-            }
+                
+                <div class="d-flex justify-content-between mt-3 mb-2">
+                    <div></div>
+                    <h4>Comments Section</h4>
+                    <a class="btn btn-primary" data-toggle="collapse" href="#commentSection" role="button" aria-expanded="false"
+                        aria-controls="commentSection" id="showCommentButton">
+                        <i id="showCommentButtonIcon" class="fa-solid fa-chevron-down"></i>
+                    </a>
+                </div>
+                <div id="commentSection" class="collapse mt-2">
+                    <div id="commentArea">
+                        @if (Model.EventComments.Count == 0)
+                        {
+                            <div class="alert alert-info" role="alert" id="noComments">
+                                <strong>No comments!</strong> There are no comments yet.
+                            </div>
+                        }
+                        else{
+                            <div class="alert alert-info" role="alert" id="noComments" style="display:none;">
+                                <strong>No comments!</strong> There are no comments yet.
+                            </div>
+                        }
+
+                        @{
+                            int commentId = 0;
+                        }
+                        @foreach (Comment comment in Model.EventComments)
+                        {
+                            <div class="card mb-2">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title font-weight-bold">
+                                            <i class="fa-solid fa-user mr-1"></i> @comment.UserWhoMadeTheComment.Username
+                                        </h5>
+                                        @*if the comment is yours create the buttons*@
+                                        @if(ActiveUser.User.Username == comment.UserWhoMadeTheComment.Username){
+                                            <div>
+                                                @*button for update modal*@
+                                                <button type="button" class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#updateModal-@commentId">
+                                                    <i class="fa-solid fa-pencil"></i>
+                                                </button>
+
+                                                @*button for delete modal*@
+                                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal-@commentId">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </div>
+
+                                            commentId++;
+                                        }
+                                    </div>
+                                    <p class="card-subtitle text-muted">@comment.CommentDate.ToString()</p>
+                                </div>
+                                <div class="card-body">
+                                    @comment.CommentText
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <label asp-for="EventComments">Add your comment:</label><br />
+                    <textarea class="form-control" id="myComment" rows="3" placeholder="What do you think about this event?"></textarea>
+                    <div class="d-flex justify-content-end">
+                        <a class="btn btn-primary mt-2 mb-2" href="#" onclick="addComment()">Add Comment</a>
+                    </div>
+                </div>
+                
+            </div>
         </div>
-        <div>
-            <label asp-for="EventComments">Add your comment:</label><br />
-            <textarea asp-for="EventComments" class="" id="myComment" rows="4" cols="65" placeholder="What do you think about this event?"></textarea>
-            <button class="btn btn-primary" onclick="addComment()">Add comment</button>
-        </div>
-    </div>
-    <input type="hidden" name="calendarId" value="@ViewData["CalendarId"]" />
-    <input type="hidden" name="eventId" value="@ViewData["EventId"]" />
-    <input type="hidden" name="year" value="@ViewData["Year"]" />
-    <input type="hidden" name="month" value="@ViewData["Month"]" />
-    <input type="hidden" name="day" value="@ViewData["Day"]" />
-    <div class="d-flex justify-content-center" style="margin-top: 35px;">
-        <a class="btn btn-outline-primary" asp-controller="Home" asp-action="ViewCalendarDay" asp-route-calendarId="@ViewData["CalendarId"]"
-           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]">Back to Calendar</a>
-        <div class="ml-3">
-            <input type="submit" value="Submit Changes" class="btn btn-outline-primary" onclick="EnableAll()" />
+
+        @*this just exists, so the the method in the controller will not have a null value*@
+        <input type="hidden" asp-for="EventCreatorName"/>
+        <input type="hidden" name="calendarId" value="@ViewData["CalendarId"]" />
+        <input type="hidden" name="eventId" value="@ViewData["EventId"]" />
+        <input type="hidden" name="year" value="@ViewData["Year"]" />
+        <input type="hidden" name="month" value="@ViewData["Month"]" />
+        <input type="hidden" name="day" value="@ViewData["Day"]" />
+        @*this input is used for the new comments*@
+        <input type="hidden" name="newComments" id="newComments" value="" />
+        <div class="d-flex justify-content-center">
+            <a class="btn btn-outline-primary" asp-controller="Home" asp-action="ViewCalendarDay" asp-route-calendarId="@ViewData["CalendarId"]"
+               asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]">Back to Calendar</a>
+            <div class="ml-3">
+                <input type="submit" value="Submit Changes" class="btn btn-outline-primary" onclick="EnableAll(); createCommentsForFormSubmission();" />
+            </div>
         </div>
     </div>
 </form>
 
-<script type="text/javascript">
-    function addComment(){
-        let comment = document.getElementById("myComment").value;
-        const coment = document.createElement("div");
-        const userr = document.createElement("div");
-        coment.innerText = comment;
-        //coment.classList.add("notification-box");
-        userr.innerText = @ActiveUser.User.Username + "-" + @DateTime.Now.ToString();
-        //userr.classList.add("notification-box");
-        document.getElementById("commentArea").appendChild(userr);
-        document.getElementById("commentArea").appendChild(document.createElement("hr"));
-        document.getElementById("commentArea").appendChild(coment);
-        document.getElementById("myComment").value="";
+@*delete comment modal*@
+@{int i = 0;}
+@foreach (Comment comment in Model.EventComments)
+{
+    @*if the comment is yours create the buttons*@
+    @if (ActiveUser.User.Username == comment.UserWhoMadeTheComment.Username)
+    {
+        <form id="editForm-@i" asp-action="editComment" asp-controller="home" method="post">
+            <input name="userWhoMadeTheComment" value="@comment.UserWhoMadeTheComment.Username" hidden>
+            <input name="eventId" value="@comment.EventOfComment.Id" hidden>
+            <input name="commentDate" value="@comment.CommentDate" hidden>
+            <input name="commentText" value="" id="newCommentText" hidden>
+            <input name="calendarId" value="@ViewData["CalendarId"]" hidden>
+            <input name="year" value="@ViewData["Year"]" hidden>
+            <input name="month" value="@ViewData["Month"]" hidden>
+            <input name="day" value="@ViewData["Day"]" hidden>
+            <input name="oldCommentText" value="@comment.CommentText" hidden>
+
+            <div class="modal fade" id="updateModal-@i">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateModalLabel-@i">Update Comment Dialog</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <textarea class="form-control" id="updateCommentTextArea" rows="4" cols="65">@comment.CommentText</textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" onclick="updateComment()">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <form id="deleteForm-@i" asp-action="deleteComment" asp-controller="home" method="post">
+            <input name="userWhoMadeTheComment" value="@comment.UserWhoMadeTheComment.Username" hidden>
+            <input name="eventId" value="@comment.EventOfComment.Id" hidden>
+            <input name="commentDate" value="@comment.CommentDate" hidden>
+            <input name="commentText" value="@comment.CommentText" hidden>
+            <input name="calendarId" value="@ViewData["CalendarId"]" hidden>
+            <input name="year" value="@ViewData["Year"]" hidden>
+            <input name="month" value="@ViewData["Month"]" hidden>
+            <input name="day" value="@ViewData["Day"]" hidden>
+
+            <div class="modal fade" id="deleteModal-@i">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel-@i">Comment Deletion Confirmation Dialog</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this comment?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width:75px;">No</button>
+                            <button type="submit" class="btn btn-danger" style="width:75px;">Yes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        i++;
     }
-</script>
-
-<script type="text/javascript">
-    function MultiSelectTag(el, customs = { shadow: false, rounded: true }) {
-        var element = null
-        var options = null
-        var customSelectContainer = null
-        var wrapper = null
-        var btnContainer = null
-        var body = null
-        var inputContainer = null
-        var inputBody = null
-        var input = null
-        var button = null
-        var drawer = null
-        var ul = null
-        var domParser = new DOMParser()
-        init()
-
-        function init() {
-            element = document.getElementById(el)
-            createElements()
-            initOptions()
-            enableItemSelection()
-            setValues(false)
-
-            button.addEventListener('click', () => {
-                if (drawer.classList.contains('hidden')) {
-                    initOptions()
-                    enableItemSelection()
-                    drawer.classList.remove('hidden')
-                    input.focus()
-                }
-            })
-
-            input.addEventListener('keyup', (e) => {
-                initOptions(e.target.value)
-                enableItemSelection()
-            })
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && !e.target.value && inputContainer.childElementCount > 1) {
-                    const child = body.children[inputContainer.childElementCount - 2].firstChild
-                    const option = options.find((op) => op.value == child.dataset.value)
-                    option.selected = false
-                    removeTag(child.dataset.value)
-                    setValues()
-                }
-
-            })
-
-            window.addEventListener('click', (e) => {
-                if (!customSelectContainer.contains(e.target)) {
-                    drawer.classList.add('hidden')
-                }
-            });
-
-        }
-
-        function createElements() {
-            // Create custom elements
-            options = getOptions();
-            element.classList.add('hidden')
-
-            // .multi-select-tag
-            customSelectContainer = document.createElement('div')
-            customSelectContainer.classList.add('mult-select-tag')
-
-            // .container
-            wrapper = document.createElement('div')
-            wrapper.classList.add('wrapper')
-
-            // body
-            body = document.createElement('div')
-            body.classList.add('body')
-            if (customs.shadow) {
-                body.classList.add('shadow')
-            }
-            if (customs.rounded) {
-                body.classList.add('rounded')
-            }
-
-            // .input-container
-            inputContainer = document.createElement('div')
-            inputContainer.classList.add('input-container')
-
-            // input
-            input = document.createElement('input')
-            input.classList.add('input')
-            input.placeholder = `${customs.placeholder || 'Search...'}`
-
-            inputBody = document.createElement('inputBody')
-            inputBody.classList.add('input-body')
-            inputBody.append(input)
-
-            body.append(inputContainer)
-
-            // .btn-container
-            btnContainer = document.createElement('div')
-            btnContainer.classList.add('btn-container')
-
-            // button
-            button = document.createElement('button')
-            button.type = 'button'
-            btnContainer.append(button)
-
-            const icon = domParser.parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="18 15 12 21 6 15"></polyline></svg>`, 'image/svg+xml').documentElement
-            button.append(icon)
+}
 
 
-            body.append(btnContainer)
-            wrapper.append(body)
-
-            drawer = document.createElement('div');
-            drawer.classList.add(...['drawer', 'hidden'])
-            if (customs.shadow) {
-                drawer.classList.add('shadow')
-            }
-            if (customs.rounded) {
-                drawer.classList.add('rounded')
-            }
-            drawer.append(inputBody)
-            ul = document.createElement('ul');
-
-            drawer.appendChild(ul)
-
-            customSelectContainer.appendChild(wrapper)
-            customSelectContainer.appendChild(drawer)
-
-            // Place TailwindTagSelection after the element
-            if (element.nextSibling) {
-                element.parentNode.insertBefore(customSelectContainer, element.nextSibling)
-            }
-            else {
-                element.parentNode.appendChild(customSelectContainer);
-            }
-        }
-
-        function initOptions(val = null) {
-            ul.innerHTML = ''
-            for (var option of options) {
-                if (option.selected) {
-                    !isTagSelected(option.value) && createTag(option)
-                }
-                else {
-                    const li = document.createElement('li')
-                    li.innerHTML = option.label
-                    li.dataset.value = option.value
-
-                    // For search
-                    if (val && option.label.toLowerCase().startsWith(val.toLowerCase())) {
-                        ul.appendChild(li)
-                    }
-                    else if (!val) {
-                        ul.appendChild(li)
-                    }
-                }
-            }
-        }
-
-        function createTag(option) {
-            // Create and show selected item as tag
-            const itemDiv = document.createElement('div');
-            itemDiv.classList.add('item-container');
-            const itemLabel = document.createElement('div');
-            itemLabel.classList.add('item-label');
-            itemLabel.innerHTML = option.label
-            itemLabel.dataset.value = option.value
-            const itemClose = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="item-close-svg">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>`, 'image/svg+xml').documentElement
-
-            itemClose.addEventListener('click', (e) => {
-                const unselectOption = options.find((op) => op.value == option.value)
-                unselectOption.selected = false
-                removeTag(option.value)
-                initOptions()
-                setValues()
-            })
-
-            itemDiv.appendChild(itemLabel)
-            itemDiv.appendChild(itemClose)
-            inputContainer.append(itemDiv)
-        }
-
-        function enableItemSelection() {
-            // Add click listener to the list items
-            for (var li of ul.children) {
-                li.addEventListener('click', (e) => {
-                    options.find((o) => o.value == e.target.dataset.value).selected = true
-                    input.value = null
-                    initOptions()
-                    setValues()
-                    input.focus()
-                })
-            }
-        }
-
-        function isTagSelected(val) {
-            // If the item is already selected
-            for (var child of inputContainer.children) {
-                if (!child.classList.contains('input-body') && child.firstChild.dataset.value == val) {
-                    return true
-                }
-            }
-            return false
-        }
-        function removeTag(val) {
-            // Remove selected item
-            for (var child of inputContainer.children) {
-                if (!child.classList.contains('input-body') && child.firstChild.dataset.value == val) {
-                    inputContainer.removeChild(child)
-                }
-            }
-        }
-        function setValues(fireEvent = true) {
-            // Update element final values
-            selected_values = []
-            for (var i = 0; i < options.length; i++) {
-                element.options[i].selected = options[i].selected
-                if (options[i].selected) {
-                    selected_values.push({ label: options[i].label, value: options[i].value })
-                }
-            }
-            if (fireEvent && customs.hasOwnProperty('onChange')) {
-                customs.onChange(selected_values)
-            }
-        }
-        function getOptions() {
-            // Map element options
-            return [...element.options].map((op) => {
-                return {
-                    value: op.value,
-                    label: op.label,
-                    selected: op.selected,
-                }
-            })
-        }
-    }
-</script>
-
-<script type="text/javascript">
-    new MultiSelectTag('Invitation', {
-        rounded: true,    // default true
-        shadow: false,      // default false
-        placeholder: 'Search',  // default Search...
-        onChange: function (values) {
-            console.log(values)
-        }
-    })  // id
-</script>
-
-
-<script type="text/javascript">
-    function Validation() {
-        var startingTime = document.getElementById("startingtime").value;
-        var endingTime = document.getElementById("endingtime").value;
-        const Start = Date.parse(startingTime);
-        const End = Date.parse(endingTime);
-        let minsOfStart = startingTime.split(":")[1];
-        let minsOfEnd = endingTime.split(":")[1];
-        if (minsOfStart != "00" && minsOfStart != "30") {
-            alert("The minute field of the starting time of the event must be :00 or :30. Nothing else.");
-            return false;
-        }
-        if (minsOfEnd != "00" && minsOfEnd != "30") {
-            alert("The minute field of the ending time of the event must be :00 or :30. Nothing else.");
-            return false;
-        }
-        if (Start >= End) {
-            alert("The starting time of the event must cannot be greater than or equal to the ending time.");
-            return false;
-        }
-        var title = document.getElementById("title").value;
-        if (title == null || title == "") {
-            alert("You need to provide a title for the event before submiting.");
-            return false;
-        }
-    }
-</script>
-
-<script type="text/javascript">
-    function EnableDisableTextBox(textboxId,forein) {
-        if (forein == 1) {
-            return 0;
-        }
-        textboxId=String(textboxId)
-        var textBox = document.getElementById(textboxId);
-        if (textBox.disabled) {
-            textBox.removeAttribute("disabled");
-        } else {
-            textBox.setAttribute("disabled", "disabled");
-        }
-    }
-</script>
-
-<script type="text/javascript">
-    function EnableAll() {
-        document.getElementById("title").removeAttribute("disabled");
-        document.getElementById("description").removeAttribute("disabled");
-        document.getElementById("startingTime").removeAttribute("disabled");
-        document.getElementById("endingTime").removeAttribute("disabled");
-    }
-</script>
-
+@*edit modal for temporary comments*@
+<div class="modal fade" id="editCommentModal" tabindex="-1" role="dialog" aria-labelledby="editCommentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCommentModalLabel">Edit Comment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" id="editCommentText" rows="4" cols="65"></textarea>
+                <div id="editCommentId" style="display:none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveComment()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/site.js"></script>
+
+    <script>
+        new MultiSelectTag('invitations');
+        //counter for the tempComments
+        let commentCounter = 0;
+        //list for new comments
+        let newCommentsId = [];
+
+        function EnableDisableTextBox(textboxId, forein) {
+            if (forein == true) {
+                return;
+            }
+            textboxId = String(textboxId)
+            var textBox = document.getElementById(textboxId);
+            if (textBox.disabled) {
+                textBox.removeAttribute("disabled");
+            } else {
+                textBox.setAttribute("disabled", "disabled");
+            }
+        }
+
+        //for severons icons change
+        function toggleSection(buttonId) {
+            const buttonIcon = document.getElementById(buttonId + 'Icon');
+            if (buttonIcon.classList.contains('fa-chevron-down')) {
+                buttonIcon.classList.remove('fa-chevron-down');
+                buttonIcon.classList.add('fa-chevron-up');
+
+            } else {
+                buttonIcon.classList.remove('fa-chevron-up');
+                buttonIcon.classList.add('fa-chevron-down');
+            }
+        }
+
+        document.getElementById("showParticipationButton").addEventListener("click", function () {
+            toggleSection("showParticipationButton");
+        });
+
+        document.getElementById("showCommentButton").addEventListener("click", function () {
+            toggleSection("showCommentButton");
+        });
+
+        function EnableAll() {
+            document.getElementById("title").removeAttribute("disabled");
+            document.getElementById("description").removeAttribute("disabled");
+            document.getElementById("startingTime").removeAttribute("disabled");
+            document.getElementById("endingTime").removeAttribute("disabled");
+        }
+
+        //TODO implement this validation
+        function Validation() {
+            var startingTime = document.getElementById("startingTime").value;
+            var endingTime = document.getElementById("endingTime").value;
+            const Start = Date.parse(startingTime);
+            const End = Date.parse(endingTime);
+            let minsOfStart = startingTime.split(":")[1];
+            let minsOfEnd = endingTime.split(":")[1];
+            if (minsOfStart != "00" && minsOfStart != "30") {
+                alert("The minute field of the starting time of the event must be :00 or :30. Nothing else.");
+                return false;
+            }
+            if (minsOfEnd != "00" && minsOfEnd != "30") {
+                alert("The minute field of the ending time of the event must be :00 or :30. Nothing else.");
+                return false;
+            }
+            if (Start >= End) {
+                alert("The starting time of the event must cannot be greater than or equal to the ending time.");
+                return false;
+            }
+            var title = document.getElementById("title").value;
+            if (title == null || title == "") {
+                alert("You need to provide a title for the event before submiting.");
+                return false;
+            }
+        }
+
+        function addComment() {
+
+            // hide the message that there are no comments yet if it exists.
+            if (document.getElementById('noComments').style.display != 'none') {
+                document.getElementById('noComments').style.display = 'none';
+            }
+
+            let commentText = document.getElementById("myComment").value;
+            if (!commentText.trim()) {
+                alert("Please enter a comment before adding.");
+                return;
+            }
+
+            // Create a new card for the comment
+            let commentCard = document.createElement("div");
+            commentCard.classList.add("card", "mb-2");
+            //id for deletion
+            let commentId = `commentCard${commentCounter}`;
+            commentCard.setAttribute("id", commentId);
+
+            // Card Header
+            let cardHeader = document.createElement("div");
+            cardHeader.classList.add("card-header");
+
+            let cardHeaderFlexPart = document.createElement("div");
+            cardHeaderFlexPart.classList.add("d-flex", "justify-content-between")
+
+            let usernameTitle = document.createElement("h5");
+            usernameTitle.classList.add("card-title", "font-weight-bold");
+            usernameTitle.innerHTML = '<i class="fa-solid fa-user mr-1"></i> ' + "@ActiveUser.User.Username";
+
+            // Add the Edit and Delete buttons to the card header
+            let buttonsDiv = document.createElement("div");
+            let editButton = document.createElement("a");
+            editButton.setAttribute("href", "#");
+            editButton.classList.add("btn", "btn-primary", "btn-sm", "mr-2");
+            editButton.innerHTML = '<i class="fa-solid fa-pencil"></i>';
+            editButton.onclick = function () {
+                openEditModal(commentId, commentText);
+            };
+
+            let deleteButton = document.createElement("a");
+            deleteButton.setAttribute("href", "#");
+            deleteButton.classList.add("btn", "btn-danger", "btn-sm");
+            deleteButton.innerHTML = '<i class="fa-solid fa-x"></i>';
+            deleteButton.onclick = function () {
+                removetempComment(commentId);
+            };
+
+            cardHeaderFlexPart.appendChild(usernameTitle);
+            
+            buttonsDiv.appendChild(editButton);
+            buttonsDiv.appendChild(deleteButton);
+            cardHeaderFlexPart.appendChild(buttonsDiv);
+
+            let dateSubtitle = document.createElement("p");
+            dateSubtitle.classList.add("card-subtitle", "text-muted");
+            dateSubtitle.innerText = new Date().toLocaleString();
+
+            cardHeader.appendChild(cardHeaderFlexPart);
+            cardHeader.appendChild(dateSubtitle);
+
+            // Card Body
+            let cardBody = document.createElement("div");
+            cardBody.classList.add("card-body");
+            cardBody.innerText = commentText;
+
+            // Assemble the card
+            commentCard.appendChild(cardHeader);
+            commentCard.appendChild(cardBody);
+
+            // Append the card to the commentArea
+            let commentArea = document.getElementById("commentArea");
+            commentArea.appendChild(commentCard);
+
+            // Clear the comment textarea after adding the comment
+            document.getElementById("myComment").value = "";
+
+            // Increment the comment counter for the next comment
+            commentCounter++;
+            newCommentsId.push(commentId);
+        }
+
+        // Function to remove a comment from the list
+        function removetempComment(commentId) {
+            let commentCard = document.getElementById(commentId);
+            if (commentCard) {
+                const index = newCommentsId.indexOf(commentId);
+                newCommentsId.splice(index, 1);
+                commentCard.remove();
+            }
+
+            // Show the "no comments" message if there are no comments left
+            if (document.getElementById('commentArea').childElementCount === 1) {
+                document.getElementById('noComments').style.display = 'block';
+            }
+        }
+
+        //open modal for edit
+        function openEditModal(commentId, commentText) {
+            console.log("wow");
+            // Set the comment text in the modal
+            document.getElementById("editCommentText").value = commentText;
+
+            // Set the comment ID in the modal (for identification during save)
+            document.getElementById("editCommentId").value = commentId;
+
+            // Show the modal
+            $("#editCommentModal").modal("show");
+        }
+
+        function saveComment() {
+            // Get the edited text from the modal
+            let editedText = document.getElementById("editCommentText").value;
+
+            // Get the comment ID for identification
+            let commentId = document.getElementById("editCommentId").value;
+
+            // Update the comment text on the page
+            let commentCard = document.getElementById(commentId);
+            if (commentCard) {
+                commentCard.querySelector(".card-body").innerText = editedText;
+            }
+
+            // Hide the modal
+            $("#editCommentModal").modal("hide");
+        }
+
+        function createCommentsForFormSubmission(){
+            
+            let newComments = "";
+            for(let i = 0; i < newCommentsId.length; i++){
+                let commentCardId = document.getElementById(newCommentsId[i]);
+                newComments += commentCardId.querySelector(".card-body").innerText;
+                newComments += "|";
+            }
+            newComments = newComments.substring(0, newComments.length -1);
+
+            // Set the value of the hidden input
+            document.getElementById("newComments").value = newComments;
+        }
+
+        function updateComment(){
+            document.getElementById("newCommentText").value = document.getElementById("updateCommentTextArea").value;
+        }
+    </script>
+    
 }

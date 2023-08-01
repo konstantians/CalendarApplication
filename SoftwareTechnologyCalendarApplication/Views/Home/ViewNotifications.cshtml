@@ -206,6 +206,10 @@
                         {
                             <p class="notification-title">A new comment has been added to the event @notification.EventOfNotification.Title .</p>
                         }
+                        @if (notification.CommentDeleted)
+                        {
+                            <p class="notification-title">A comment has been deleted from the event @notification.EventOfNotification.Title .</p>
+                        }
                         @if (notification.EventDeleted)
                         {
                             <p class="notification-title">The Event @notification.EventOfNotification.Title was deleted.</p>

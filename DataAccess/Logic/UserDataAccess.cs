@@ -7,6 +7,9 @@ using System.Text;
 
 namespace DataAccess.Logic
 {
+    /// <summary>
+    /// handles the dataAccess for the user
+    /// </summary>
     public class UserDataAccess : IUserDataAccess
     {
 
@@ -15,6 +18,12 @@ namespace DataAccess.Logic
         private readonly ICalendarDataAccess CalendarDataAccess;
         private readonly IEventDataAccess EventDataAccess;
 
+        /// <summary>
+        /// constuctor
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="calendarDataAccess"></param>
+        /// <param name="eventDataAccess"></param>
         public UserDataAccess(IConfiguration configuration, ICalendarDataAccess calendarDataAccess, IEventDataAccess eventDataAccess)
         {
             Configuration = configuration;
@@ -26,7 +35,7 @@ namespace DataAccess.Logic
 
         /// <summary>
         /// This method returns all the users from the database and also all their calendars populated(with their events filled)
-        /// and also all the user-event indirect or direct connections.
+        /// and their events populated. Additionally it returns the comments of the users and it also returns all the events they either have created or participate in.
         /// </summary>
         /// <returns>All the users</returns>
         public List<UserDataModel> GetUsers()
@@ -45,8 +54,9 @@ namespace DataAccess.Logic
                 user.Username = reader.GetString(0);
                 user.Password = reader.GetString(1);
                 user.Fullname = reader.GetString(2);
-                user.Email = reader.GetString(3);
-                user.Phone = reader.GetString(4);
+                user.DateOfBirth = DateTime.Parse(reader.GetString(3));
+                user.Email = reader.GetString(4);
+                user.Phone = reader.GetString(5);
                 user.Calendars = ReturnCalendarsOfUser(user.Username);
                 user.EventsThatTheUserParticipates = ReturnEventsOfUser(user.Username);
                 user.Notifications = GetNotificationsOfUser(user.Username);
@@ -60,8 +70,8 @@ namespace DataAccess.Logic
         }
 
         /// <summary>
-        /// This method returns one using the given username from the database and also all their calendars 
-        /// populated(with their events filled) and also all the user-event indirect or direct connections.
+        /// This method returns one user using the given username from the database and also all their calendars populated(with their events filled)
+        /// and their events populated. Additionally it returns the comments of the user and it also returns all the events they either have created or participate in.
         /// </summary>
         /// <param name="username">The username of the user</param>
         /// <returns>The specified user</returns>
@@ -81,8 +91,9 @@ namespace DataAccess.Logic
                 user.Username = reader.GetString(0);
                 user.Password = reader.GetString(1);
                 user.Fullname = reader.GetString(2);
-                user.Email = reader.GetString(3);
-                user.Phone = reader.GetString(4);
+                user.DateOfBirth = DateTime.Parse(reader.GetString(3));
+                user.Email = reader.GetString(4);
+                user.Phone = reader.GetString(5);
                 user.Calendars = ReturnCalendarsOfUser(username);
                 user.EventsThatTheUserParticipates = ReturnEventsOfUser(username);
                 user.Notifications = GetNotificationsOfUser(user.Username);
@@ -215,10 +226,10 @@ namespace DataAccess.Logic
         /// <summary>
         /// This method creates a user. It must be mentioned that this method does not create calendars or events.
         /// In case you want to create those you can by using the createCalendar in the calendarDataAccess class
-        /// or the createEvent in the eventDataAccess. The connection with the user ther is automatic by providing
+        /// or the createEvent in the eventDataAccess. The connection with the user there is automatic by providing
         /// the user's username.
         /// </summary>
-        //// <param name="user">The user model</param>
+        /// <param name="user">The user model</param>
         public void CreateUser(UserDataModel user)
         {
             // check for other users with the same username
@@ -228,13 +239,14 @@ namespace DataAccess.Logic
             }
 
             connection.Open();
-            string sqlQuery = "INSERT INTO User (Username, Password, FullName, Email, Phone) " +
-                              "VALUES (@username, @password, @fullName, @email, @phone);";
+            string sqlQuery = "INSERT INTO User (Username, Password, FullName, DateOfBirth, Email, Phone) " +
+                              "VALUES (@username, @password, @fullName, @dateOfBirth, @email, @phone);";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@username", user.Username);
             command.Parameters.AddWithValue("@password", user.Password);
             command.Parameters.AddWithValue("@fullName", user.Fullname);
+            command.Parameters.AddWithValue("@dateOfBirth", user.DateOfBirth);
             command.Parameters.AddWithValue("@email", user.Email);
             command.Parameters.AddWithValue("@phone", user.Phone);
             command.ExecuteNonQuery();
@@ -242,47 +254,22 @@ namespace DataAccess.Logic
         }
 
         /// <summary>
-        /// This method deletes the user and and all their calendars and events. It also removes any indirect connections
-        /// That the user has with any event. 
-        /// </summary>
-        /// <param /name="username">The user's name</param>
-        public void DeleteUser(string username)
-        {
-            //get the user and delete all the calendars(this will also delete all the events and it will take care
-            //of the ParticipationInEvent table for these events)
-            UserDataModel user = GetUser(username);
-            foreach (CalendarDataModel calendar in user.Calendars)
-            {
-                CalendarDataAccess.DeleteCalendar(calendar.Id);
-            }
-
-            connection.Open();
-
-            //now remove the user entries from the participationInEvent table
-            //delete the user itself
-            string sqlQuery = "DELETE FROM ParticipationInEvent WHERE UserUsername = @username;" +
-                              "DELETE FROM User WHERE Username = @username;";
-            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
-            command.Parameters.AddWithValue("@username", username);
-            command.ExecuteNonQuery();
-            connection.Close();
-        }
-
-        /// <summary>
         /// This method updates the user. It must be mentioned that it does not update the calendar or the events
-        /// of the user. If you need to update those you will have to call the UpdateCalendar method 
+        /// of the user aand it only updates the static information of the user. 
+        /// If you need to update those you will have to call the UpdateCalendar method 
         /// from the CalendarDataAccess class and the UpdateEvent method from the EventDataAccess class.  
         /// </summary>
         /// <param name="user">The user's name</param>
         public void UpdateUser(UserDataModel user)
         {
             connection.Open();
-            string sqlQuery = "UPDATE User SET Password = @password, FullName = @fullname, Email = @email, Phone = @phone " +
+            string sqlQuery = "UPDATE User SET Password = @password, FullName = @fullname, DateOfBirth = @dateOfBirth, Email = @email, Phone = @phone " +
                 "WHERE Username = @username;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@password", user.Password);
             command.Parameters.AddWithValue("@fullName", user.Fullname);
+            command.Parameters.AddWithValue("@dateOfBirth", user.DateOfBirth.ToString());
             command.Parameters.AddWithValue("@email", user.Email);
             command.Parameters.AddWithValue("@phone", user.Phone);
             command.Parameters.AddWithValue("@username", user.Username);
@@ -300,25 +287,75 @@ namespace DataAccess.Logic
         /// <param name="oldUsername"></param>
         public void UpdateUserAndUsername(UserDataModel user, string oldUsername)
         {
-            //TODO fix that. That is not working
+            //if the user did not update the username then we can simply use the update user method
+            if(user.Username == oldUsername)
+            {
+                UpdateUser(user);
+                return;
+            }
+
+            //to avoid unique constraint
+            string email = user.Email;
+            user.Email = "";
+
+            //first create a new user with the given username
+            CreateUser(user);
+
+            //then update all information in the database to point to the new user
             connection.Open();
-            string sqlQuery = "UPDATE User SET Username = @username, Password = @password, FullName = @fullname, Email = @email, Phone = @phone " +
-                "WHERE Username = @oldUsername;";
+            string sqlQuery = "UPDATE Comment SET UserUsername = @username WHERE UserUsername = @oldUsername;" +
+                "UPDATE Event SET EventCreator = @username WHERE EventCreator = @oldUsername;" +
+                "UPDATE ParticipationInEvent SET UserUsername = @username WHERE UserUsername = @oldUsername;" +
+                "UPDATE Notification SET UserUsername = @username WHERE UserUsername = @oldUsername;" +
+                "UPDATE Calendar SET UserUsername = @username WHERE UserUsername = @oldUsername;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@username", user.Username);
-            command.Parameters.AddWithValue("@password", user.Password);
-            command.Parameters.AddWithValue("@fullName", user.Fullname);
-            command.Parameters.AddWithValue("@email", user.Email);
-            command.Parameters.AddWithValue("@phone", user.Phone);
             command.Parameters.AddWithValue("@oldUsername", oldUsername);
+            command.ExecuteNonQuery();
+
+            connection.Close();
+
+            //finally delete the old user
+            DeleteUser(oldUsername);
+
+            //fix the email
+            user.Email = email;
+            UpdateUser(user);
+        }
+
+        /// <summary>
+        /// This method deletes the user and and all their calendars, comments and events. It also removes any indirect connections
+        /// That the user has with any event. Finally it sends relevant notifications to other users who either participated in an event
+        /// that now is deleted, because the user does not exist any more and also notifications to those who have/participate in an event that
+        /// the deleted user participated in.
+        /// </summary>
+        /// <param name="username">The user's name</param>
+        public void DeleteUser(string username)
+        {
+            //get the user and delete all the calendars(this will also delete all the events and it will take care
+            //of the ParticipationInEvent table for these events)
+            UserDataModel user = GetUser(username);
+            foreach (CalendarDataModel calendar in user.Calendars)
+            {
+                CalendarDataAccess.DeleteCalendar(calendar.Id, user.Username);
+            }
+
+            connection.Open();
+
+            //now remove the user entries from the participationInEvent table
+            //delete the user itself
+            string sqlQuery = "DELETE FROM ParticipationInEvent WHERE UserUsername = @username;" +
+                              "DELETE FROM User WHERE Username = @username;";
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+            command.Parameters.AddWithValue("@username", username);
             command.ExecuteNonQuery();
             connection.Close();
         }
 
         private UserDataModel GetUserBasicInformation(string username)
         {
-            string sqlQuery = "SELECT Username, Password, FullName, Email, Phone FROM User WHERE User.Username = @username;";
+            string sqlQuery = "SELECT Username, Password, FullName, DateOfBirth, Email, Phone FROM User WHERE User.Username = @username;";
 
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@username", username);
@@ -332,8 +369,9 @@ namespace DataAccess.Logic
                 user.Username = reader.GetString(0);
                 user.Password = reader.GetString(1);
                 user.Fullname = reader.GetString(2);
-                user.Email = reader.GetString(3);
-                user.Phone = reader.GetString(4);
+                user.DateOfBirth = DateTime.Parse(reader.GetString(3));
+                user.Email = reader.GetString(4);
+                user.Phone = reader.GetString(5);
             }
 
             return user;

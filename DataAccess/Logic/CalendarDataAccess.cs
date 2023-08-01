@@ -6,12 +6,20 @@ using System.Data.SQLite;
 
 namespace DataAccess.Logic
 {
+    /// <summary>
+    /// handles the dataAccess for the calendars and calendar categories.
+    /// </summary>
     public class CalendarDataAccess : ICalendarDataAccess
     {
         private readonly IConfiguration Configuration;
         private readonly SQLiteConnection connection;
         private readonly IEventDataAccess EventDataAccess;
 
+        /// <summary>
+        /// constructor used to instansiate the connection with the databese and it also is used for dependency injection
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="eventDataAccess"></param>
         public CalendarDataAccess(IConfiguration configuration,IEventDataAccess eventDataAccess)
         {
             Configuration = configuration;
@@ -21,10 +29,10 @@ namespace DataAccess.Logic
         }
 
         /// <summary>
-        /// This method returns all the calendars of a specific user from the database. It also returns the
-        /// events of the calendars which the method also fills.
+        /// This method returns all the calendars of a specific user from the database and their categories. It also returns the
+        /// events of the calendars, which the method also fills/populates.
         /// </summary>
-        /// <param name="userUsername">The username of the user who created/own the calendar</param>
+        /// <param name="userUsername">The username of the user who created/owns the calendar</param>
         /// <returns>All the user's calendars</returns>
         public List<CalendarDataModel> GetCalendars(string userUsername)
         {
@@ -65,7 +73,7 @@ namespace DataAccess.Logic
         }
 
         /// <summary>
-        /// This method returns a calendar using its id from the database. It also returns the
+        /// This method returns a calendar and its categories using its id from the database. It also returns the
         /// events of the calendar which the method also fills.
         /// </summary>
         /// <param name="id">The id of the calendar</param>
@@ -135,10 +143,12 @@ namespace DataAccess.Logic
         }
 
         /// <summary>
-        /// This method creates a calendar and connects it it to the specified user. It also returns the
-        /// id of the newly created calendar
+        /// This method creates a calendar with its specified categories and connects it to the specified user. 
+        /// It also returns the id of the newly created calendar. It must be noted that it does not create any 
+        /// events and that if you wish to create events you should use the CreateEvent methods which exists
+        /// in the EventDataAccess
         /// </summary>
-        /// <param name="calendar">The calendar information</param>
+        /// <param name="calendar">The calendar model</param>
         /// <param name="usernameOfUser">The user's username who created/owns the calendar</param>
         /// <returns>The id of the newly created calendar</returns>
         public int CreateCalendar(CalendarDataModel calendar, string usernameOfUser)
@@ -190,7 +200,7 @@ namespace DataAccess.Logic
         /// calendar or not. This method does not update the event, in case you need to update the event use the 
         /// UpdateEvent method in the EventDataAccess class.
         /// </summary>
-        /// <param name="calendar">The calendar information</param>
+        /// <param name="calendar">The calendar model</param>
         /// <param name="writeCategory">The flag to change the calendar's categories</param>
         public void UpdateCalendar(CalendarDataModel calendar, bool writeCategory)
         {
@@ -248,31 +258,32 @@ namespace DataAccess.Logic
 
         /// <summary>
         /// This method deletes the specified calendar with all its events and its categories. It also removes any 
-        /// indirect connections or direct connections the calendar's event have. Finally it removes the connection between
-        /// the user and the calendar from the database.
+        /// indirect connections or direct connections the calendar's event have. Additionally it removes the connection between
+        /// the user and the calendar from the database. Finally the methods sends relavant notifications to the users who were
+        /// affected by the deletion of the events which resided on the calendar if needed.
         /// </summary>
         /// <param name="id">The calendar's id</param>
-        public void DeleteCalendar(int id)
+        /// <param name="ownerOfCalendar">The owner of the calendar</param>
+        public void DeleteCalendar(int id, string ownerOfCalendar)
         {
             connection.Open();
 
             //gets all the events of the calendar
             List<EventDataModel> events = ReturnEventsOfCalendar(id);
 
-            //remove the events of the calendar from the participation table
+            connection.Close();
+
+            //delete each event that it contains using the deleteEvent method
             foreach (EventDataModel calendarEvent in events)
             {
-                string sqlQueryInside = "DELETE FROM ParticipationInEvent WHERE EventId = @eventId;";
-                SQLiteCommand commandInside = new SQLiteCommand(sqlQueryInside, connection);
-                commandInside.Parameters.AddWithValue("@eventId", calendarEvent.Id);
-                commandInside.ExecuteNonQuery();
+                EventDataAccess.DeleteEvent(calendarEvent.Id, ownerOfCalendar);
             }
 
+            connection.Open();
+
             //delete all the categories of the calendar
-            //then delete all the events of the calendar from the event table
             //and then delete the calendar itself
             string sqlQuery = "DELETE FROM Category WHERE CalendarId = @id;" +
-                              "DELETE FROM Event WHERE CalendarId = @id;" +
                               "DELETE FROM Calendar WHERE Id = @id;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@id", id);

@@ -24,6 +24,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         {
             if (ActiveUser.User != null) throw new NotImplementedException();
             ViewData["DuplicateAccount"] = false;
+            ViewData["DuplicateEmail"] = false;
             return View();
         }
 
@@ -44,17 +45,27 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 if(userDataModel.Username == user.Username)
                 {
                     ViewData["DuplicateAccount"] = true;
+                    ViewData["DuplicateEmail"] = false;
+                    return View();
+                }
+
+                if(userDataModel.Email == user.Email)
+                {
+                    ViewData["DuplicateAccount"] = false;
+                    ViewData["DuplicateEmail"] = true;
                     return View();
                 }
             }
 
             UserDataModel userr = new UserDataModel();
+            userr.Fullname = user.Fullname;
             userr.Username = user.Username;
             userr.Password = user.Password;
+            userr.DateOfBirth = user.DateOfBirth;
             userr.Email = user.Email;
             userr.Phone = user.Phone;
-            userr.Fullname = user.Fullname;
             _userDataAccess.CreateUser(userr);
+
             //authenticates the user
             ActiveUser.User = new User(userr); 
             return RedirectToAction("HomePage", "Home", new {pagination = 1 });
@@ -86,17 +97,6 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             }
             //authenticates the user
             ActiveUser.User = new User(userDataModel);
-
-            //Test
-            if (ActiveUser.User.Username == "Konstantinos")
-            {
-                EventDataModel eventDataModel = new EventDataModel("Best Event Konstantinos", "bla bla", DateTime.Now.AddMinutes(30),
-                    DateTime.Now.AddMinutes(90), "Konstantinos");
-
-                int id = _eventDataAccess.CreateEvent(eventDataModel, "Konstantinos", 84);
-                _eventDataAccess.InviteUserToEvent(id,"Konstantinos","EliasLgt");
-            }
-            //
 
             foreach (Event calendarEvent in ActiveUser.User.EventsThatTheUserParticipates)
             {
