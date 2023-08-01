@@ -4,122 +4,188 @@
     ViewData["Title"] = "editAccount";
 }
 
-<h1 class="text-center">Account Infos</h1>
+<style>
+    body {
+        background-color: #f0f2f5;
+    }
+</style>
 
-<h4 class="text-center">If you wish to edit some of the informations about your account, click on the "Edit"
-    button of the field you wish to change and then proceed by making your change</h4>
-<hr />
-<form asp-action="editAccount">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="row align-items-center" style="margin-top: 25px;">
-        <div class="mx-auto col-md-4 offset-md-4">
-            <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
-                <div class="input-group mb-3">
-                    <input asp-for="Username" class="form-control" id="username" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                    <span asp-validation-for="Username" class="text-danger"></span>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('username')">
+@if ((bool)ViewData["DuplicateAccount"])
+{
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+        </symbol>
+    </svg>
+    <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
+        <div>
+            You can not change your username to the given username, because it is used by another account. Please choose a different username and try again.
+        </div>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+}
 
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                ::before
-                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
-                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
-                            </svg>
+@if ((bool)ViewData["DuplicateEmail"])
+{
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+        </symbol>
+    </svg>
+    <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
+        <div>
+            You can not change your email to the given email, because it is used by another account. Please choose a different email and try again.
+        </div>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+}
 
-                            Edit
-                        </button>
+<div class="mt-1 mb-2 pt-2 pb-2 shadow" style="background-color: white;">
+    <h1 class="text-center">Account Information</h1>
+    <h4 class="text-center">
+        Change Your Personal Data As You Like, By Pressing The Edit Button Next To The Fields.
+    </h4>
+</div>
+
+<form asp-action="editAccount" style="background-color:white;">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="shadow pt-4 pb-4 pl-4 pr-4">    
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <i class="fa-solid fa-user mr-1"></i>
+                    <label asp-for="Username" class="control-label"></label>
+                    <div class="input-group">
+                        <input asp-for="Username" class="form-control" id="username" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('username')">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    ::before
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+
+                                Edit
+                            </button>
+                        </div>
                     </div>
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <i class="fa-solid fa-lock mr-1"></i>
+                    <label asp-for="Password" class="control-label"></label>
+                    <div class="input-group">
+                        <input asp-for="Password" class="form-control" id="password" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('password')">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    ::before
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <i class="fa-solid fa-circle-user mr-1"></i>
+                    <label asp-for="Fullname" class="control-label"></label>
+                    <div class="input-group">
+                        <input asp-for="Fullname" class="form-control" id="fullname" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('fullname')">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    ::before
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                    <span asp-validation-for="Fullname" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <i class="fa-solid fa-cake-candles"></i>
+                    <label asp-for="DateOfBirth" class="control-label"></label>
+                    <div class="input-group">
+                        <input asp-for="DateOfBirth" type="date" class="form-control" id="dateOfBirth" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('dateOfBirth')">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    ::before
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                    <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <i class="fa-solid fa-phone"></i>
+                    <label asp-for="Phone" class="control-label"></label>
+                    <div class="input-group">
+                        <input asp-for="Phone" class="form-control" id="phone" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('phone')">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    ::before
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                     <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <label asp-for="Email" class="control-label"></label>
+                    <div class="input-group">
+                        <input asp-for="Email" class="form-control" id="email" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('email')">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    ::before
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
             </div>
         </div>
-</div>
-<div class="row align-items-center">
-    <div class="mx-auto col-md-4 offset-2">
-            <div class="form-group" style="margin-top: 25px;">
-                <label asp-for="Password" class="control-label"></label>
-                <div class="input-group mb-3">
-                    <input asp-for="Password" class="form-control" id="password" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('password')">
-
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                ::before
-                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
-                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
-                            </svg>
-
-                            Edit
-                        </button>
-                    </div>
-                </div>
+        <input type="hidden" name="oldUsername" value="@Model.Username"/>
+        <div class="d-flex justify-content-center mt-3">
+            <a class="btn btn-outline-primary" asp-controller="Home" asp-action="HomePage">Back To Home</a>
+            <div class="ml-3">
+                <input type="submit" value="Save Changes" onclick="EnableAll()" class="btn btn-outline-primary" />
             </div>
-            <div class="form-group" style="margin-top: 25px;">
-                <label asp-for="Fullname" class="control-label"></label>
-                <div class="input-group mb-3">
-                    <input asp-for="Fullname" class="form-control" id="fullname" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                    <span asp-validation-for="Fullname" class="text-danger"></span>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('fullname')">
-
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                ::before
-                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
-                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
-                            </svg>
-
-                            Edit
-                        </button>
-                    </div>
-                </div>
-            </div>
+        </div>
     </div>
-    <div class="mx-auto col-md-4 offset-md-1">
-            <div class="form-group" style="margin-top: 25px;">
-                <label asp-for="Email" class="control-label"></label>
-                <div class="input-group mb-3">
-                    <input asp-for="Email" class="form-control" id="email" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('email')">
-
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                ::before
-                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
-                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
-                            </svg>
-
-                            Edit
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" style="margin-top: 25px;">
-                <label asp-for="Phone" class="control-label"></label>
-                <div class="input-group mb-3">
-                    <input asp-for="Phone" class="form-control" id="phone" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                    <span asp-validation-for="Phone" class="text-danger"></span>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('phone')">
-
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                ::before
-                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
-                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
-                            </svg>
-
-                            Edit
-                        </button>
-                    </div>
-                </div>
-            </div>
-    </div>
-</div>
-<div class="text-center mt-3">
-        <button class="btn btn-secondary" asp-action="HomePage">  Back  </button>
-        <input type="submit" value="  Save  " class="btn btn-primary" onclick="EnableAll()" />
-</div>
 </form>
 
 <script type="text/javascript">
@@ -136,10 +202,17 @@
 
 <script type="text/javascript">
     function EnableAll() {
-        document.getElementById("title").removeAttribute("disabled");
-        document.getElementById("description").removeAttribute("disabled");
-        document.getElementById("startingTime").removeAttribute("disabled");
-        document.getElementById("endingTime").removeAttribute("disabled");
+        document.getElementById("username").removeAttribute("disabled");
+        document.getElementById("fullname").removeAttribute("disabled");
+        document.getElementById("dateOfBirth").removeAttribute("disabled");
+        document.getElementById("phone").removeAttribute("disabled");
+        document.getElementById("email").removeAttribute("disabled");
+    
+        let passwordInput = document.getElementById("password");
+        passwordInput.removeAttribute("disabled");
+        if(passwordInput.value === ""){
+            passwordInput.value = "@ActiveUser.User.Password";
+        }
     }
 </script>
 

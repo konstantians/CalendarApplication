@@ -152,6 +152,7 @@
                             @foreach (Event calendarEvent in Model.Events.OrderBy(e => e.StartingTime).ToList())
                             {
                                 int foreignn;
+                                //check if the cell is in the start of an event
                                 if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
                                     calendarEvent.StartingTime.Year == (int)ViewData["Year"] &&
@@ -178,6 +179,7 @@
                                         break;
                                     }
                                 }
+                                //check if the cell is in the middle of an event
                                 else if (cellDateTime.Ticks > calendarEvent.StartingTime.Ticks &&
                                     cellDateTime.Ticks < calendarEvent.EndingTime.Ticks)
                                 {
@@ -198,6 +200,7 @@
                                         break;
                                     }
                                 }
+                                //check if the cell is in the end of an event
                                 else if (calendarEvent.EndingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.EndingTime.Month == (int)ViewData["Month"] &&
                                     calendarEvent.EndingTime.Year == (int)ViewData["Year"] &&
@@ -300,19 +303,13 @@
                     }
                     @for (int j = 0; j < 4; j++)
                     {
-                        int tabletColTeam;
+                        int tabletColTeam = j < 2 ? 0 : 1;
 
-                        @if (j < 2)
-                        {
-                            tabletColTeam = 0;
-                        }
-                        else
-                        {
-                            tabletColTeam = 1;
-                        }
                         <td class="text-center p-4 tabletColTeam-@tabletColTeam">
                             @foreach (Event calendarEvent in Model.Events.OrderBy(e => e.StartingTime).ToList())
                             {
+                                int foreignn;
+                                //check if the cell is in the start of an event
                                 if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
                                     calendarEvent.StartingTime.Year == (int)ViewData["Year"] &&
@@ -321,26 +318,47 @@
                                 {
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        <div class="calendar-event event-top"></div>
-                                        <div class="text-white event-inside">@calendarEvent.Title</div>
+
+                                        //check if event foreign or not
+                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        {
+                                            <div class="calendar-event native event-top"></div>
+                                            <div class="text-white event-inside">@calendarEvent.Title</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="calendar-event foreign event-top"></div>
+                                            <div class="text-white event-inside">@calendarEvent.Title - Foreign Event</div>
+                                        }
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))
                                             teams.Add(calendarEvent.Id, j);
                                         break;
                                     }
                                 }
+                                //check if the cell is in the middle of an event
                                 else if (cellDateTime.Ticks > calendarEvent.StartingTime.Ticks &&
                                     cellDateTime.Ticks < calendarEvent.EndingTime.Ticks)
                                 {
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        <div class="calendar-event event-middle"></div>
+                                        //check if event foreign or not
+                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        {
+                                            <div class="calendar-event native event-middle"></div>
+                                        }
+                                        else
+                                        {
+                                            <div class="calendar-event foreign event-middle"></div>
+                                        }
+
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))
                                             teams.Add(calendarEvent.Id, j);
                                         break;
                                     }
                                 }
+                                //check if the cell is in the end of an event
                                 else if (calendarEvent.EndingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.EndingTime.Month == (int)ViewData["Month"] &&
                                     calendarEvent.EndingTime.Year == (int)ViewData["Year"] &&
@@ -349,7 +367,17 @@
                                 {
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        <div class="calendar-event event-bottom "></div>
+                                        //check if event foreign or not
+                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        {
+                                            <div class="calendar-event native event-bottom"></div>
+                                            foreignn = 0;
+                                        }
+                                        else
+                                        {
+                                            <div class="calendar-event foreign event-bottom"></div>
+                                            foreignn = 1;
+                                        }
                                         <div class="event-inside d-flex justify-content-around">
                                             <button type="button" class="btn btn-danger ml-2 mb-1"
                                                     data-target="#deleteModal-@calendarEvent.Id" data-toggle="modal">
@@ -359,7 +387,7 @@
                                             <a class="btn btn-dark mr-2 mb-1" asp-controller="home"
                                                asp-action="editEvent" asp-route-calendarId="@Model.Id" asp-route-eventId="@calendarEvent.Id"
                                                asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]"
-                                               asp-route-day="@ViewData["Day"]">
+                                               asp-route-day="@ViewData["Day"]" asp-route-forein="@foreignn">
                                                 <i class="fa-sharp fa-solid fa-eye"></i>
                                             </a>
                                         </div>
@@ -436,6 +464,8 @@
                         <td class="text-center p-4 mobileColTeam-@j">
                             @foreach (Event calendarEvent in Model.Events.OrderBy(e => e.StartingTime).ToList())
                             {
+                                int foreignn;
+                                //check if the cell is in the start of an event
                                 if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
                                     calendarEvent.StartingTime.Year == (int)ViewData["Year"] &&
@@ -444,26 +474,46 @@
                                 {
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        <div class="calendar-event event-top"></div>
-                                        <div class="text-white event-inside">@calendarEvent.Title</div>
+                                        //check if event foreign or not
+                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        {
+                                            <div class="calendar-event native event-top"></div>
+                                            <div class="text-white event-inside">@calendarEvent.Title</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="calendar-event foreign event-top"></div>
+                                            <div class="text-white event-inside">@calendarEvent.Title - Foreign Event</div>
+                                        }
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))
                                             teams.Add(calendarEvent.Id, j);
                                         break;
                                     }
                                 }
+                                //check if the cell is in the middle of an event
                                 else if (cellDateTime.Ticks > calendarEvent.StartingTime.Ticks &&
                                     cellDateTime.Ticks < calendarEvent.EndingTime.Ticks)
                                 {
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        <div class="calendar-event event-middle"></div>
+                                        //check if event foreign or not
+                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        {
+                                            <div class="calendar-event native event-middle"></div>
+                                        }
+                                        else
+                                        {
+                                            <div class="calendar-event foreign event-middle"></div>
+                                        }
+
                                         prevId.Add(calendarEvent.Id);
                                         if (!teams.ContainsKey(calendarEvent.Id))
                                             teams.Add(calendarEvent.Id, j);
                                         break;
                                     }
                                 }
+                                //check if the cell is in the end of an event
                                 else if (calendarEvent.EndingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.EndingTime.Month == (int)ViewData["Month"] &&
                                     calendarEvent.EndingTime.Year == (int)ViewData["Year"] &&
@@ -472,7 +522,17 @@
                                 {
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        <div class="calendar-event event-bottom "></div>
+                                        //check if event foreign or not
+                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        {
+                                            <div class="calendar-event native event-bottom "></div>
+                                            foreignn = 0;
+                                        }
+                                        else
+                                        {
+                                            <div class="calendar-event foreign event-bottom "></div>
+                                            foreignn = 1;
+                                        }
                                         <div class="event-inside d-flex justify-content-around">
                                             <button type="button" class="btn btn-danger ml-2 mb-1"
                                                     data-target="#deleteModal-@calendarEvent.Id" data-toggle="modal">
@@ -482,7 +542,7 @@
                                             <a class="btn btn-dark mr-2 mb-1" asp-controller="home"
                                                asp-action="editEvent" asp-route-calendarId="@Model.Id" asp-route-eventId="@calendarEvent.Id"
                                                asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]"
-                                               asp-route-day="@ViewData["Day"]">
+                                               asp-route-day="@ViewData["Day"]" asp-route-forein="@foreignn">
                                                 <i class="fa-sharp fa-solid fa-eye"></i>
                                             </a>
                                         </div>

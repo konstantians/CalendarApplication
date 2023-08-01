@@ -1,21 +1,23 @@
 ﻿using DataAccess.Models;
+using SoftwareTechnologyCalendarApplicationMVC.CustomValidators;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace SoftwareTechnologyCalendarApplication.Models
 {
     public class Event
     {
         public int Id { get; set; }
-        //[Required]
+        [CustomRequired]
         public string Title { get; set; }
         
         public string Description { get; set; }
-        //[RegularExpression(@"\d{2}[\/]\d{2}[\/]\d{4} \d{2}:(00)|(30)")]
-        //[CheckMinutes]
+        [CheckMinutes]
+        [CheckStartBeforeEndTime]
         public DateTime StartingTime { get; set; }
-        //[RegularExpression(@"\d{2}[\/]\d{2}[\/]\d{4} \d{2}:(00)|(30)")]
-        //[CheckMinutes]
+        [CheckMinutes]
+        [CheckStartBeforeEndTime]
         public DateTime EndingTime { get; set; }
         public bool AlertStatus { get; set; }
         public string EventCreatorName { get; set; }

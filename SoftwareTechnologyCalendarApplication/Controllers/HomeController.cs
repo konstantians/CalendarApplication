@@ -19,7 +19,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         private readonly ICalendarDataAccess CalendarDataAccess;
         private readonly IEventDataAccess EventDataAccess;
 
-        public HomeController(ILogger<HomeController> logger, IUserDataAccess userDataAccess, 
+        public HomeController(ILogger<HomeController> logger, IUserDataAccess userDataAccess,
             ICalendarDataAccess calendarDataAccess, IEventDataAccess eventDataAccess)
         {
             UserDataAccess = userDataAccess;
@@ -48,7 +48,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 return View();
             }
             UserDataModel user = UserDataAccess.GetUser(ActiveUser.User.Username);
-            foreach(CalendarDataModel calendarDataModelTemp in user.Calendars)
+            foreach (CalendarDataModel calendarDataModelTemp in user.Calendars)
             {
                 if (calendarDataModelTemp.Title == calendar.Title)
                 {
@@ -60,7 +60,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             CalendarDataModel calendarDataModel = new CalendarDataModel();
             calendarDataModel.Title = calendar.Title;
             //add the categories the user wrote in the textarea
-            if(calendar.Categories.First() != null)
+            if (calendar.Categories.First() != null)
             {
                 calendarDataModel.Categories = calendar.Categories;
             }
@@ -73,12 +73,14 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             }
 
             CalendarDataAccess.CreateCalendar(calendarDataModel, user.Username);
-            return RedirectToAction("HomePage", "Home", new {pagination = 1 });
+            return RedirectToAction("HomePage", "Home", new { pagination = 1 });
         }
 
         public IActionResult HomePage(int pagination, bool calendarWasDeleted)
         {
             AuthorizeUser();
+            //if no pagination was given make it the default
+            pagination = pagination == 0 ? 1 : pagination;
 
             UserDataModel userDataModel = UserDataAccess.GetUser(ActiveUser.User.Username);
             User user = new User(userDataModel);
@@ -91,13 +93,13 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         {
             AuthorizeUser();
 
-            CalendarDataAccess.DeleteCalendar(calendarId);
-            return RedirectToAction("HomePage", "Home", new { pagination = 1 ,
-                calendarWasDeleted = true});
+            CalendarDataAccess.DeleteCalendar(calendarId, ActiveUser.User.Username);
+            return RedirectToAction("HomePage", "Home", new { pagination = 1,
+                calendarWasDeleted = true });
         }
 
         [HttpPost]
-        public IActionResult DeleteEvent(int calendarId,int eventId,int year,int month, int day)
+        public IActionResult DeleteEvent(int calendarId, int eventId, int year, int month, int day)
         {
             AuthorizeUser();
 
@@ -117,8 +119,8 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         {
             AuthorizeUser();
 
-            int monthIndex = month == 0? DateTime.Today.Month : month;
-            int yearIndex = year == 0 ? DateTime.Today.Year : year; 
+            int monthIndex = month == 0 ? DateTime.Today.Month : month;
+            int yearIndex = year == 0 ? DateTime.Today.Year : year;
 
             int monthlength;
             if (monthIndex == 1 || monthIndex == 3 ||
@@ -152,7 +154,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             ViewData["Offset"] = offset;
             ViewData["MonthName"] = CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(monthIndex);
             ViewData["Month"] = monthIndex;
-            ViewData["Year"] = yearIndex; 
+            ViewData["Year"] = yearIndex;
             return View(calendar);
         }
 
@@ -176,78 +178,75 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult editEvent(int calendarId,int eventId, int year, int month, int day, int forein)
+        public IActionResult editEvent(int calendarId, int eventId, int year, int month, int day, int forein)
         {
             AuthorizeUser();
 
+            Event eventt = new Event(EventDataAccess.GetEvent(eventId, ActiveUser.User.Username));
+
+            List<string> usernames = GetPeopleHowHaveAlreadyBeenInvited(eventt);
+
             ViewData["DuplicateEventTitle"] = false;
-            ViewData["Editing"] = true;
             ViewData["CalendarId"] = calendarId;
             ViewData["EventId"] = eventId;
             ViewData["forein"] = forein;
             ViewData["Year"] = year;
             ViewData["Month"] = month;
             ViewData["Day"] = day;
-            //EventDataModel eventDataModelTemp = EventDataAccess.GetEvent(eventId, ActiveUser.User.Username);
-            Event eventt = new Event(EventDataAccess.GetEvent(eventId, ActiveUser.User.Username));
-            /*eventt.Id=eventDataModelTemp.Id;
-            eventt.Description = eventDataModelTemp.Description;
-            eventt.Title = eventDataModelTemp.Title;
-            eventt.StartingTime = eventDataModelTemp.StartingTime;
-            eventt.EndingTime = eventDataModelTemp.EndingTime;
-            eventt.AlertStatus = eventDataModelTemp.AlertStatus;*/
-            //List<CommentDataModel> li = eventDataModelTemp.EventComments;
-            List<string> alreadyParticipate = new List<string>();
-            foreach (User user in eventt.UsersThatParticipateInTheEvent)
-            {
-                alreadyParticipate.Add(user.Username);
-            }
-            List<string> usernmes = new List<string>();
-            foreach (UserDataModel userr in UserDataAccess.GetUsers())
-            {
+            ViewData["usernames"] = usernames;
 
-                if (userr.Username != ActiveUser.User.Username && !alreadyParticipate.Contains(userr.Username))
-                {
-                    bool goNext = false;
-                    foreach(NotificationDataModel notificationDataModel in userr.Notifications)
-                    {
-                        if(notificationDataModel.EventOfNotification.Id == eventId && notificationDataModel.InvitationPending)
-                        {
-                            goNext= true;
-                            break;
-                        }
-                    }
-                    if (goNext)
-                    {
-                        continue;
-                    }
-                    usernmes.Add(userr.Username);
-                }
-            }
-            ViewData["usernames"] = usernmes;
-
-
-            /*int i = 0;
-            foreach(CommentDataModel comment in li)
-            {
-                ViewData[i.ToString()] = comment;
-                ViewData[i.ToString()+"u"] = comment.UserWhoMadeTheComment;
-                i++;
-            }
-            ViewData["Last"] = i - 1;*/
             return View(eventt);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult editEvent(int calendarId,int eventId, Event eventt, int year, int month, int day)
+        public IActionResult editEvent(int calendarId, int eventId, Event eventt, int year, int month, int day, string[] invitations, string newComments)
         {
             AuthorizeUser();
 
             if (!ModelState.IsValid)
             {
-                return View();
+                eventt = new Event(EventDataAccess.GetEvent(eventId, eventt.EventCreatorName));
+                ViewData["DuplicateEventTitle"] = false;
+                ViewData["CalendarId"] = calendarId;
+                ViewData["EventId"] = eventId;
+                ViewData["forein"] = eventt.EventCreatorName == ActiveUser.User.Username ? 0 : 1;
+                ViewData["Year"] = year;
+                ViewData["Month"] = month;
+                ViewData["Day"] = day;
+                ViewData["usernames"] = GetPeopleHowHaveAlreadyBeenInvited(eventt);
+                return View(eventt);
             }
+
+            if (invitations != null)
+            {
+                foreach (string memberInvitation in invitations)
+                {
+                    EventDataAccess.InviteUsersToEvent(eventId,eventt.EventCreatorName,invitations.ToList());
+                }
+            }
+
+            List<string> newCommentsText = new List<string>();
+            if (newComments != null)
+            {
+                foreach (string newComment in newComments.Split("|"))
+                {
+                    newCommentsText.Add(newComment);
+                }
+            }
+
+            if(newCommentsText.Count != 0)
+            {
+                EventDataAccess.CreateComments(newCommentsText, eventId, ActiveUser.User.Username);
+                return RedirectToAction("ViewCalendarDay", "Home", new
+                {
+                    calendarId = calendarId,
+                    year = year,
+                    month = month,
+                    day = day
+                });
+            }
+
             EventDataModel eventDataModel = new EventDataModel();
             eventDataModel.Id = eventId;
             eventDataModel.Title = eventt.Title;
@@ -255,10 +254,44 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             eventDataModel.StartingTime = eventt.StartingTime;
             eventDataModel.EndingTime = eventt.EndingTime;
             eventDataModel.AlertStatus = eventt.AlertStatus;
-            EventDataAccess.UpdateEvent(eventDataModel,ActiveUser.User.Username);
+            EventDataAccess.UpdateEvent(eventDataModel, ActiveUser.User.Username);
             return RedirectToAction("ViewCalendarDay", "Home", new
-            {   calendarId = calendarId, year = year,
-                month = month, day = day});
+            { calendarId = calendarId, year = year,
+                month = month, day = day });
+        }
+
+        private List<string> GetPeopleHowHaveAlreadyBeenInvited(Event eventt)
+        {
+            //this is kinda messy, but essentionally it figures out which members have already been invited or already participate. 
+            List<string> alreadyParticipate = new List<string>();
+            foreach (User user in eventt.UsersThatParticipateInTheEvent)
+            {
+                alreadyParticipate.Add(user.Username);
+            }
+            List<string> usernames = new List<string>();
+            foreach (UserDataModel userr in UserDataAccess.GetUsers())
+            {
+
+                if (userr.Username != ActiveUser.User.Username && !alreadyParticipate.Contains(userr.Username))
+                {
+                    bool goNext = false;
+                    foreach (NotificationDataModel notificationDataModel in userr.Notifications)
+                    {
+                        if (notificationDataModel.EventOfNotification.Id == eventt.Id && notificationDataModel.InvitationPending)
+                        {
+                            goNext = true;
+                            break;
+                        }
+                    }
+                    if (goNext)
+                    {
+                        continue;
+                    }
+                    usernames.Add(userr.Username);
+                }
+            }
+
+            return usernames;
         }
 
         public IActionResult addEvent(int calendarId, int year, int month, int day)
@@ -267,78 +300,86 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
             ViewData["DuplicateEventTitle"] = false;
             ViewData["CalendarId"] = calendarId;
-            ViewData["Editing"] = false;
             ViewData["Year"] = year;
             ViewData["Month"] = month;
             ViewData["Day"] = day;
-            //DateTime dt = DateTime.Now;
-            DateTime dateTime = new DateTime(year, month, day);//,dt.Hour,dt.Minute,dt.Second);
-            //DateTime.ParseExact()
+            DateTime dateTime = new DateTime(year, month, day);
+
             Event eventt = new Event();
             eventt.EndingTime = dateTime;
             eventt.StartingTime = dateTime;
+            
+            ViewData["usernames"] = getUsernamesOfAllUsers();
+            return View(eventt);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult addEvent(int calendarId, Event eventt, int year, int month, int day, string[] invitations, string newComments)
+        {
+            AuthorizeUser();
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["DuplicateEventTitle"] = false;
+                ViewData["usernames"] = getUsernamesOfAllUsers();
+                ViewData["CalendarId"] = calendarId;
+                ViewData["Year"] = year;
+                ViewData["Month"] = month;
+                ViewData["Day"] = day;
+                return View();
+            }
+
+            List<EventDataModel> eventList = EventDataAccess.GetEvents(calendarId);
+            foreach (EventDataModel eventDataModelTemp in eventList)
+            {
+                //check if another event with the given title exists
+                if (eventDataModelTemp.Title == eventt.Title)
+                {
+                    ViewData["DuplicateEventTitle"] = true;
+                    ViewData["usernames"] = getUsernamesOfAllUsers();
+                    ViewData["CalendarId"] = calendarId;
+                    ViewData["Year"] = year;
+                    ViewData["Month"] = month;
+                    ViewData["Day"] = day;
+                    return View();
+                }
+            }
+
+            //get the comments
+            List<CommentDataModel> newCommentsText = new List<CommentDataModel>();
+            if (newComments != null)
+            {
+                foreach (string newComment in newComments.Split("|"))
+                {
+                    CommentDataModel commentDataModel = new CommentDataModel();
+                    commentDataModel.CommentText = newComment;
+                    newCommentsText.Add(commentDataModel);
+                }
+            }
+
+            EventDataModel eventDataModel = new EventDataModel(eventt.Title, eventt.Description,
+                eventt.StartingTime, eventt.EndingTime, ActiveUser.User.Username ,eventt.AlertStatus);
+            //add the comments to the eventDataModel, so the will be created
+            eventDataModel.EventComments = newCommentsText;
+
+            int eventId = EventDataAccess.CreateEvent(eventDataModel, ActiveUser.User.Username, calendarId);
+            EventDataAccess.InviteUsersToEvent(eventId, ActiveUser.User.Username, invitations.ToList());
+            return RedirectToAction("ViewCalendarDay", "Home", new { calendarId = calendarId,
+                year = year, month = month, day = day });
+        }
+
+        List<string> getUsernamesOfAllUsers()
+        {
             List<string> usernmes = new List<string>();
-            foreach(UserDataModel userr in UserDataAccess.GetUsers())
+            foreach (UserDataModel userr in UserDataAccess.GetUsers())
             {
                 if (userr.Username != ActiveUser.User.Username)
                 {
                     usernmes.Add(userr.Username);
                 }
             }
-            ViewData["usernames"]=usernmes;
-            return View(eventt);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult addEvent(int calendarId, Event eventt, int year, int month, int day, string[] Invitation)
-        {
-            AuthorizeUser();
-
-            ViewData["DuplicateEventTitle"] = false;
-            if (!ModelState.IsValid)
-            {
-                return View();
-            }
-
-            List < EventDataModel > eventList = EventDataAccess.GetEvents(calendarId);
-            foreach (EventDataModel eventDataModelTemp in eventList)
-            {
-                if(eventDataModelTemp.Title == eventt.Title)
-                {
-                    ViewData["DuplicateEventTitle"] = true;
-                    return View();
-                }
-            }
-            EventDataModel eventDataModel = new EventDataModel();
-            eventDataModel.Id = eventt.Id;
-            eventDataModel.Title = eventt.Title;
-            eventDataModel.Description = eventt.Description;
-            eventDataModel.StartingTime = eventt.StartingTime;
-            eventDataModel.EndingTime = eventt.EndingTime;
-            eventDataModel.AlertStatus = eventt.AlertStatus;
-            //List<UserDataModel> li1 = UserDataAccess.GetUsers();
-            //List<string> li2 = new List<string>();
-            //foreach (UserDataModel userr in li1)
-            //{
-                //if (Invitation.Contains(userr.Username))
-                //{
-                //    eventDataModel.UsersThatParticipateInTheEvent.Add(userr);
-                //}
-
-                //foreach(string usrnam in Invitation)
-                //{
-                //    if (usrnam == userr.Username)
-                //    {
-                //        eventDataModel.UsersThatParticipateInTheEvent.Add(userr);
-                //        li2.Add(usrnam);
-                //    }
-                //}
-            //}
-            int eventId=EventDataAccess.CreateEvent(eventDataModel, ActiveUser.User.Username, calendarId);
-            EventDataAccess.InviteUsersToEvent(eventId, ActiveUser.User.Username, Invitation.ToList());
-            return RedirectToAction("ViewCalendarDay", "Home", new {calendarId = calendarId ,
-            year = year, month = month, day = day});
+            return usernmes;
         }
         
         public IActionResult ViewNotifications(bool NoCalendarSelected)
@@ -398,28 +439,17 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         }
         public IActionResult editAccount()
         {
-            ViewData["DuplicateEventTitle"] = false;
+            ViewData["DuplicateAccount"] = false;
+            ViewData["DuplicateEmail"] = false;
             UserDataModel userDataModelTemp = UserDataAccess.GetUser(ActiveUser.User.Username);
             User userr = new User(userDataModelTemp);
-            //eventt.Id = eventDataModelTemp.Id;
-            //eventt.Description = eventDataModelTemp.Description;
-            //eventt.Title = eventDataModelTemp.Title;
-            //eventt.StartingTime = eventDataModelTemp.StartingTime;
-            //eventt.EndingTime = eventDataModelTemp.EndingTime;
-            //eventt.AlertStatus = eventDataModelTemp.AlertStatus;
-            //UserName = username;
             return View(userr);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult editAccount(User userr)
+        public IActionResult editAccount(User userr, string oldUsername)
         {
-            //if (UserName == "")
-            //{
-            //    return View();
-            //}
-            ViewData["DuplicateEventTitle"] = false;
             if (!ModelState.IsValid)
             {
                 return View();
@@ -428,46 +458,76 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             List<UserDataModel> userList = UserDataAccess.GetUsers();
             foreach (UserDataModel userDataModelTemp in userList)
             {
-                if (userDataModelTemp.Username == userr.Username && userDataModelTemp.Username!= ActiveUser.User.Username)//UserName)
+                //if the user changes their username to a username that another user uses
+                if (userDataModelTemp.Username == userr.Username && userDataModelTemp.Username!= ActiveUser.User.Username)
                 {
-                    ViewData["DuplicateUsername"] = true;
-                    //Prepei edo na valo UserName=""; ?
-                    return View();
+                    ViewData["DuplicateAccount"] = true;
+                    ViewData["DuplicateEmail"] = false;
+                    userr.Username = oldUsername;
+                    return View(userr);
                 }
-                //if (userDataModelTemp.Password == userr.Password && userDataModelTemp.Username !=username)// UserName)
-                //{
-                //    ViewData["DuplicateEventTitle"] = true;
-                //    ViewData["User"] = username;
-                //    return View();
-                //}
-                //if (userDataModelTemp.Fullname == userr.Fullname && userDataModelTemp.Username != username)// UserName)
-                //{
-                //    ViewData["DuplicateEventTitle"] = true;
-                //    ViewData["User"] = username;
-                //    return View();
-                //}
-                if (userDataModelTemp.Email == userr.Email && userDataModelTemp.Username != ActiveUser.User.Username)// UserName)
+
+                //if the user changes their email to an email that another user uses
+                if (userDataModelTemp.Email == userr.Email && userDataModelTemp.Username != ActiveUser.User.Username)
                 {
+                    ViewData["DuplicateAccount"] = false;
                     ViewData["DuplicateEmail"] = true;
-                    return View();
+                    userr.Email = ActiveUser.User.Email;
+                    return View(userr);
                 }
-                //if (userDataModelTemp.Phone == userr.Phone && userDataModelTemp.Username != username)// UserName)
-                //{
-                //    ViewData["DuplicateEventTitle"] = true;
-                //    ViewData["User"] = username;
-                //    return View();
-                //}
 
             }
             UserDataModel userDataModel = new UserDataModel();
             userDataModel.Username = userr.Username;
             userDataModel.Password = userr.Password;
+            userDataModel.Fullname = userr.Fullname;
+            userDataModel.DateOfBirth = userr.DateOfBirth;
             userDataModel.Phone = userr.Phone;
             userDataModel.Email = userr.Email;
-            userDataModel.Fullname = userr.Fullname;
-            UserDataAccess.UpdateUser(userDataModel);
-            //UserDataAccess.UpdateUserAndUsername(userDataModel, username);// UserName);
+            UserDataAccess.UpdateUserAndUsername(userDataModel, oldUsername);
+            //change to the updated user
+            ActiveUser.User = new User(UserDataAccess.GetUser(userr.Username));
+
             return RedirectToAction("HomePage", "Home", new { pagination = 1 });
+        }
+
+        [HttpPost]
+        public IActionResult deleteComment(string userWhoMadeTheComment, int eventId, DateTime commentDate, string commentText, 
+            int calendarId, int year, int month, int day)
+        {
+            CommentDataModel commentDataModel = new CommentDataModel();
+            commentDataModel.UserWhoMadeTheComment.Username = userWhoMadeTheComment;
+            commentDataModel.EventOfComment.Id = eventId;
+            commentDataModel.CommentDate = commentDate;
+            commentDataModel.CommentText = commentText;
+            EventDataAccess.DeleteComment(commentDataModel);
+
+            bool forein = userWhoMadeTheComment != ActiveUser.User.Username;
+            return RedirectToAction("editEvent","Home", new {calendarId = calendarId, eventId = eventId, 
+            year = year, month = month, day = day, forein = forein});
+        }
+
+        [HttpPost]
+        public IActionResult editComment(string userWhoMadeTheComment, int eventId, DateTime commentDate, string commentText,
+            int calendarId, int year, int month, int day, string oldCommentText)
+        {
+            CommentDataModel commentDataModel = new CommentDataModel();
+            commentDataModel.UserWhoMadeTheComment.Username = userWhoMadeTheComment;
+            commentDataModel.EventOfComment.Id = eventId;
+            commentDataModel.CommentDate = commentDate;
+            commentDataModel.CommentText = commentText;
+            EventDataAccess.UpdateComment(commentDataModel, oldCommentText);
+
+            bool forein = userWhoMadeTheComment != ActiveUser.User.Username;
+            return RedirectToAction("editEvent", "Home", new
+            {
+                calendarId = calendarId,
+                eventId = eventId,
+                year = year,
+                month = month,
+                day = day,
+                forein = forein
+            });
         }
     }
 }
