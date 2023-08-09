@@ -54,5 +54,14 @@ namespace DataAccess.Logic
         /// </summary>
         /// <param name="username">The user's name</param>
         void DeleteUser(string username);
+
+
+        List<TokenDataModel> GetTokens();
+        bool TokenExists(string username, string token);
+        void CreateAccountActivationToken(string token, string username);
+        void CreateResetPasswordToken(string token, string username);
+        void ActivateUser(string username, string token);
+        void DeleteToken(string token);
+        void DeleteAccountActivationTokenAndUser(string token, string username);
     }
 }

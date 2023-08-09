@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Contact Form Submission Result";
+}
+
+<style>
+    body {
+        background-color: #f0f2f5;
+    }
+</style>
+
+@if ((bool)ViewData["EmailSendSuccessfully"])
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow p-3" style="background-color:white;">
+                <div class="text-center">
+                    <img class="card-img-top img-fluid" style="max-width:100px; max-height:100px;" src="~/images/blueTickTransparent.png" alt="success image">
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-3">Message Sent Successfully</h3>
+                    <p class="card-text text-center">Thank you for contacting us!<br>
+                        We will contact you as soon as possible.</p>
+                    <div class="text-center mt-4">
+                        <a asp-controller="Home" asp-action="HomePage" class="btn btn-lg btn-primary">Return to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow p-3" style="background-color:white;">
+                <div class="text-center">
+                    <img class="card-img-top img-fluid" style="max-width:100px; max-height:100px;" src="~/images/redXTransparent.png" alt="success image">
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-3">Message Was Not Send</h3>
+                    <p class="card-text text-center">
+                        Unfortunately it seems that something something went wrong!<br>
+                        Please make sure that your internet connection is stable and then try again to contact us.
+                    </p>
+                    <div class="text-center mt-4">
+                        <a asp-controller="Home" asp-action="HomePage" class="btn btn-lg btn-primary">Return to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,5 +1,11 @@
 ﻿@model Calendar
 
+<style>
+    .badge-hover {
+        cursor: default !important;
+    }
+</style>
+
 @{
     ViewData["Title"] = "Calendar View";
     int dayCount = 1;
@@ -11,6 +17,7 @@
                           && DateTime.Today.Year == (int)ViewData["Year"]) ||
                           (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
                           (DateTime.Today.Year > (int)ViewData["Year"]);
+    List<Tuple<int, int>> daysWithEvents = (List<Tuple<int, int>>)ViewData["DaysWithEvents"];
 }
 
 <div class="row justify-content-center">
@@ -62,48 +69,99 @@
     </div>
 </div>
 <div class="row">
-    <table class="table table-bordered table-striped shadow col-8 mx-auto" style="table-layout: fixed;">
+    <table class="table table-bordered table-striped shadow col-10 col-lg-8 mx-auto" style="table-layout: fixed;">
         <thead class="thead-dark">
             <tr>
-                <th class="text-center h4 p-3">Mon</th>
-                <th class="text-center h4 p-3">Tue</th>
-                <th class="text-center h4 p-3">Wed</th>
-                <th class="text-center h4 p-3">Thu</th>
-                <th class="text-center h4 p-3">Fri</th>
-                <th class="text-center h4 p-3">Sat</th>
-                <th class="text-center h4 p-3">Sun</th>
+                <th class="text-center h4 p-3"><span class="d-none d-sm-none d-md-block">Mon</span><span class="d-block d-md-none d-lg-none d-xl-none">Mo</span></th>
+                <th class="text-center h4 p-3"><span class="d-none d-sm-none d-md-block">Tue</span><span class="d-block d-md-none d-lg-none d-xl-none">Tu</span></th>
+                <th class="text-center h4 p-3"><span class="d-none d-sm-none d-md-block">Wed</span><span class="d-block d-md-none d-lg-none d-xl-none">We</span></th>
+                <th class="text-center h4 p-3"><span class="d-none d-sm-none d-md-block">Thu</span><span class="d-block d-md-none d-lg-none d-xl-none">Th</span></th>
+                <th class="text-center h4 p-3"><span class="d-none d-sm-none d-md-block">Fri</span><span class="d-block d-md-none d-lg-none d-xl-none">Fr</span></th>
+                <th class="text-center h4 p-3"><span class="d-none d-sm-none d-md-block">Sat</span><span class="d-block d-md-none d-lg-none d-xl-none">Sa</span></th>
+                <th class="text-center h4 p-3"><span class="d-none d-sm-none d-md-block">Sun</span><span class="d-block d-md-none d-lg-none d-xl-none">Su</span></th>
             </tr>
         </thead>
         <tbody>
-            @*TODO add event marker for dates that have an event*@
             <tr>
+                @*first row is created separately, because we have to make a check for the offset*@
                 @for (int i = 0; i < 7; i++)
                 {
+                    //if the first row column is equal or bigger to the offset of the month
                     if (i >= (int)ViewData["Offset"])
                     {
+                        bool hasEvents = false;
+                        int eventCount = 0;
+                        @foreach (Tuple<int, int> dayWithEvent in @daysWithEvents)
+                        {
+                            if (dayWithEvent.Item1 == dayCount)
+                            {
+                                hasEvents = true;
+                                eventCount = dayWithEvent.Item2;
+                                break;
+                            }
+                        }
+
                         @if (isBeforeCurrentDate)
                         {
-                            <td class="text-center p-3" style="opacity:0.25;">
-                                <a class="text-reset text-decoration-none"
-                                   asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                            </td>
+                            if (!hasEvents)
+                            {
+                                <td class="text-center p-3" style="opacity:0.25;">
+                                    <a class="text-reset text-decoration-none"
+                                       asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
+                                       asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="text-center p-3" style="opacity:0.25;">
+                                    <div class="d-block position-relative">
+                                        <a class="text-reset text-decoration-none "
+                                           asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
+                                           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">
+                                            @dayCount 
+                                        </a>
+                                        <span class="badge badge-primary position-absolute badge-hover" style="top: -10px; right: -10px;"
+                                              data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is the number of events on this date.">
+                                            @eventCount
+                                        </span>
+                                    </div>
+                                </td>
+                            }
                         }
                         else
                         {
-                            <td class="text-center p-3">
-                                <a class="text-reset text-decoration-none"
-                                   asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                            </td>
+                            if (!hasEvents)
+                            {
+                                <td class="text-center p-3">
+                                    <a class="text-reset text-decoration-none"
+                                       asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
+                                       asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="text-center p-3">
+                                    <div class="d-block position-relative">
+                                        <a class="text-reset text-decoration-none"
+                                           asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
+                                           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                                        <span class="badge badge-primary position-absolute badge-hover" style="top: -10px; right: -10px;"
+                                              data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is the number of events on this date.">
+                                            @eventCount
+                                        </span>
+                                    </div>
+                                </td>
+                            }
                         }
                         dayCount++;
 
+                        //caluclate again on whether or not the given day is before the current date
                         isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
                           && DateTime.Today.Year == (int)ViewData["Year"]) ||
                           (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
                           (DateTime.Today.Year > (int)ViewData["Year"]);
                     }
+                    //otherwise...
                     else
                     {
                         <td class="text-center p-3"></td>
@@ -111,158 +169,112 @@
 
                 }
             </tr>
-            <tr>
-                @for (int i = 0; i < 7; i++)
-                {
-                    @if (isBeforeCurrentDate)
-                    {
-                        <td class="text-center p-3" style="opacity:0.25;">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                        </td>
-                    }
-                    else
-                    {
-                        <td class="text-center p-3">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount" >@dayCount</a>
-                        </td>
-                    }
-                    dayCount++;
-
-                    isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
-                          && DateTime.Today.Year == (int)ViewData["Year"]) ||
-                          (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
-                          (DateTime.Today.Year > (int)ViewData["Year"]);
-                }
-            </tr>
-            <tr>
-                @for (int i = 0; i < 7; i++)
-                {
-                    @if (isBeforeCurrentDate)
-                    {
-                        <td class="text-center p-3" style="opacity:0.25;">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                        </td>
-                    }
-                    else
-                    {
-                        <td class="text-center p-3">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                        </td>
-                    }
-                    dayCount++;
-
-                    isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
-                          && DateTime.Today.Year == (int)ViewData["Year"]) ||
-                          (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
-                          (DateTime.Today.Year > (int)ViewData["Year"]);
-                }
-            </tr>
-            <tr>
-                @for (int i = 0; i < 7; i++)
-                {
-                    @if (isBeforeCurrentDate)
-                    {
-                        <td class="text-center p-3" style="opacity:0.25;">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                        </td>
-                    }
-                    else
-                    {
-                        <td class="text-center p-3">
-                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                        </td>
-                    }
-                    dayCount++;
-
-                    isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
-                          && DateTime.Today.Year == (int)ViewData["Year"]) ||
-                          (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
-                          (DateTime.Today.Year > (int)ViewData["Year"]);
-                }
-            </tr>
-
-            @if (dayCount < (int)ViewData["MonthLength"])
+            @*second, third and fourth rows are always calculated*@
+            @*the fifth and the sixth row are not necessary(in some cases the do not exist)
+            and this is the reason for the if checks*@
+            @for (int i = 0; i < 5; i++)
             {
-                <tr>
-                    @for (int i = 0; i < 7; i++)
-                    {
-                        @if (dayCount <= (int)ViewData["MonthLength"])
+                @if (dayCount <= (int)ViewData["MonthLength"])
+                {
+                    <tr>
+                        @for (int j = 0; j < 7; j++)
                         {
-                            @if (isBeforeCurrentDate)
+                            //the general case for the second, third and fourth row and possibly for the fifth or even sixth row
+                            @if (dayCount <= (int)ViewData["MonthLength"])
                             {
-                                <td class="text-center p-3" style="opacity:0.25;">
-                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                                </td>
-                            }
-                            else
-                            {
-                                <td class="text-center p-3">
-                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                                </td>
-                            }
-                            dayCount++;
+                                bool hasEvents = false;
+                                int eventCount = 0;
+                                @foreach (Tuple<int, int> dayWithEvent in @daysWithEvents)
+                                {
+                                    if (dayWithEvent.Item1 == dayCount)
+                                    {
+                                        hasEvents = true;
+                                        eventCount = dayWithEvent.Item2;
+                                        break;
+                                    }
+                                }
 
-                            isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
-                            && DateTime.Today.Year == (int)ViewData["Year"]) ||
-                            (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
-                            (DateTime.Today.Year > (int)ViewData["Year"]);
+
+                                @if (isBeforeCurrentDate)
+                                {
+                                    if (!hasEvents)
+                                    {
+                                        <td class="text-center p-3" style="opacity:0.25;">
+                                        <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
+                                           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center p-3" style="opacity:0.25;">
+                                            <div class="d-block position-relative">
+                                                <a class="text-reset text-decoration-none "
+                                                   asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
+                                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">
+                                                    @dayCount
+                                                </a>
+                                                <span class="badge badge-primary position-absolute badge-hover" style="top: -10px; right: -10px;"
+                                                      data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is the number of events on this date.">
+                                                    @eventCount
+                                                </span>
+                                            </div>
+                                        </td>
+                                    }
+
+                                }
+                                else
+                                {
+                                    if (!hasEvents)
+                                    {
+                                        <td class="text-center p-3">
+                                            <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
+                                               asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center p-3">
+                                            <div class="d-block position-relative">
+                                                <a class="text-reset text-decoration-none"
+                                                   asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
+                                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
+                                                <span class="badge badge-primary position-absolute badge-hover" style="top: -10px; right: -10px;"
+                                                      data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This is the number of events on this date.">
+                                                    @eventCount
+                                                </span>
+                                            </div>
+                                        </td>
+                                    }
+
+                                }
+                                dayCount++;
+
+                                isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
+                                && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                                (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
+                                (DateTime.Today.Year > (int)ViewData["Year"]);
+                            }
+                            //could happen on fifth or sixth row
+                            else {
+                                <td class="text-center p-3"></td>
+                            }
                         }
-                        else{ break; };
-
-                    }
-                </tr>
-            }
-
-            @if (dayCount <= (int)ViewData["MonthLength"])
-            {
-                <tr>
-                    @for (int i = 0; i < 7; i++)
-                    {
-                        @if (dayCount <= (int)ViewData["MonthLength"])
-                        {
-                            @if (isBeforeCurrentDate)
-                            {
-                                <td class="text-center p-3" style="opacity:0.25;">
-                                    <a class="text-reset text-decoration-none" asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                                </td>
-                            }
-                            else
-                            {
-                                <td class="text-center p-3">
-                                    <a class="text-reset text-decoration-none"asp-action="ViewCalendarDay" asp-route-calendarId="@Model.Id"
-                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@dayCount">@dayCount</a>
-                                </td>
-                            }
-                            dayCount++;
-
-                            isBeforeCurrentDate = (DateTime.Today.Day > dayCount && DateTime.Today.Month == (int)ViewData["Month"]
-                            && DateTime.Today.Year == (int)ViewData["Year"]) ||
-                            (DateTime.Today.Month > (int)ViewData["Month"] && DateTime.Today.Year == (int)ViewData["Year"]) ||
-                            (DateTime.Today.Year > (int)ViewData["Year"]);
-                        }
-                        else { break; };
-                     }               
-                </tr>
+                    </tr>
+                }
             }
         </tbody>
     </table>
 </div>
-<div class="row justify-content-center mt-3">
-    <div class="col-auto">
-        <a class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3"
-           asp-action="HomePage" asp-route-pagination="1">Return To Home Page</a>
-    </div>
-    <div class="col-auto">
-        <a href="#" class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3">View Documentation</a>
-    </div>
+<div class="d-flex justify-content-center mt-3">
+    <a class="btn btn-dark text-center text-white font-weight-bold pt-3 pb-3 mr-3"
+        asp-action="HomePage" asp-route-pagination="1">Return To Home Page</a>
+    <a href="#" class="btn btn-primary text-center text-white font-weight-bold pt-3 pb-3">View Documentation</a>
 </div>
 
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="popover"]').popover();
+        });
+    </script>
+}

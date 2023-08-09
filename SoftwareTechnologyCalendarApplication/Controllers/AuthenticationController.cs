@@ -4,8 +4,6 @@ using DataAccess.Models;
 using System.Collections.Generic;
 using System;
 using SoftwareTechnologyCalendarApplication.Models;
-using System.Linq;
-using System.Threading;
 
 namespace SoftwareTechnologyCalendarApplication.Controllers
 {
@@ -15,10 +13,8 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         private readonly IEventDataAccess _eventDataAccess;
         public AuthenticationController(IUserDataAccess userDataAccess, IEventDataAccess eventDataAccess)
         {
-
             _userDataAccess = userDataAccess;
             _eventDataAccess = eventDataAccess;
-
         }
         public IActionResult Register()
         {
@@ -66,16 +62,16 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             userr.Phone = user.Phone;
             _userDataAccess.CreateUser(userr);
 
-            //authenticates the user
-            ActiveUser.User = new User(userr); 
-            return RedirectToAction("HomePage", "Home", new {pagination = 1 });
+            ActiveUser.AccessConfirmationPage = true;
+            return RedirectToAction("RegisterVerificationEmailMessage", "Services", new {username = user.Username , email = userr.Email});
         }
 
-        public IActionResult Login()
+        public IActionResult Login(bool setFalseResetMessage)
         {
             if (ActiveUser.User != null) throw new NotImplementedException();
 
             ViewData["WrongUsernamePassword"] = false;
+            ViewData["FalseResetAccount"] = setFalseResetMessage ? true : false;
             return View();
         }
 
@@ -86,13 +82,15 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             if (ActiveUser.User != null) throw new NotImplementedException();
 
             ViewData["WrongUsernamePassword"] = false;
+            ViewData["FalseResetAccount"] = false;
             if(!ModelState.IsValid) {
                 return View(user);
             }
             UserDataModel userDataModel = _userDataAccess.GetUser(user.Username);
             if ((userDataModel == null) || (userDataModel.Password != user.Password))
             {
-                ViewData["WrongUsernamePassword"]=true; 
+                ViewData["WrongUsernamePassword"]=true;
+                ViewData["FalseResetAccount"] = false;
                 return View();
             }
             //authenticates the user
@@ -117,9 +115,86 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             return RedirectToAction("HomePage","Home", new {pagination = 1});
         }
 
+        public IActionResult ForgotPassword(string username, string email)
+        {
+            if (ActiveUser.User != null) throw new NotImplementedException();
+
+            //if the username was not empty
+            if(username != "" && username != null)
+            {
+                User user = new User(_userDataAccess.GetUser(username));
+                //if the user does not exist
+                if(user.Username == null)
+                {
+                    return RedirectToAction("Login", "Authentication", new { setFalseResetMessage = true });
+                }
+                //otherwise
+                ActiveUser.AccessConfirmationPage = true;
+                return RedirectToAction("ResetPasswordEmailMessage", "Services", new {username = username, email = user.Email});
+            }
+            //if the email want not empty
+            string userUsername = "";
+            foreach (UserDataModel tempUser in _userDataAccess.GetUsers())
+            {
+                if (tempUser.Email == email)
+                {
+                    userUsername = tempUser.Username;
+                }
+            }
+
+            //if there is no user with that username
+            if (userUsername == "")
+            {
+                return RedirectToAction("Login", "Authentication", new { setFalseResetMessage = true});
+            }
+            //otherwise
+            ActiveUser.AccessConfirmationPage = true;
+            return RedirectToAction("ResetPasswordEmailMessage", "Services", new { username = userUsername, email = email });
+            
+        }
+
+        public IActionResult ResetPassword(string username, string token)
+        {
+            if (ActiveUser.User != null) throw new NotImplementedException();
+
+            if (!_userDataAccess.TokenExists(username, token))
+            {
+                throw new NotImplementedException();
+            }
+            ResetPasswordViewModel resetPasswordViewModel = new ResetPasswordViewModel();
+            resetPasswordViewModel.Username = username;
+            resetPasswordViewModel.Token = token;
+            return View(resetPasswordViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult ResetPassword(ResetPasswordViewModel resetPasswordViewModel)
+        {
+            if (ActiveUser.User != null) throw new NotImplementedException();
+            if (!_userDataAccess.TokenExists(resetPasswordViewModel.Username, resetPasswordViewModel.Token))
+            {
+                throw new NotImplementedException();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(resetPasswordViewModel);
+            }
+
+            UserDataModel updatedUser = _userDataAccess.GetUser(resetPasswordViewModel.Username);
+            updatedUser.Password = resetPasswordViewModel.Password;
+            _userDataAccess.UpdateUser(updatedUser);
+
+            //now that the user is updated delete the token
+            _userDataAccess.DeleteToken(resetPasswordViewModel.Token);
+
+            ActiveUser.User = new User(updatedUser);
+            return RedirectToAction("HomePage","Home");
+        }
+
         public IActionResult LogOut()
         {
-            if (ActiveUser.User == null) throw new NotImplementedException();
+            ActiveUser.AuthorizeUser();
 
             ActiveUser.User = null;
             return RedirectToAction("Login", "Authentication");

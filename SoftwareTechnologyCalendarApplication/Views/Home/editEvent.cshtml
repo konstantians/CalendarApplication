@@ -236,11 +236,11 @@
         @*this input is used for the new comments*@
         <input type="hidden" name="newComments" id="newComments" value="" />
         <div class="d-flex justify-content-center">
-            <a class="btn btn-outline-primary" asp-controller="Home" asp-action="ViewCalendarDay" asp-route-calendarId="@ViewData["CalendarId"]"
+            <a class="btn btn-dark text-center text-white font-weight-bold pt-2 pb-2 mr-3"
+               asp-controller="Home" asp-action="ViewCalendarDay" asp-route-calendarId="@ViewData["CalendarId"]"
                asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]">Back to Calendar</a>
-            <div class="ml-3">
-                <input type="submit" value="Submit Changes" class="btn btn-outline-primary" onclick="EnableAll(); createCommentsForFormSubmission();" />
-            </div>
+            <button type="submit" class="btn btn-primary text-center text-white font-weight-bold pt-2 pb-2"
+                    onclick="EnableAll(); createCommentsForFormSubmission();">Submit Changes</button>
         </div>
     </div>
 </form>
@@ -391,33 +391,6 @@
             document.getElementById("description").removeAttribute("disabled");
             document.getElementById("startingTime").removeAttribute("disabled");
             document.getElementById("endingTime").removeAttribute("disabled");
-        }
-
-        //TODO implement this validation
-        function Validation() {
-            var startingTime = document.getElementById("startingTime").value;
-            var endingTime = document.getElementById("endingTime").value;
-            const Start = Date.parse(startingTime);
-            const End = Date.parse(endingTime);
-            let minsOfStart = startingTime.split(":")[1];
-            let minsOfEnd = endingTime.split(":")[1];
-            if (minsOfStart != "00" && minsOfStart != "30") {
-                alert("The minute field of the starting time of the event must be :00 or :30. Nothing else.");
-                return false;
-            }
-            if (minsOfEnd != "00" && minsOfEnd != "30") {
-                alert("The minute field of the ending time of the event must be :00 or :30. Nothing else.");
-                return false;
-            }
-            if (Start >= End) {
-                alert("The starting time of the event must cannot be greater than or equal to the ending time.");
-                return false;
-            }
-            var title = document.getElementById("title").value;
-            if (title == null || title == "") {
-                alert("You need to provide a title for the event before submiting.");
-                return false;
-            }
         }
 
         function addComment() {

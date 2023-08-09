@@ -66,6 +66,8 @@
 
             <div class="col-md-6">
                 <h4 class="text-center">Participants Section</h4>
+
+
                 <label for="invitations">Who do you want to invite?</label>
                 <select name="invitations[]" class="form-control" id="invitations" multiple>
                     @foreach (string username in (List<string>)ViewData["usernames"])
@@ -108,11 +110,10 @@
         @*this input is used for the new comments*@
         <input type="hidden" name="newComments" id="newComments" value="" />
         <div class="d-flex justify-content-center">
-            <a class="btn btn-outline-primary" asp-controller="Home" asp-action="ViewCalendarDay" asp-route-calendarId="@ViewData["CalendarId"]"
-               asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]">Back to Calendar</a>
-            <div class="ml-3">
-                <input type="submit" value="Create new event" onclick="createCommentsForFormSubmission();" class="btn btn-outline-primary" />
-            </div>
+            <a class="btn btn-dark text-center text-white font-weight-bold pt-2 pb-2 mr-3" asp-controller="Home" asp-action="ViewCalendarDay" 
+            asp-route-calendarId="@ViewData["CalendarId"]" asp-route-year="@ViewData["Year"]" 
+            asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]">Back To Calendar</a>
+            <button type="submit" class="btn btn-primary text-center text-white font-weight-bold pt-2 pb-2" onclick="createCommentsForFormSubmission();">Create New Event</button>
         </div>
     </div>
 </form>
