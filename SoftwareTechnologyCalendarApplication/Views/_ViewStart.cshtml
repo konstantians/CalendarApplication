@@ -1,3 +1,11 @@
 ﻿@{
-    Layout = "_Layout";
+    if (ViewContext.RouteData.Values["controller"].ToString().Equals("Home"))
+    {
+        Layout = "_Layout";
+    }
+    else
+    {
+        //Layout = "~/Views/Shared/_emptyLayout.cshtml";
+        Layout = "_emptyLayout";
+    }
 }

@@ -92,6 +92,13 @@
         position: relative;
         z-index: 2;
     }
+
+    /* Define a custom class for smaller buttons */
+    .custom-btn-sm {
+        padding: 0.2rem 0.4rem; /* Adjust padding as needed */
+        font-size: 12px; /* Adjust font size as needed */
+        line-height: 1; /* Adjust line height as needed */
+    }
 </style>
 
 @if ((bool)ViewData["EventWasDeleted"])
@@ -125,7 +132,13 @@
     <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
         <thead class="thead-dark">
             <tr>
-                <th class="text-center h4 p-3">Hour</th>
+                <th class="h4 p-3">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-primary btn-sm load-less-btn mr-2"><i class="fa-solid fa-chevron-up"></i></button>
+                        <span>Hour</span>
+                        <button type="button" class="btn btn-primary btn-sm load-more-btn ml-2"><i class="fa-solid fa-chevron-down"></i></button>
+                    </div>
+                </th>
                 <th class="text-center h4 p-3">Col 1</th>
                 <th class="text-center h4 p-3">Col 2</th>
                 <th class="text-center h4 p-3">Col 3</th>
@@ -272,7 +285,13 @@
     <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
         <thead class="thead-dark">
             <tr>
-                <th class="text-center h4 p-3">Hour</th>
+                <th class="h4 p-3">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-primary btn-sm load-less-btn mr-2"><i class="fa-solid fa-chevron-up"></i></button>
+                        <span>Hour</span>
+                        <button type="button" class="btn btn-primary btn-sm load-more-btn ml-2"><i class="fa-solid fa-chevron-down"></i></button>
+                    </div>
+                </th>
                 <th class="text-center h4 p-3 tabletColTeam-0">Col 1</th>
                 <th class="text-center h4 p-3 tabletColTeam-0">Col 2</th>
                 <th class="text-center h4 p-3 tabletColTeam-1">Col 3</th>
@@ -420,17 +439,33 @@
 </div>
 <!--mobile view-->
 <div class="row d-block d-sm-block d-md-none" id="mobileView">
-    <div class="d-flex justify-content-between align-items-center mb-1">
-        <button onclick="changeMobileTeams()" class="btn btn-outline-dark">Change Cols <i class="fa-solid fa-table-columns"></i></button>
-        <h2 class="h2" style="margin-right:1rem;">@dayName</h2>
-        <a asp-controller="Home" asp-action="addEvent" asp-route-calendarId="@Model.Id"
-           asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]"
-           class="btn btn-outline-primary">Add Event <i class="fa-solid fa-plus"></i></a>
+    <div class="row">
+        <div class="offset-1 col-2">
+            <button onclick="changeMobileTeams()" class="btn btn-outline-dark"><i class="fa-solid fa-table-columns"></i></button>
+        </div>
+        <div class="col-6">
+            <div class="text-center">
+                <h2 class="h2">@dayName</h2>
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="d-flex justify-content-end">
+                <a asp-controller="Home" asp-action="addEvent" asp-route-calendarId="@Model.Id"
+               asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]"
+               class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i></a>
+            </div>
+        </div>
     </div>
-    <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
+    <table class="table table-bordered table-striped shadow offset-1 col-10 mx-auto" style="table-layout: fixed;">
         <thead class="thead-dark">
             <tr>
-                <th class="text-center h4 p-3">Hour</th>
+                <th class="h4 p-3">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-primary btn-sm load-less-btn mr-2"><i class="fa-solid fa-chevron-up"></i></button>
+                        <span>Hour</span>
+                        <button type="button" class="btn btn-primary btn-sm load-more-btn ml-2"><i class="fa-solid fa-chevron-down"></i></button>
+                    </div>
+                </th>
                 <th class="text-center h4 p-3 mobileColTeam-0">Col 1</th>
                 <th class="text-center h4 p-3 mobileColTeam-1">Col 2</th>
                 <th class="text-center h4 p-3 mobileColTeam-2">Col 3</th>
@@ -573,23 +608,11 @@
         </tbody>
     </table>
 </div>
-<div class="row justify-content-center mt-3">
-    <div class="col-auto">
-        <a href="#" class="btn btn-lg  btn-secondary text-center text-white font-weight-bold pt-3 pb-3 load-less-btn" disabled>Load Less</a>
-    </div>
-    <div class="col-auto">
-        <a href="#" class="btn btn-lg btn-secondary text-center text-white font-weight-bold pt-3 pb-3 load-more-btn">Load More</a>
-    </div>
-</div>
-<div class="row justify-content-center mt-3">
-    <div class="col-auto">
-        <a class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3"
-           asp-action="ViewCalendar" asp-route-year="@ViewData["Year"]"
-           asp-route-month="@ViewData["Month"]" asp-route-pagination="1">Return To Calendar View</a>
-    </div>
-    <div class="col-auto">
-        <a href="#" class="btn btn-secondary text-center text-white font-weight-bold pt-3 pb-3">View Documentation</a>
-    </div>
+<div class="d-flex justify-content-center mt-4">
+    <a class="btn btn-dark text-center text-white font-weight-bold pt-3 pb-3 mr-3"
+        asp-action="ViewCalendar" asp-route-year="@ViewData["Year"]"
+        asp-route-month="@ViewData["Month"]" asp-route-calendarId="@Model.Id">Back To Calendar View</a>
+    <a href="#" class="btn btn-primary text-center text-white font-weight-bold pt-3 pb-3">View Documentation</a>
 </div>
 
 @foreach (KeyValuePair<int, int> kvp in teams)
@@ -630,9 +653,9 @@
             var currentTeam = 0;
             var totalTeams = $('.table tbody tr').length;
 
-            if (totalTeams <= 1) {
-                $('.load-more-btn').attr('disabled', true);
-            }
+            //if (totalTeams <= 1) {
+                //$('.load-more-btn').attr('disabled', true);
+            //}
 
             $('.load-less-btn').attr('disabled', true);
 
@@ -646,8 +669,8 @@
 
                     $('.load-less-btn').attr('disabled', false);
                 }
-
-                if (currentTeam === totalTeams - 1) {
+                //the division by 24 is because we have 3 different teams(mobile, tablet and desktop)
+                if (currentTeam === (totalTeams / 24) - 1) {
                     $('.load-more-btn').attr('disabled', true);
                 }
             });

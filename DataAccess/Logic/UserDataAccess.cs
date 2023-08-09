@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Numerics;
 using System.Text;
 
 namespace DataAccess.Logic
@@ -41,7 +42,7 @@ namespace DataAccess.Logic
         public List<UserDataModel> GetUsers()
         {
             connection.Open();
-            string sqlQuery = "SELECT * FROM User;";
+            string sqlQuery = "SELECT * FROM User WHERE IsActive = 1;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
             SQLiteDataReader reader = command.ExecuteReader();
 
@@ -78,7 +79,7 @@ namespace DataAccess.Logic
         public UserDataModel GetUser(string username)
         {
             connection.Open();
-            string sqlQuery = "SELECT * FROM User WHERE Username = @username;";
+            string sqlQuery = "SELECT * FROM User WHERE Username = @username AND IsActive = 1;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@username", username);
@@ -239,8 +240,8 @@ namespace DataAccess.Logic
             }
 
             connection.Open();
-            string sqlQuery = "INSERT INTO User (Username, Password, FullName, DateOfBirth, Email, Phone) " +
-                              "VALUES (@username, @password, @fullName, @dateOfBirth, @email, @phone);";
+            string sqlQuery = "INSERT INTO User (Username, Password, FullName, DateOfBirth, Email, Phone, IsActive) " +
+                              "VALUES (@username, @password, @fullName, @dateOfBirth, @email, @phone, 0);";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@username", user.Username);
@@ -346,6 +347,7 @@ namespace DataAccess.Logic
             //now remove the user entries from the participationInEvent table
             //delete the user itself
             string sqlQuery = "DELETE FROM ParticipationInEvent WHERE UserUsername = @username;" +
+                              "DELETE FROM Token WHERE UserUsername = @username;" +
                               "DELETE FROM User WHERE Username = @username;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
             command.Parameters.AddWithValue("@username", username);
@@ -375,6 +377,133 @@ namespace DataAccess.Logic
             }
 
             return user;
+        }
+
+
+        ////////////////////////////////// Tokens code //////////////////////////////////
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<TokenDataModel> GetTokens()
+        {
+            connection.Open();
+            string sqlQuery = "SELECT * FROM Token;";
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            List<TokenDataModel> tokens = new List<TokenDataModel>();
+
+            while (reader.Read())
+            {
+                TokenDataModel token = new TokenDataModel();
+                token.Token = reader.GetString(0);
+                token.TokenExpiration = DateTime.Parse(reader.GetString(1));
+                token.UserOfToken = reader.GetString(2);
+
+                tokens.Add(token);
+            }
+            connection.Close();
+
+            return tokens;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public bool TokenExists(string username, string token)
+        {
+            connection.Open();
+            string sqlQuery = "SELECT * FROM Token WHERE Token = @token AND UserUsername = @username;";
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+
+            command.Parameters.AddWithValue("@username", username);
+            command.Parameters.AddWithValue("@token", token);
+
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            TokenDataModel tokenDataModel = new TokenDataModel();
+
+            while (reader.Read())
+            {
+                tokenDataModel.Token = reader.GetString(0);
+                tokenDataModel.TokenExpiration = DateTime.Parse(reader.GetString(1));
+                tokenDataModel.UserOfToken = reader.GetString(2);
+            }
+
+            connection.Close();
+
+            //check if there is a token
+            return tokenDataModel.Token != "";
+        }
+
+        public void ActivateUser(string username, string token)
+        {
+            connection.Open();
+            string sqlQuery = "UPDATE User SET IsActive = 1 WHERE Username = @username;";
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+
+            command.Parameters.AddWithValue("@username", username);
+            command.ExecuteNonQuery();
+            connection.Close();
+
+            DeleteToken(token);
+        }
+
+        public void CreateAccountActivationToken(string token, string username)
+        {
+            CreateToken(token, username, true, false);
+        }
+
+        public void CreateResetPasswordToken(string token, string username)
+        {
+            CreateToken(token, username, false, true);
+        }
+
+        private void CreateToken(string token, string username, bool isActivationToken, bool isResetPasswordToken)
+        {
+            connection.Open();
+            string sqlQuery = "INSERT INTO Token (Token, ExpirationDate, UserUsername, IsActivationToken, IsResetPasswordToken) " +
+                              "VALUES (@token, @expirationDate, @userUsername, @isActivationToken, @isResetPasswordToken);";
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+
+            command.Parameters.AddWithValue("@token", token);
+            command.Parameters.AddWithValue("@expirationDate", DateTime.Now.AddHours(3).ToString());
+            command.Parameters.AddWithValue("@userUsername", username);
+            command.Parameters.AddWithValue("@isActivationToken", Convert.ToInt32(isActivationToken));
+            command.Parameters.AddWithValue("@isResetPasswordToken", Convert.ToInt32(isResetPasswordToken));
+            command.ExecuteNonQuery();
+            connection.Close();
+        }
+
+        public void DeleteToken(string token)
+        {
+            connection.Open();
+            string sqlQuery = "DELETE FROM Token WHERE token = @token;";
+
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+            command.Parameters.AddWithValue("@token", token);
+            command.ExecuteNonQuery();
+            connection.Close();
+        }
+
+        public void DeleteAccountActivationTokenAndUser(string token, string username)
+        {
+
+            connection.Open();
+            string sqlQuery = "DELETE FROM Token WHERE token = @token;" +
+                "DELETE FROM User WHERE username = @username;";
+
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+            command.Parameters.AddWithValue("@token", token);
+            command.Parameters.AddWithValue("@username", username);
+            command.ExecuteNonQuery();
+            connection.Close();
         }
     }
 }

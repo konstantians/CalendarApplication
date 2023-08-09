@@ -4,6 +4,17 @@
     ViewData["Title"] = "AddCalendar";
 }
 
+<style>
+    body {
+        background-color: #f0f2f5;
+    }
+
+    .list-group-item {
+        padding: 0.4rem 1rem;
+        font-size: 14px; /* Adjust the font size as needed */
+    }
+</style>
+
 @if ((bool)ViewData["DuplicateCalendarTitle"])
 {
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -21,68 +32,165 @@
     </div>
 }
 
-<h1 class="text-center">Calendar Form</h1>
-<hr />
-<div class="row">
-    <div class="col-md-6 d-flex align-items-center justify-content-center" style="margin: 0 auto;">
-        <form asp-action="AddCalendar">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group mb-3">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <!--replace with a listbox(requires javascript) that chatgpt has suggested-->
-            <div class="form-group mb-4">
-                <label asp-for="Categories">Categories</label>
-                <textarea asp-for="Categories" class="form-control" rows="5"></textarea>
-                <span asp-validation-for="Categories" class="text-danger"></span>
-            </div>
-            <h4 class="h4 mb-3">Not sure? You could pick one of the below categories</h4>
-            <div class="d-inline-block mb-1">
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck1"
-                           name="SelectedCategories" value="Business">
-                    <label class="form-check-label" for="exampleCheck1">Business</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck2"
-                           name="SelectedCategories" value="Entertainment">
-                    <label class="form-check-label" for="exampleCheck2">Entertainment</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck3"
-                           name="SelectedCategories" value="Fitness">
-                    <label class="form-check-label" for="exampleCheck3">Fitness</label>
-                </div>
+<div class="mt-1 mb-2 pt-2 pb-2 shadow" style="background-color: white;">
+    <h1 class="text-center">Let's Add A New Calendar!</h1>
 
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck4"
-                           name="SelectedCategories" value="Birthday">
-                    <label class="form-check-label" for="exampleCheck4">Birthday</label>
-                </div>
-            </div>
-            <div class="d-inline-block mb-4">
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck5"
-                           name="SelectedCategories" value="Gaming">
-                    <label class="form-check-label" for="exampleCheck5">Gaming</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck6"
-                           name="SelectedCategories" value="Travel">
-                    <label class="form-check-label" for="exampleCheck6">Travel</label>
-                </div>
-            </div>
-            <div class="form-group d-flex justify-content-between mt-2">
-                <a class="btn btn-secondary pb-2 pt-2" style="width:200px;"
-                   asp-action="HomePage" asp-route-pagination="1">Back To Home</a>
-                <input type="submit" value="Create Calendar" class="btn btn-primary pb-2 pt-2" style="width: 200px;" />
-            </div>
-        </form>
-    </div>
+    <h4 class="text-center">Please fill out the following form:</h4>
 </div>
+
+<form asp-action="AddCalendar" style="background-color: white;">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="shadow pt-4 pb-4 pl-4 pr-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h4 class="text-center">Calendar Information</h4>
+                <div class="form-group mb-3">
+                    <label asp-for="Title" class="control-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h4 class="text-center">Calendar Categories Section</h4>
+                <label for="newItem">Add Category:</label>
+                <div class="input-group mb-3">
+                    <input type="text" id="newItem" class="form-control" placeholder="Enter a new calendar category">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-primary" id="addItem"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+                <div class="mb-2">Added Categories</div>
+                <div class="" id="noCategoriesAlert" >
+                    <div class="alert alert-info" role="alert">
+                        <strong>No categories!</strong> You have not added a calendar category yet.
+                    </div>
+                </div>
+                <ul class="list-group mb-3" id="itemList">
+                    <div id="hiddenInputContainer" hidden></div>
+                    <!-- Existing items will be added here -->
+                    <input type="hidden" asp-for="Categories" value="" />
+                </ul>
+                <div>Not sure? You could pick one of the below categories</div>
+                <div class="d-inline-block">
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck1"
+                               name="SelectedCategories" value="Business">
+                        <label class="form-check-label" for="exampleCheck1">Business</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck2"
+                               name="SelectedCategories" value="Entertainment">
+                        <label class="form-check-label" for="exampleCheck2">Entertainment</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck3"
+                               name="SelectedCategories" value="Fitness">
+                        <label class="form-check-label" for="exampleCheck3">Fitness</label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck4"
+                               name="SelectedCategories" value="Birthday">
+                        <label class="form-check-label" for="exampleCheck4">Birthday</label>
+                    </div>
+                </div>
+                <div class="d-inline-block mb-4">
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck5"
+                               name="SelectedCategories" value="Gaming">
+                        <label class="form-check-label" for="exampleCheck5">Gaming</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck6"
+                               name="SelectedCategories" value="Travel">
+                        <label class="form-check-label" for="exampleCheck6">Travel</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mt-2">
+            <a class="btn btn-lg btn-dark pb-2 pt-2"
+               asp-action="HomePage" asp-route-pagination="1">Back To Home</a>
+            <div class="ml-3">
+                <button type="submit" onclick="getCategoriesFromListBox()" class="btn btn-lg btn-primary pb-2 pt-2">Create Calendar</button>
+            </div>
+        </div>
+    </div>
+</form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        let newItemIds = [];
+        let counter = 1;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const addItemButton = document.getElementById("addItem");
+            const newItemInput = document.getElementById("newItem");
+            const itemList = document.getElementById("itemList");
+
+            addItemButton.addEventListener("click", function () {
+                const newItemText = newItemInput.value.trim();
+                if (newItemText !== "") {
+                    const listItem = document.createElement("li");
+                    listItem.className = "list-group-item d-flex justify-content-between align-items-center";
+                    listItem.innerHTML = `${newItemText}
+                            <button class="btn btn-danger btn-sm delete-item" type="button" onclick='deleteListItem(${counter})'>
+                        <i class="fas fa-times"></i>
+                    </button>`;
+
+                    listItem.id = `${counter}`;
+                    itemList.appendChild(listItem);
+
+                    //add a hidden entry
+                    const hiddenInput = document.createElement("div");
+                    hiddenInput.style.display = "hidden";
+                    let newId = `newItem-${counter}`
+                    hiddenInput.id = newId;
+                    newItemIds.push(newId)
+                    hiddenInput.value = newItemText;
+                    hiddenInputContainer.appendChild(hiddenInput);
+                    counter++;
+                    newItemInput.value = ""; // Clear the input
+                }
+
+
+                document.getElementById("noCategoriesAlert").style.display = "none";
+            });
+        });
+
+        function deleteListItem(listItemId){
+            if (listItemId) {
+                for (let i = 0; i < newItemIds.length; i++) {
+                    if (`newItem-${listItemId}` === newItemIds[i]) {
+                        console.log(newItemIds.indexOf(listItemId));
+                        document.getElementById(listItemId).remove();
+                        newItemIds.splice(`newItem-${listItemId}`, 1);
+                        break;
+                    }
+                }
+            }
+
+            if(newItemIds.length === 0){
+                document.getElementById("noCategoriesAlert").style.display = "block";
+            }
+        }
+
+        function getCategoriesFromListBox(){
+            if(newItemIds.length == 0){
+                document.getElementById("Categories").value = "";
+                return;
+            }
+
+            let allCategories = "";
+            for (let i = 0; i < newItemIds.length; i++) {
+                allCategories += document.getElementById(newItemIds[i]).value;
+                allCategories += "|";
+            }
+            allCategories = allCategories.slice(0, allCategories.length - 1);
+            document.getElementById("Categories").value = allCategories;
+            alert(document.getElementById("Categories").value);
+        }
+    </script>
 }

@@ -180,10 +180,8 @@
         </div>
         <input type="hidden" name="oldUsername" value="@Model.Username"/>
         <div class="d-flex justify-content-center mt-3">
-            <a class="btn btn-outline-primary" asp-controller="Home" asp-action="HomePage">Back To Home</a>
-            <div class="ml-3">
-                <input type="submit" value="Save Changes" onclick="EnableAll()" class="btn btn-outline-primary" />
-            </div>
+            <a class="btn btn-dark text-center text-white font-weight-bold pt-2 pb-2 mr-3" asp-controller="Home" asp-action="HomePage">Back To Home</a>
+            <button type="submit" class="btn btn-primary text-center text-white font-weight-bold pt-2 pb-2" onclick="EnableAll()">Save Changes</button>
         </div>
     </div>
 </form>
