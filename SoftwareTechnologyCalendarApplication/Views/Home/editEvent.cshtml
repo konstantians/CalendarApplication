@@ -46,91 +46,103 @@
     <div class="shadow pt-4 pb-4 pl-4 pr-4">
         <div class="row">
             <div class="col-md-6">
-                <h4 class="text-center">Event Information</h4>
-                <div class="form-group">
-                    <label asp-for="Title" class="control-label"></label>
-                    <div class="input-group">
-                        <input asp-for="Title" class="form-control" id="title" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('title', @ViewData["forein"])">
-
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                    ::before
-                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
-                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
-                                </svg>
-
-                                Edit
-                            </button>
-                        </div>
+                <h4 class="text-center d-none d-sm-none d-md-block">Event Information</h4>
+                <div class="d-block d-sm-block d-md-none">
+                    <div class="d-flex justify-content-between mt-3 mb-2">
+                        <div></div>
+                        <h4>Event Information</h4>
+                        <a class="btn btn-primary" data-toggle="collapse" href="#eventInformationSection" role="button" aria-expanded="false"
+                           aria-controls="eventInformationSection" id="showEventInformationButton">
+                            <i id="showEventInformationButtonIcon" class="fa-solid fa-chevron-up"></i>
+                        </a>
                     </div>
-                    <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="StartingTime" class="control-label"></label>
-                    <div class="input-group">
-                        <input asp-for="StartingTime" class="form-control" id="startingTime" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('startingTime', @ViewData["forein"])">
+                <div id="eventInformationSection" class="collapse show">
+                    <div class="form-group">
+                        <label asp-for="Title" class="control-label"></label>
+                        <div class="input-group">
+                            <input asp-for="Title" class="form-control" id="title" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('title', @ViewData["forein"])">
 
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                    ::before
-                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
-                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
-                                </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                        ::before
+                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                    </svg>
 
-                                Edit
-                            </button>
+                                    Edit
+                                </button>
+                            </div>
                         </div>
+                        <span asp-validation-for="Title" class="text-danger"></span>
                     </div>
-                    <span asp-validation-for="StartingTime" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="EndingTime" class="control-label"></label>
-                    <div class="input-group">
-                        <input asp-for="EndingTime" class="form-control" id="endingTime" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('endingTime', @ViewData["forein"])">
+                    <div class="form-group">
+                        <label asp-for="StartingTime" class="control-label"></label>
+                        <div class="input-group">
+                            <input asp-for="StartingTime" class="form-control" id="startingTime" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('startingTime', @ViewData["forein"])">
 
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                    ::before
-                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
-                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
-                                </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                        ::before
+                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                    </svg>
 
-                                Edit
-                            </button>
+                                    Edit
+                                </button>
+                            </div>
                         </div>
+                        <span asp-validation-for="StartingTime" class="text-danger"></span>
                     </div>
-                    <span asp-validation-for="EndingTime" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Description" class="control-label"></label>
-                    <div class="input-group">
-                        <textarea asp-for="Description" class="form-control" id="description" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" rows="3"></textarea>
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('description', @ViewData["forein"])">
+                    <div class="form-group">
+                        <label asp-for="EndingTime" class="control-label"></label>
+                        <div class="input-group">
+                            <input asp-for="EndingTime" class="form-control" id="endingTime" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" />
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('endingTime', @ViewData["forein"])">
 
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                    ::before
-                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
-                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
-                                </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                        ::before
+                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                    </svg>
 
-                                Edit
-                            </button>
+                                    Edit
+                                </button>
+                            </div>
                         </div>
+                        <span asp-validation-for="EndingTime" class="text-danger"></span>
                     </div>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-                <div class="form-group form-check">
-                    <label class="form-check-label">
-                        <input class="form-check-input" asp-for="AlertStatus" /> I want to be notified when the event begins
-                    </label>
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <div class="input-group">
+                            <textarea asp-for="Description" class="form-control" id="description" onblur="this.setAttribute('disabled', 'disabled');" disabled="disabled" rows="3"></textarea>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="button" onclick="EnableDisableTextBox('description', @ViewData["forein"])">
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                        ::before
+                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                    </svg>
+
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="AlertStatus" /> I want to be notified when the event begins
+                        </label>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between mt-2 mt-md-0">
                     <div></div>
                     <h4>Participants Section</h4>
                     <a class="btn btn-primary" data-toggle="collapse" href="#participationSection" role="button" aria-expanded="false" 
@@ -235,7 +247,7 @@
         <input type="hidden" name="day" value="@ViewData["Day"]" />
         @*this input is used for the new comments*@
         <input type="hidden" name="newComments" id="newComments" value="" />
-        <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center mt-md-0 mt-3">
             <a class="btn btn-dark text-center text-white font-weight-bold pt-2 pb-2 mr-3"
                asp-controller="Home" asp-action="ViewCalendarDay" asp-route-calendarId="@ViewData["CalendarId"]"
                asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]">Back to Calendar</a>
@@ -384,6 +396,10 @@
 
         document.getElementById("showCommentButton").addEventListener("click", function () {
             toggleSection("showCommentButton");
+        });
+
+        document.getElementById("showEventInformationButton").addEventListener("click", function () {
+            toggleSection("showEventInformationButton");
         });
 
         function EnableAll() {
@@ -538,6 +554,27 @@
         function updateComment(){
             document.getElementById("newCommentText").value = document.getElementById("updateCommentTextArea").value;
         }
+
+        // Function to show collapsed sections if not on mobile size on resize to avoid sections disappearing
+        function showCollapsedSectionsOnResize() {
+            const mobileBreakpoint = 768;
+
+            // Get the window width
+            const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+
+            // Get the collapsed section elements
+            const eventInformationSection = document.getElementById('eventInformationSection');
+
+            // Check if the window width is above the mobile breakpoint
+            if (windowWidth >= mobileBreakpoint) {
+                eventInformationSection.classList.add('show');
+                document.getElementById('showEventInformationButtonIcon').classList.remove('fa-chevron-down');
+                document.getElementById('showEventInformationButtonIcon').classList.add('fa-chevron-up');
+            }
+        }
+
+        // Attach the function to the window's resize event
+        window.addEventListener('resize', showCollapsedSectionsOnResize);
     </script>
     
 }

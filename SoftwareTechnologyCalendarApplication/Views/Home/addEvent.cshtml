@@ -36,55 +36,77 @@
     <div class="shadow pt-4 pb-4 pl-4 pr-4">
         <div class="row">
             <div class="col-md-6">
-                <h4 class="text-center">Event Information</h4>
-                <div class="form-group">
-                    <label asp-for="Title" class="control-label"></label>
-                    <input asp-for="Title" id="title" class="form-control" placeholder="Title"/>
-                    <span asp-validation-for="Title" class="text-danger"></span>
+                <h4 class="text-center d-md-block d-none">Event Information</h4>
+                <div class="d-block d-sm-block d-md-none">
+                    <div class="d-flex justify-content-between mt-3 mb-2">
+                        <div></div>
+                        <h4 style="margin-left:45px;">Event Information</h4>
+                        <a class="btn btn-primary" data-toggle="collapse" href="#eventInformationSection" role="button" aria-expanded="false"
+                           aria-controls="eventInformationSection" id="showEventInformationButton">
+                            <i id="showEventInformationButtonIcon" class="fa-solid fa-chevron-up"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label asp-for="StartingTime" class="control-label"></label>
-                    <input asp-for="StartingTime" id="startingtime" class="form-control" />
-                    <span asp-validation-for="StartingTime" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="EndingTime" class="control-label"></label>
-                    <input asp-for="EndingTime" id="endingtime" class="form-control" />
-                    <span asp-validation-for="EndingTime" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Description" class="control-label"></label>
-                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Description"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-                <div class="form-group form-check">
-                    <label class="form-check-label">
-                        <input class="form-check-input" asp-for="AlertStatus" /> I want to be notified when the event begins
-                    </label>
+                <div id="eventInformationSection" class="collapse show">
+                    <div class="form-group">
+                        <label asp-for="Title" class="control-label"></label>
+                        <input asp-for="Title" id="title" class="form-control" placeholder="Title" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="StartingTime" class="control-label"></label>
+                        <input asp-for="StartingTime" id="startingtime" class="form-control" />
+                        <span asp-validation-for="StartingTime" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EndingTime" class="control-label"></label>
+                        <input asp-for="EndingTime" id="endingtime" class="form-control" />
+                        <span asp-validation-for="EndingTime" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Description"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="AlertStatus" /> I want to be notified when the event begins
+                        </label>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-6">
-                <h4 class="text-center">Participants Section</h4>
+                <h4 class="text-center d-md-block d-none">Participants Section</h4>
+                <div class="d-block d-sm-block d-md-none">
+                    <div class="d-flex justify-content-between mt-3 mb-2">
+                        <div></div>
+                        <h4 style="margin-left:45px;">Participants Section</h4>
+                        <a class="btn btn-primary" data-toggle="collapse" href="#participantsSection" role="button" aria-expanded="false"
+                           aria-controls="participantsSection" id="showParticipantsButton">
+                            <i id="showParticipantsButtonIcon" class="fa-solid fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div id="participantsSection" class="collapse show">
+                    <label for="invitations">Who do you want to invite?</label>
+                    <select name="invitations[]" class="form-control" id="invitations" multiple>
+                        @foreach (string username in (List<string>)ViewData["usernames"])
+                        {
+                            <option value="@username">@username</option>
+                        }
+                    </select>
+                </div>
 
-
-                <label for="invitations">Who do you want to invite?</label>
-                <select name="invitations[]" class="form-control" id="invitations" multiple>
-                    @foreach (string username in (List<string>)ViewData["usernames"])
-                    {
-                        <option value="@username">@username</option>
-                    }
-                </select>
-
-                <div class="d-flex justify-content-between mt-3 mb-2">
+                <div class="d-flex justify-content-between mt-4 mb-2">
                     <div></div>
                     <h4 style="margin-left:45px;">Comments Section</h4>
                     <a class="btn btn-primary" data-toggle="collapse" href="#commentSection" role="button" aria-expanded="false"
                        aria-controls="commentSection" id="showCommentButton">
-                        <i id="showCommentButtonIcon" class="fa-solid fa-chevron-down"></i>
+                        <i id="showCommentButtonIcon" class="fa-solid fa-chevron-up"></i>
                     </a>
                 </div>
-                <div id="commentSection" class="collapse mt-2">
+                <div id="commentSection" class="collapse show mt-2">
                     <div id="commentArea">
                         <div class="alert alert-info" role="alert" id="noComments">
                             <strong>No comments!</strong> You have not added a comment yet.
@@ -109,7 +131,7 @@
         <input type="hidden" name="day" value="@ViewData["Day"]" />
         @*this input is used for the new comments*@
         <input type="hidden" name="newComments" id="newComments" value="" />
-        <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center mt-md-0 mt-3">
             <a class="btn btn-dark text-center text-white font-weight-bold pt-2 pb-2 mr-3" asp-controller="Home" asp-action="ViewCalendarDay" 
             asp-route-calendarId="@ViewData["CalendarId"]" asp-route-year="@ViewData["Year"]" 
             asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]">Back To Calendar</a>
@@ -151,17 +173,6 @@
         let commentCounter = 0;
         //list for new comments
         let newCommentsId = [];
-
-        function hideDisplayAlert(id) {
-            console.log("wow");
-            let alertDiv = document.getElementById(id);
-            if (alertDiv.style.display == "none") {
-                alertDiv.style.display = "block";
-            }
-            else {
-                alertDiv.style.display = "none";
-            }
-        }
 
         function addComment() {
 
@@ -262,6 +273,12 @@
         document.getElementById("showCommentButton").addEventListener("click", function () {
             toggleSection("showCommentButton");
         });
+        document.getElementById("showParticipantsButton").addEventListener("click", function () {
+            toggleSection("showParticipantsButton");
+        });
+        document.getElementById("showEventInformationButton").addEventListener("click", function () {
+            toggleSection("showEventInformationButton");
+        });
 
         // Function to remove a comment from the list
         function removetempComment(commentId) {
@@ -322,6 +339,32 @@
             // Set the value of the hidden input
             document.getElementById("newComments").value = newComments;
         }
+
+        // Function to show collapsed sections if not on mobile size on resize to avoid sections disappearing
+        function showCollapsedSectionsOnResize() {
+            const mobileBreakpoint = 768;
+
+            // Get the window width
+            const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+
+            // Get the collapsed section elements
+            const participantsSection = document.getElementById('participantsSection');
+            const eventInformationSection = document.getElementById('eventInformationSection');
+
+            // Check if the window width is above the mobile breakpoint
+            if (windowWidth >= mobileBreakpoint) {
+                participantsSection.classList.add('show');
+                document.getElementById('showParticipantsButtonIcon').classList.remove('fa-chevron-down');
+                document.getElementById('showParticipantsButtonIcon').classList.add('fa-chevron-up');
+
+                eventInformationSection.classList.add('show');
+                document.getElementById('showEventInformationButtonIcon').classList.remove('fa-chevron-down');
+                document.getElementById('showEventInformationButtonIcon').classList.add('fa-chevron-up');
+            }
+        }
+
+        // Attach the function to the window's resize event
+        window.addEventListener('resize', showCollapsedSectionsOnResize);
     </script>
     
 }

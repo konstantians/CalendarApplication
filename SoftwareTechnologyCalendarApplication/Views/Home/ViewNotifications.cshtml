@@ -40,6 +40,10 @@
     .marker {
     }
 
+    body {
+        background-color: #f0f2f5;
+    }
+
 </style>
 
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -58,271 +62,303 @@
     </div>
 }
 
-
-<h1 class="h1 pb-3 text-center">Account Notifications</h1>
-<div class="row">
-    <div class="col-sm-12 col-md-12 col-lg-6 marker mb-3">
-        <h2 class="h2 text-center mb-2">User Invitations</h2>
-        @foreach (Notification notification in Model.Notifications)
-        {
-            @if (notification.InvitationPending)
-            {
-                <div class="notification-box" id="notification-box-@count">
-                    <div class="flex-grow-1 d-flex justify-content-between align-items-center">
-                        <p class="notification-title">Invitation to the @notification.EventOfNotification.Title event .</p>
-                        <div>
-                            <button type="button" class="btn btn-primary notification-btn notification-check-btn" data-toggle="modal" data-target="#acceptModal-@count">
-                                <i class="fa-solid fa-check"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger notification-btn notification-close-btn" onclick="removeNotification('@count')">
-                                <i class="fa-solid fa-x"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger notification-btn notification-close-btn" data-toggle="modal" data-target="#deleteModal-@count">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Accept Modal Pop Up -->
-                <div class="modal fade" id="acceptModal-@count" tabindex="-1" role="dialog" aria-labelledby="acceptModalLabel-@count" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="acceptModalLabel-@count">Accept Invitation</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
+<div class="mt-1 mb-2 pt-2 pb-2 shadow" style="background-color: white;">
+    <h1 class="h1 text-center">Account Notifications</h1>
+    <h4 class="h4 text-center">Here You Can See And Delete Your Notifications</h4>
+</div>
+<div class="shadow pt-4 pb-4 pl-4 pr-4" style="background-color: white;">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-6 marker mb-3">
+            <div class="d-flex justify-content-between mt-3 mb-2">
+                <div></div>
+                <h4>User Invitations</h4>
+                <a class="btn btn-primary" data-toggle="collapse" href="#InvitationsSection" role="button" aria-expanded="false"
+                    aria-controls="InvitationsSection" id="showInvitationsButton">
+                    <i id="showInvitationsButtonIcon" class="fa-solid fa-chevron-up"></i>
+                </a>
+            </div>
+            <div id="InvitationsSection" class="collapse show">
+                @foreach (Notification notification in Model.Notifications)
+                {
+                    @if (notification.InvitationPending)
+                    {
+                        <div class="notification-box" id="notification-box-@count">
+                            <div class="flex-grow-1 d-flex justify-content-between align-items-center">
+                                <p class="notification-title">Invitation to the @notification.EventOfNotification.Title event .</p>
+                                <div>
+                                    <button type="button" class="btn btn-primary notification-btn notification-check-btn" data-toggle="modal" data-target="#acceptModal-@count">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger notification-btn notification-close-btn" onclick="removeNotification('@count')">
+                                        <i class="fa-solid fa-x"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger notification-btn notification-close-btn" data-toggle="modal" data-target="#deleteModal-@count">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
-                            @*if the user does not have any calendars*@
-                            @if (Model.Calendars.Count == 0)
-                            {
-                                <div class="modal-body">
-                                    <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show" role="alert">
-                                        <svg class="bi flex-shrink-0 mr-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
-                                        <div style="font-size:13.95px;">
-                                            You must have at least 1 calendar to accept an invitation.
+                        </div>
+
+                        <!-- Accept Modal Pop Up -->
+                        <div class="modal fade" id="acceptModal-@count" tabindex="-1" role="dialog" aria-labelledby="acceptModalLabel-@count" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="acceptModalLabel-@count">Accept Invitation</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    @*if the user does not have any calendars*@
+                                    @if (Model.Calendars.Count == 0)
+                                    {
+                                        <div class="modal-body">
+                                            <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show" role="alert">
+                                                <svg class="bi flex-shrink-0 mr-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
+                                                <div style="font-size:13.95px;">
+                                                    You must have at least 1 calendar to accept an invitation.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                                        </div>
+                                    }
+                                    @*otherwise show the form*@
+                                    else
+                                    {
+                                        <div class="modal-body">
+                                            <form id="acceptForm-@count" method="post" asp-controller="Home" asp-action="AcceptInvitation">
+                                                <div class="form-group">
+                                                    <label for="calendarSelect">Choose The Calendar Which Will Include The Event</label>
+                                                    <select name="calendarId" class="form-control" id="calendarSelect">
+                                                        <option value="0">Choose One Of Your Calendar</option>
+                                                        @foreach (Calendar calendar in Model.Calendars)
+                                                        {
+                                                            <option value="@calendar.Id">@calendar.Title</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <label class="form-check-label mr-2" for="checkbox-x">Get Alert Notifications From The Event </label>
+                                                    <input name="alertStatus" class="form-check-input" type="checkbox" id="checkbox-x" style="transform: scale(1.3);">
+                                                </div>
+                                                <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
+                                                <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="submit" form="acceptForm-@count" class="btn btn-primary">Confirm</button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal-@count" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel-@count" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel-@count">Notification Confirm Deletion Dialog</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you do not want to participate in that event?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <!--fill the form-->
+                                        <form method="post" asp-controller="Home" asp-action="RejectInvitation">
+                                            <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
+                                            <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
+                                            <button type="submit" class="btn btn-danger">Confirm</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        //increase the count
+                        count++;
+                    }
+                }
+
+                @if (count == 0)
+                {
+                    <div class="alert alert-info" role="alert">
+                        <strong>No notifications!</strong> There are no notifications for this section.
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-12 col-lg-6 marker mb-3">
+            @{
+                initialCountSection2 = count;
+            }
+            <div class="d-flex justify-content-between mt-3 mb-2">
+                <div></div>
+                <h4>Events Notifications</h4>
+                <a class="btn btn-primary" data-toggle="collapse" href="#EventNotificationsSection" role="button" aria-expanded="false"
+                   aria-controls="EventNotificationsSection" id="showEventNotificationsButton">
+                    <i id="showEventNotificationsButtonIcon" class="fa-solid fa-chevron-up"></i>
+                </a>
+            </div>
+            <div id="EventNotificationsSection" class="collapse show">
+                @foreach (Notification notification in Model.Notifications)
+                {
+                    @if (!notification.InvitationPending && !notification.AlertNotification)
+                    {
+                        <div class="notification-box" id="notification-box-@count">
+                            <div class="flex-grow-1 d-flex justify-content-between align-items-center">
+                                @if (notification.EventAccepted)
+                                {
+                                    <p class="notification-title">Your invitation to the event @notification.EventOfNotification.Title has been accepted.</p>
+                                }
+                                @if (notification.EventRejected)
+                                {
+                                    <p class="notification-title">Your invitation to the event @notification.EventOfNotification.Title has been rejected.</p>
+                                }
+                                @if (notification.EventChanged)
+                                {
+                                    <p class="notification-title">The Event @notification.EventOfNotification.Title has been updated.</p>
+                                }
+                                @if (notification.CommentAdded)
+                                {
+                                    <p class="notification-title">A new comment has been added to the event @notification.EventOfNotification.Title .</p>
+                                }
+                                @if (notification.CommentDeleted)
+                                {
+                                    <p class="notification-title">A comment has been deleted from the event @notification.EventOfNotification.Title .</p>
+                                }
+                                @if (notification.EventDeleted)
+                                {
+                                    <p class="notification-title">The Event @notification.EventOfNotification.Title was deleted.</p>
+                                }
+                                <div>
+                                    <button type="button" class="btn btn-danger notification-btn notification-close-btn" onclick="removeNotification('@count')">
+                                        <i class="fa-solid fa-x"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger notification-btn notification-close-btn" data-toggle="modal" data-target="#myModal-@count">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="myModal-@count" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-@count" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="myModalLabel-@count">Notification Confirm Deletion Dialog</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete this notification?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <!--fill the form-->
+                                            <form method="post" asp-controller="Home" asp-action="DeleteNotification">
+                                                <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
+                                                <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-                                </div>
-                            }
-                            @*otherwise show the form*@
-                            else
-                            {
-                                <div class="modal-body">
-                                    <form id="acceptForm-@count" method="post" asp-controller="Home" asp-action="AcceptInvitation">
-                                        <div class="form-group">
-                                            <label for="calendarSelect">Choose The Calendar Which Will Include The Event</label>
-                                            <select name="calendarId" class="form-control" id="calendarSelect">
-                                                <option value="0">Choose One Of Your Calendar</option>
-                                                @foreach (Calendar calendar in Model.Calendars)
-                                                {
-                                                    <option value="@calendar.Id">@calendar.Title</option>
-                                                }
-                                            </select>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <label class="form-check-label mr-2" for="checkbox-x">Get Alert Notifications From The Event </label>
-                                            <input name="alertStatus" class="form-check-input" type="checkbox" id="checkbox-x" style="transform: scale(1.3);">
-                                        </div>
-                                        <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
-                                        <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="submit" form="acceptForm-@count" class="btn btn-primary">Confirm</button>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Delete Modal -->
-                <div class="modal fade" id="deleteModal-@count" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel-@count" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="deleteModalLabel-@count">Notification Confirm Deletion Dialog</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Are you sure you do not want to participate in that event?</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <!--fill the form-->
-                                <form method="post" asp-controller="Home" asp-action="RejectInvitation">
-                                    <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
-                                    <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
-                                    <button type="submit" class="btn btn-danger">Confirm</button>
-                                </form>
                             </div>
                         </div>
+
+                        //increase the count*
+                        count++;
+                    }
+                }
+                @if (initialCountSection2 == count)
+                {
+                    <div class="alert alert-info" role="alert">
+                        <strong>No notifications!</strong> There are no notifications for this section.
                     </div>
-                </div>
-
-                //increase the count
-                count++;
-            }
-        }
-
-        @if (count == 0)
-        {
-            <div class="alert alert-info" role="alert">
-                <strong>No notifications!</strong> There are no notifications for this section.
+                }
             </div>
-        }
-    </div>
-    <div class="col-sm-12 col-md-12 col-lg-6 marker mb-3">
-        <h2 class="h2 text-center mb-2">Events Notifications</h2>
-        @{
-            initialCountSection2 = count;
-        }
-        @foreach (Notification notification in Model.Notifications)
-        {
-            @if (!notification.InvitationPending && !notification.AlertNotification)
-            {
-                <div class="notification-box" id="notification-box-@count">
-                    <div class="flex-grow-1 d-flex justify-content-between align-items-center">
-                        @if (notification.EventAccepted)
-                        {
-                            <p class="notification-title">Your invitation to the event @notification.EventOfNotification.Title has been accepted.</p>
-                        }
-                        @if (notification.EventRejected)
-                        {
-                            <p class="notification-title">Your invitation to the event @notification.EventOfNotification.Title has been rejected.</p>
-                        }
-                        @if (notification.EventChanged)
-                        {
-                            <p class="notification-title">The Event @notification.EventOfNotification.Title has been updated.</p>
-                        }
-                        @if (notification.CommentAdded)
-                        {
-                            <p class="notification-title">A new comment has been added to the event @notification.EventOfNotification.Title .</p>
-                        }
-                        @if (notification.CommentDeleted)
-                        {
-                            <p class="notification-title">A comment has been deleted from the event @notification.EventOfNotification.Title .</p>
-                        }
-                        @if (notification.EventDeleted)
-                        {
-                            <p class="notification-title">The Event @notification.EventOfNotification.Title was deleted.</p>
-                        }
-                        <div>
-                            <button type="button" class="btn btn-danger notification-btn notification-close-btn" onclick="removeNotification('@count')">
-                                <i class="fa-solid fa-x"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger notification-btn notification-close-btn" data-toggle="modal" data-target="#myModal-@count">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="myModal-@count" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-@count" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="myModalLabel-@count">Notification Confirm Deletion Dialog</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
+            
+        </div>
+        <div class="col-sm-12 col-md-12 col-lg-6 marker mb-3">
+            @{
+                initialCountSection3 = count;
+            }
+            <div class="d-flex justify-content-between mt-3 mb-2">
+                <div></div>
+                <h4>Alert Status Notifications</h4>
+                <a class="btn btn-primary" data-toggle="collapse" href="#alertStatusNotificationsSection" role="button" aria-expanded="false"
+                   aria-controls="alertStatusNotificationsSection" id="showAlertStatusNotificationsButton">
+                    <i id="showAlertStatusNotificationsButtonIcon" class="fa-solid fa-chevron-up"></i>
+                </a>
+            </div>
+            <div id="alertStatusNotificationsSection" class="collapse show">
+                @foreach (Notification notification in Model.Notifications)
+                {
+                    if (notification.AlertNotification)
+                    {
+                        <div class="notification-box" id="notification-box-@count">
+                            <div class="flex-grow-1 d-flex justify-content-between align-items-center">
+                                <p class="notification-title">The Event @notification.EventOfNotification.Title will start in 1 hour</p>
+                                <div>
+                                    <button type="button" class="btn btn-danger notification-btn notification-close-btn" onclick="removeNotification('@count')">
+                                        <i class="fa-solid fa-x"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger notification-btn notification-close-btn" data-toggle="modal" data-target="#myModal-@count">
+                                        <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
-                                <div class="modal-body">
-                                    <p>Are you sure you want to delete this notification?</p>
+                            </div>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="myModal-@count" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-@count" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="myModalLabel-@count">Notification Confirm Deletion Dialog</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to delete this notification?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <!--fill the form-->
+                                        <form method="post" asp-controller="Home" asp-action="DeleteNotification">
+                                            <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
+                                            <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <!--fill the form-->
-                                    <form method="post" asp-controller="Home" asp-action="DeleteNotification">
-                                        <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
-                                        <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>
-                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                //increase the count*
-                count++;
-            }
-        }
-        @if (initialCountSection2 == count)
-        {
-            <div class="alert alert-info" role="alert">
-                <strong>No notifications!</strong> There are no notifications for this section.
+                        //increase the count*
+                        count++;
+                    }
+                }
+                @if (initialCountSection3 == count)
+                {
+                    <div class="alert alert-info" role="alert">
+                        <strong>No notifications!</strong> There are no notifications for this section.
+                    </div>
+                }
             </div>
-        }
+            
+        </div>
     </div>
-    <div class="col-sm-12 col-md-12 col-lg-6 marker mb-3">
-        <h2 class="h2 text-center mb-2">Alert Status Notifications</h2>
-        @{
-            initialCountSection3 = count;
-        }
-        @foreach (Notification notification in Model.Notifications)
-        {
-            if (notification.AlertNotification)
-            {
-                <div class="notification-box" id="notification-box-@count">
-                    <div class="flex-grow-1 d-flex justify-content-between align-items-center">
-                        <p class="notification-title">The Event @notification.EventOfNotification.Title will start in 1 hour</p>
-                        <div>
-                            <button type="button" class="btn btn-danger notification-btn notification-close-btn" onclick="removeNotification('@count')">
-                                <i class="fa-solid fa-x"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger notification-btn notification-close-btn" data-toggle="modal" data-target="#myModal-@count">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Modal -->
-                <div class="modal fade" id="myModal-@count" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-@count" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="myModalLabel-@count">Notification Confirm Deletion Dialog</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Are you sure you want to delete this notification?</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <!--fill the form-->
-                                <form method="post" asp-controller="Home" asp-action="DeleteNotification">
-                                    <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
-                                    <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                //increase the count*
-                count++;
-            }
-        }
-        @if (initialCountSection3 == count)
-        {
-            <div class="alert alert-info" role="alert">
-                <strong>No notifications!</strong> There are no notifications for this section.
-            </div>
-        }
-    </div>
-
 </div>
 
 @section Scripts {
@@ -360,5 +396,28 @@
                 notificationBox.remove();
             }
         }
+
+        //for severons icons change
+        function toggleSection(buttonId) {
+            const buttonIcon = document.getElementById(buttonId + 'Icon');
+            if (buttonIcon.classList.contains('fa-chevron-down')) {
+                buttonIcon.classList.remove('fa-chevron-down');
+                buttonIcon.classList.add('fa-chevron-up');
+
+            } else {
+                buttonIcon.classList.remove('fa-chevron-up');
+                buttonIcon.classList.add('fa-chevron-down');
+            }
+        }
+
+        document.getElementById("showInvitationsButton").addEventListener("click", function () {
+            toggleSection("showInvitationsButton");
+        });
+        document.getElementById("showEventNotificationsButton").addEventListener("click", function () {
+            toggleSection("showEventNotificationsButton");
+        });
+        document.getElementById("showAlertStatusNotificationsButton").addEventListener("click", function () {
+            toggleSection("showAlertStatusNotificationsButton");
+        });
     </script>
 }

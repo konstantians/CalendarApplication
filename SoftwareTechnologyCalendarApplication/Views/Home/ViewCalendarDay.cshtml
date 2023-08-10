@@ -10,8 +10,7 @@
 
     string dayName = new DateTime((int)ViewData["Year"], (int)ViewData["Month"], (int)ViewData["Day"]).DayOfWeek.ToString();
 }
-
-@*TODO figure out why when you have a foreign event and a native event there is an issue*@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
 
 <style>
     .table-bordered td {
@@ -129,149 +128,151 @@
            asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]" asp-route-day="@ViewData["Day"]"
            class="btn btn-outline-primary" style="margin-left:3rem;">Add Event <i class="fa-solid fa-plus"></i></a>
     </div>
-    <table class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
-        <thead class="thead-dark">
-            <tr>
-                <th class="h4 p-3">
-                    <div class="d-flex justify-content-center align-items-center">
-                        <button type="button" class="btn btn-primary btn-sm load-less-btn mr-2"><i class="fa-solid fa-chevron-up"></i></button>
-                        <span>Hour</span>
-                        <button type="button" class="btn btn-primary btn-sm load-more-btn ml-2"><i class="fa-solid fa-chevron-down"></i></button>
-                    </div>
-                </th>
-                <th class="text-center h4 p-3">Col 1</th>
-                <th class="text-center h4 p-3">Col 2</th>
-                <th class="text-center h4 p-3">Col 3</th>
-                <th class="text-center h4 p-3">Col 4</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < 48; i++)
-            {
+    <div id="desktopTableContainer">
+        <table id="desktopTable" class="table table-bordered table-striped shadow col-12 mx-auto" style="table-layout: fixed;">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="h4 p-3">
+                        <div class="d-flex justify-content-center align-items-center">
+                            <button type="button" class="btn btn-primary btn-sm load-less-btn mr-2"><i class="fa-solid fa-chevron-up"></i></button>
+                            <span>Hour</span>
+                            <button type="button" class="btn btn-primary btn-sm load-more-btn ml-2"><i class="fa-solid fa-chevron-down"></i></button>
+                        </div>
+                    </th>
+                    <th class="text-center h4 p-3">Col 1</th>
+                    <th class="text-center h4 p-3">Col 2</th>
+                    <th class="text-center h4 p-3">Col 3</th>
+                    <th class="text-center h4 p-3">Col 4</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < 48; i++)
+                {
+                    <tr class="team-@classCount" style="display: @(classCount > 0 ? "none" : "table-row")">
+                        <td class="text-center align-middle">
+                            @(hourCount.ToString("D2")) : @(minCount.ToString("D2"))
+                        </td>
 
-                <tr class="team-@classCount" style="display: @(classCount > 0 ? "none" : "table-row")">
-                    <td class="text-center align-middle">
-                        @(hourCount.ToString("D2")) : @(minCount.ToString("D2"))
-                    </td>
-
-                    @{
-                        List<int> prevId = new List<int>();
-                        DateTime cellDateTime = new DateTime((int)ViewData["Year"],
+                        @{
+                            List<int> prevId = new List<int>();
+                            DateTime cellDateTime = new DateTime((int)ViewData["Year"],
                             (int)ViewData["Month"], (int)ViewData["Day"], hourCount, minCount, 0);
-                    }
-                    @for (int j = 0; j < 4; j++)
-                    {
-                        <td class="text-center p-4">
-                            @foreach (Event calendarEvent in Model.Events.OrderBy(e => e.StartingTime).ToList())
-                            {
-                                int foreignn;
-                                //check if the cell is in the start of an event
-                                if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
+                        }
+                        @for (int j = 0; j < 4; j++)
+                        {
+                            <td class="text-center p-4">
+                                @foreach (Event calendarEvent in Model.Events.OrderBy(e => e.StartingTime).ToList())
+                                {
+                                    int foreignn;
+                                    //check if the cell is in the start of an event
+                                    if (calendarEvent.StartingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.StartingTime.Month == (int)ViewData["Month"] &&
                                     calendarEvent.StartingTime.Year == (int)ViewData["Year"] &&
                                     calendarEvent.StartingTime.Hour == hourCount &&
                                     calendarEvent.StartingTime.Minute == minCount)
-                                {
-                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        //check if event foreign or not
-                                        if(calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                         {
-                                            <div class="calendar-event native event-top"></div>
-                                            <div class="text-white event-inside">@calendarEvent.Title</div>
-                                        }
-                                        else
-                                        {
-                                            <div class="calendar-event foreign event-top"></div>
-                                            <div class="text-white event-inside">@calendarEvent.Title - Foreign Event</div>
-                                        }
+                                            //check if event foreign or not
+                                            if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                            {
+                                                <div class="calendar-event native event-top"></div>
+                                                <div class="text-white event-inside">@calendarEvent.Title</div>
+                                            }
+                                            else
+                                            {
+                                                <div class="calendar-event foreign event-top"></div>
+                                                <div class="text-white event-inside">@calendarEvent.Title - Foreign Event</div>
+                                            }
 
-                                        prevId.Add(calendarEvent.Id);
-                                        if (!teams.ContainsKey(calendarEvent.Id))
-                                            teams.Add(calendarEvent.Id, j);
-                                        break;
+                                            prevId.Add(calendarEvent.Id);
+                                            if (!teams.ContainsKey(calendarEvent.Id))
+                                                teams.Add(calendarEvent.Id, j);
+                                            break;
+                                        }
                                     }
-                                }
-                                //check if the cell is in the middle of an event
-                                else if (cellDateTime.Ticks > calendarEvent.StartingTime.Ticks &&
+                                    //check if the cell is in the middle of an event
+                                    else if (cellDateTime.Ticks > calendarEvent.StartingTime.Ticks &&
                                     cellDateTime.Ticks < calendarEvent.EndingTime.Ticks)
-                                {
-                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        //check if event foreign or not
-                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                         {
-                                            <div class="calendar-event native event-middle"></div>
+                                            //check if event foreign or not
+                                            if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                            {
+                                                <div class="calendar-event native event-middle"></div>
+                                            }
+                                            else
+                                            {
+                                                <div class="calendar-event foreign event-middle"></div>
+                                            }
+                                            prevId.Add(calendarEvent.Id);
+                                            if (!teams.ContainsKey(calendarEvent.Id))
+                                                teams.Add(calendarEvent.Id, j);
+                                            break;
                                         }
-                                        else
-                                        {
-                                            <div class="calendar-event foreign event-middle"></div>
-                                        }
-                                        prevId.Add(calendarEvent.Id);
-                                        if (!teams.ContainsKey(calendarEvent.Id))
-                                            teams.Add(calendarEvent.Id, j);
-                                        break;
                                     }
-                                }
-                                //check if the cell is in the end of an event
-                                else if (calendarEvent.EndingTime.Day == (int)ViewData["Day"] &&
+                                    //check if the cell is in the end of an event
+                                    else if (calendarEvent.EndingTime.Day == (int)ViewData["Day"] &&
                                     calendarEvent.EndingTime.Month == (int)ViewData["Month"] &&
                                     calendarEvent.EndingTime.Year == (int)ViewData["Year"] &&
                                     calendarEvent.EndingTime.Hour == hourCount &&
                                     calendarEvent.EndingTime.Minute == minCount)
-                                {
-                                    @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
-                                        //check if event foreign or not
-                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                         {
-                                            <div class="calendar-event native event-bottom"></div>
-                                            foreignn = 0;
-                                        }
-                                        else
-                                        {
-                                            <div class="calendar-event foreign event-bottom"></div>
-                                            foreignn = 1;
-                                        }
-                                        <div class="event-inside d-flex justify-content-around">
-                                            <button type="button" class="btn btn-danger ml-2 mb-1"
-                                                    data-target="#deleteModal-@calendarEvent.Id" data-toggle="modal">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
+                                            //check if event foreign or not
+                                            if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                            {
+                                                <div class="calendar-event native event-bottom"></div>
+                                                foreignn = 0;
+                                            }
+                                            else
+                                            {
+                                                <div class="calendar-event foreign event-bottom"></div>
+                                                foreignn = 1;
+                                            }
+                                            <div class="event-inside d-flex justify-content-around">
+                                                <button type="button" class="btn btn-danger ml-2 mb-1"
+                                                        data-target="#deleteModal-@calendarEvent.Id" data-toggle="modal">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
 
-                                            <a class="btn btn-dark mr-2 mb-1" asp-controller="home"
-                                               asp-action="editEvent" asp-route-calendarId="@Model.Id" asp-route-eventId="@calendarEvent.Id"
-                                               asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]"
-                                               asp-route-day="@ViewData["Day"]" asp-route-forein="@foreignn">
-                                                <i class="fa-sharp fa-solid fa-eye"></i>
-                                            </a>
-                                        </div>
-                                        prevId.Add(calendarEvent.Id);
-                                        if (!teams.ContainsKey(calendarEvent.Id))
-                                            teams.Add(calendarEvent.Id, j);
-                                        break;
+                                                <a class="btn btn-dark mr-2 mb-1" asp-controller="home"
+                                                   asp-action="editEvent" asp-route-calendarId="@Model.Id" asp-route-eventId="@calendarEvent.Id"
+                                                   asp-route-year="@ViewData["Year"]" asp-route-month="@ViewData["Month"]"
+                                                   asp-route-day="@ViewData["Day"]" asp-route-forein="@foreignn">
+                                                    <i class="fa-sharp fa-solid fa-eye"></i>
+                                                </a>
+                                            </div>
+                                            prevId.Add(calendarEvent.Id);
+                                            if (!teams.ContainsKey(calendarEvent.Id))
+                                                teams.Add(calendarEvent.Id, j);
+                                            break;
+                                        }
                                     }
                                 }
-                            }
-                        </td>
+                            </td>
+                        }
+                    </tr>
+
+                    classCount = (i + 1) % 8 == 0 ? classCount + 1 : classCount;
+
+                    if (!doNotGoUp)
+                    {
+                        doNotGoUp = true;
+                        hourCount++;
                     }
-                </tr>
-
-                classCount = (i + 1) % 8 == 0 ? classCount + 1 : classCount;
-
-                if (!doNotGoUp)
-                {
-                    doNotGoUp = true;
-                    hourCount++;
+                    else
+                    {
+                        doNotGoUp = false;
+                    }
+                    minCount = minCount == 0 ? 30 : 0;
                 }
-                else
-                {
-                    doNotGoUp = false;
-                }
-                minCount = minCount == 0 ? 30 : 0;
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
+    
 </div>
 <!--tablet view-->
 <div class="row d-none d-md-block d-lg-none" id="tabletView">
@@ -614,6 +615,8 @@
         asp-route-month="@ViewData["Month"]" asp-route-calendarId="@Model.Id">Back To Calendar View</a>
     <a href="#" class="btn btn-primary text-center text-white font-weight-bold pt-3 pb-3">View Documentation</a>
 </div>
+<a onclick="captureAndSaveTableScreenshot()">bullshit screenshot</a>
+<div id="output"></div>
 
 @foreach (KeyValuePair<int, int> kvp in teams)
 {
@@ -768,6 +771,56 @@
                     colMobNum = 0;
                     break;
             }
+        }
+
+        // Capture and save screenshot every 6 seconds
+        setInterval(captureAndSaveTableScreenshot, 6000);
+
+        function captureAndSaveTableScreenshot() {
+            const div = document.getElementById('desktopTableContainer');
+
+            // Use html2canvas to capture the table as an image
+            html2canvas(div).then(canvas => {
+                const screenshotDataUrl = canvas.toDataURL('image/png');
+
+                // Convert data URL to Blob
+                const screenshotBlob = dataURLtoBlob(screenshotDataUrl);
+
+                // Create FormData object
+                const formData = new FormData();
+                formData.append('screenshot', screenshotBlob, 'screenshot.png');
+                formData.append('calendarId', @Model.Id);
+
+                // Send the FormData to the server as a POST request
+                fetch('/Home/SaveScreenshot', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log('Screenshot saved successfully.');
+                        } else {
+                            console.error('Failed to save screenshot.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
+        }
+
+        // Convert data URL to Blob
+        //magic I do not really understand what is happening here
+        function dataURLtoBlob(dataURL) {
+            const arr = dataURL.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
         }
     </script>
 
