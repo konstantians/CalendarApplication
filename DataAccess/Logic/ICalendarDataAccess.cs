@@ -42,6 +42,15 @@ namespace DataAccess.Logic
         /// <param name="writeCategory">The flag to change the calendar's categories</param>
         void UpdateCalendar(CalendarDataModel calendar, bool writeCategory);
         /// <summary>
+        /// This method is a very simple one and it is simply used to update the screenshot
+        /// of the calendar which happens automatically. It should not be really used match
+        /// and it should not be used by the user to update the screenshot of the calendar
+        /// manually.
+        /// </summary>
+        /// <param name="calendarId">The id of the calendar</param>
+        /// <param name="newScreenshotPath">The new path of the screenshot</param>
+        void UpdateCalendarScreenshot(int calendarId, string newScreenshotPath);
+        /// <summary>
         /// This method deletes the specified calendar with all its events and its categories. It also removes any 
         /// indirect connections or direct connections the calendar's event have. Additionally it removes the connection between
         /// the user and the calendar from the database. Finally the methods sends relavant notifications to the users who were
@@ -51,5 +60,7 @@ namespace DataAccess.Logic
         /// <param name="ownerOfCalendar">The owner of the calendar</param>
         void DeleteCalendar(int id, string ownerOfCalendar);
         
+
+
     }
 }

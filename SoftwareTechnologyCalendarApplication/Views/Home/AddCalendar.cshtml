@@ -43,72 +43,96 @@
     <div class="shadow pt-4 pb-4 pl-4 pr-4">
         <div class="row">
             <div class="col-md-6">
-                <h4 class="text-center">Calendar Information</h4>
-                <div class="form-group mb-3">
-                    <label asp-for="Title" class="control-label"></label>
-                    <input asp-for="Title" class="form-control" />
-                    <span asp-validation-for="Title" class="text-danger"></span>
+                <h4 class="text-center d-none d-md-block">Calendar Information</h4>
+                <div class="d-block d-sm-block d-md-none">
+                    <div class="d-flex justify-content-between mt-3 mb-2">
+                        <div></div>
+                        <h4>Event Information</h4>
+                        <a class="btn btn-primary" data-toggle="collapse" href="#calendarInformationSection" role="button" aria-expanded="false"
+                           aria-controls="calendarInformationSection" id="showCalendarInformationButton">
+                            <i id="showCalendarInformationButtonIcon" class="fa-solid fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div id="calendarInformationSection" class="collapse show">
+                    <div class="form-group mb-3">
+                        <label asp-for="Title" class="control-label"></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
-                <h4 class="text-center">Calendar Categories Section</h4>
-                <label for="newItem">Add Category:</label>
-                <div class="input-group mb-3">
-                    <input type="text" id="newItem" class="form-control" placeholder="Enter a new calendar category">
-                    <div class="input-group-append">
-                        <button type="button" class="btn btn-primary" id="addItem"><i class="fa-solid fa-plus"></i></button>
+                <h4 class="text-center d-none d-md-block">Calendar Categories Section</h4>
+                <div class="d-block d-sm-block d-md-none">
+                    <div class="d-flex justify-content-between mt-3 mb-2">
+                        <div></div>
+                        <h4>Calendar Categories</h4>
+                        <a class="btn btn-primary" data-toggle="collapse" href="#calendarCategoriesSection" role="button" aria-expanded="false"
+                           aria-controls="calendarCategoriesSection" id="showCalendarCategoriesButton">
+                            <i id="showCalendarCategoriesButtonIcon" class="fa-solid fa-chevron-up"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="mb-2">Added Categories</div>
-                <div class="" id="noCategoriesAlert" >
-                    <div class="alert alert-info" role="alert">
-                        <strong>No categories!</strong> You have not added a calendar category yet.
+                <div id="calendarCategoriesSection" class="collapse show">
+                    <label for="newItem">Add Category:</label>
+                    <div class="input-group mb-3">
+                        <input type="text" id="newItem" class="form-control" placeholder="Enter a new calendar category">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-primary" id="addItem"><i class="fa-solid fa-plus"></i></button>
+                        </div>
                     </div>
-                </div>
-                <ul class="list-group mb-3" id="itemList">
-                    <div id="hiddenInputContainer" hidden></div>
-                    <!-- Existing items will be added here -->
-                    <input type="hidden" asp-for="Categories" value="" />
-                </ul>
-                <div>Not sure? You could pick one of the below categories</div>
-                <div class="d-inline-block">
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" id="exampleCheck1"
-                               name="SelectedCategories" value="Business">
-                        <label class="form-check-label" for="exampleCheck1">Business</label>
+                    <div class="mb-2">Added Categories</div>
+                    <div class="" id="noCategoriesAlert">
+                        <div class="alert alert-info" role="alert">
+                            <strong>No categories!</strong> You have not added a calendar category yet.
+                        </div>
                     </div>
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" id="exampleCheck2"
-                               name="SelectedCategories" value="Entertainment">
-                        <label class="form-check-label" for="exampleCheck2">Entertainment</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" id="exampleCheck3"
-                               name="SelectedCategories" value="Fitness">
-                        <label class="form-check-label" for="exampleCheck3">Fitness</label>
-                    </div>
+                    <ul class="list-group mb-3" id="itemList">
+                        <div id="hiddenInputContainer" hidden></div>
+                        <!-- Existing items will be added here -->
+                        <input type="hidden" asp-for="Categories" value="" />
+                    </ul>
+                    <div>Not sure? You could pick one of the below categories</div>
+                    <div class="d-inline-block">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1"
+                                   name="SelectedCategories" value="Business">
+                            <label class="form-check-label" for="exampleCheck1">Business</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck2"
+                                   name="SelectedCategories" value="Entertainment">
+                            <label class="form-check-label" for="exampleCheck2">Entertainment</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck3"
+                                   name="SelectedCategories" value="Fitness">
+                            <label class="form-check-label" for="exampleCheck3">Fitness</label>
+                        </div>
 
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" id="exampleCheck4"
-                               name="SelectedCategories" value="Birthday">
-                        <label class="form-check-label" for="exampleCheck4">Birthday</label>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck4"
+                                   name="SelectedCategories" value="Birthday">
+                            <label class="form-check-label" for="exampleCheck4">Birthday</label>
+                        </div>
                     </div>
-                </div>
-                <div class="d-inline-block mb-4">
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" id="exampleCheck5"
-                               name="SelectedCategories" value="Gaming">
-                        <label class="form-check-label" for="exampleCheck5">Gaming</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" class="form-check-input" id="exampleCheck6"
-                               name="SelectedCategories" value="Travel">
-                        <label class="form-check-label" for="exampleCheck6">Travel</label>
+                    <div class="d-inline-block mb-4">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck5"
+                                   name="SelectedCategories" value="Gaming">
+                            <label class="form-check-label" for="exampleCheck5">Gaming</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck6"
+                                   name="SelectedCategories" value="Travel">
+                            <label class="form-check-label" for="exampleCheck6">Travel</label>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="d-flex justify-content-center mt-2">
+        <div class="d-flex justify-content-center mt-3">
             <a class="btn btn-lg btn-dark pb-2 pt-2"
                asp-action="HomePage" asp-route-pagination="1">Back To Home</a>
             <div class="ml-3">
@@ -192,5 +216,52 @@
             document.getElementById("Categories").value = allCategories;
             alert(document.getElementById("Categories").value);
         }
+
+        //for severons icons change
+        function toggleSection(buttonId) {
+            const buttonIcon = document.getElementById(buttonId + 'Icon');
+            if (buttonIcon.classList.contains('fa-chevron-down')) {
+                buttonIcon.classList.remove('fa-chevron-down');
+                buttonIcon.classList.add('fa-chevron-up');
+
+            } else {
+                buttonIcon.classList.remove('fa-chevron-up');
+                buttonIcon.classList.add('fa-chevron-down');
+            }
+        }
+
+        document.getElementById("showCalendarInformationButton").addEventListener("click", function () {
+            toggleSection("showCalendarInformationButton");
+        });
+
+        document.getElementById("showCalendarCategoriesButton").addEventListener("click", function () {
+            toggleSection("showCalendarCategoriesButton");
+        });
+
+        // Function to show collapsed sections if not on mobile size on resize to avoid sections disappearing
+        function showCollapsedSectionsOnResize() {
+            const mobileBreakpoint = 768;
+
+            // Get the window width
+            const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+
+            // Get the collapsed section elements
+            const calendarInformationSection = document.getElementById('calendarInformationSection');
+            const calendarCategoriesSection = document.getElementById('calendarCategoriesSection');
+
+            // Check if the window width is above the mobile breakpoint
+            if (windowWidth >= mobileBreakpoint) {
+                calendarInformationSection.classList.add('show');
+                document.getElementById('showCalendarInformationButtonIcon').classList.remove('fa-chevron-down');
+                document.getElementById('showCalendarInformationButtonIcon').classList.add('fa-chevron-up');
+
+                calendarCategoriesSection.classList.add('show');
+                document.getElementById('showCalendarCategoriesButtonIcon').classList.remove('fa-chevron-down');
+                document.getElementById('showCalendarCategoriesButtonIcon').classList.add('fa-chevron-up');                
+            }
+        }
+
+        // Attach the function to the window's resize event
+        window.addEventListener('resize', showCollapsedSectionsOnResize);
     </script>
 }

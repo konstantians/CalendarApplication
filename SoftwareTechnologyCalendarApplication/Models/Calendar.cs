@@ -11,6 +11,7 @@ namespace SoftwareTechnologyCalendarApplication.Models
         public int Id { get; set; }
         [Required(ErrorMessage = "You need to provide a title")]
         public string Title { get; set; }
+        public string ImagePath { get; set; }
         public List<string> Categories { get; set; } = new List<string>();
         public List<Event> Events { get; set; } = new List<Event>();
 
@@ -19,6 +20,7 @@ namespace SoftwareTechnologyCalendarApplication.Models
         public Calendar(CalendarDataModel calendarDataModel){
             Id = calendarDataModel.Id;
             Title = calendarDataModel.Title;
+            ImagePath = calendarDataModel.ImagePath;
             Categories = calendarDataModel.Categories;
 
             foreach (EventDataModel calendarEvent in calendarDataModel.Events)

@@ -63,12 +63,19 @@ else
         <div class="row mb-2">
             @for (int i = pagination - paginationBreakPoint; i < pagination; i++)
             {
+                
+
                 <div class="col-lg-4">
                     <div class="card mb-4 shadow">
                         <div class="card-header">
                             <h4 class="text-center">@Model.Calendars.ElementAt(i).Title</h4>
                         </div>
-                        <img class="card-img-top" src="~/images/noimage.jpg" />
+                        @{
+                            string imageSrc = Model.Calendars.ElementAt(i).ImagePath == ""
+                             ? "~/images/noimage.jpg"
+                         : $"~/images/screenshots/{Model.Calendars.ElementAt(i).ImagePath}";
+                        }
+                        <img class="card-img-top" src="@Url.Content(imageSrc)" style="height:200px;"/>
                         <div class="card-footer">
                             <div class="d-flex justify-content-around">
 
@@ -195,7 +202,12 @@ else
                         <div class="card-header">
                             <h4 class="text-center">@Model.Calendars.ElementAt(i).Title</h4>
                         </div>
-                        <img class="card-img-top" src="~/images/noimage.jpg" />
+                        @{
+                            string imageSrc = Model.Calendars.ElementAt(i).ImagePath == ""
+                            ? "~/images/noimage.jpg"
+                            : $"~/images/screenshots/{Model.Calendars.ElementAt(i).ImagePath}";
+                        }
+                        <img class="card-img-top" src="@Url.Content(imageSrc)" style="height:200px;"/>
                         <div class="card-footer">
                             <div class="d-flex justify-content-around">
 
@@ -321,7 +333,12 @@ else
                         <div class="card-header">
                             <h4 class="text-center">@Model.Calendars.ElementAt(i).Title</h4>
                         </div>
-                        <img class="card-img-top" src="~/images/noimage.jpg" />
+                        @{
+                            string imageSrc = Model.Calendars.ElementAt(i).ImagePath == ""
+                            ? "~/images/noimage.jpg"
+                            : $"~/images/screenshots/{Model.Calendars.ElementAt(i).ImagePath}";
+                        }
+                        <img class="card-img-top" src="@Url.Content(imageSrc)" />
                         <div class="card-footer">
                             <div class="d-flex justify-content-around">
 

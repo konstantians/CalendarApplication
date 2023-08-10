@@ -1,5 +1,7 @@
 ﻿using DataAccess.Logic;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SoftwareTechnologyCalendarApplication.Models;
@@ -7,7 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SoftwareTechnologyCalendarApplication.Controllers
 {
@@ -17,14 +21,16 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         private readonly IUserDataAccess UserDataAccess;
         private readonly ICalendarDataAccess CalendarDataAccess;
         private readonly IEventDataAccess EventDataAccess;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public HomeController(ILogger<HomeController> logger, IUserDataAccess userDataAccess,
-            ICalendarDataAccess calendarDataAccess, IEventDataAccess eventDataAccess)
+            ICalendarDataAccess calendarDataAccess, IEventDataAccess eventDataAccess, IWebHostEnvironment webHostEnvironment)
         {
             UserDataAccess = userDataAccess;
             CalendarDataAccess = calendarDataAccess;
             EventDataAccess = eventDataAccess;
             _logger = logger;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult AddCalendar()
@@ -90,6 +96,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             ViewData["pagination"] = pagination * 6;
             ViewData["paginationTablet"] = pagination * 4;
             ViewData["paginationMobile"] = pagination * 2;
+            ViewData["webHostPath"] = _webHostEnvironment.WebRootPath;
             return View(user);
         }
 
@@ -554,6 +561,47 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 day = day,
                 forein = forein
             });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveScreenshot(IFormFile screenshot, int calendarId)
+        {
+            ActiveUser.AuthorizeUser();
+
+            if (screenshot != null)
+            {
+                // Construct the file path within wwwroot/images/screenshots
+                Guid guid = Guid.NewGuid();
+                string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "screenshots", $"table_screenshot_{guid}.png");
+
+                //delete the previous
+                string previousScreenshot = CalendarDataAccess.GetCalendar(calendarId).ImagePath;
+                string previousScreenshotImagePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "screenshots", previousScreenshot);
+                try
+                {
+                    if(previousScreenshot != null || previousScreenshot != "")
+                    {
+                        System.IO.File.Delete(previousScreenshotImagePath);
+                    }
+                }
+                catch(Exception exception){
+                    Console.WriteLine(exception.StackTrace);
+                }
+                
+
+                //update the calendar screenshot
+                CalendarDataAccess.UpdateCalendarScreenshot(calendarId, $"table_screenshot_{guid}.png");
+
+                // Save the image to the specified path
+                using (var stream = new FileStream(imagePath, FileMode.Create))
+                {
+                    await screenshot.CopyToAsync(stream);
+                }
+
+                return Ok();
+            }
+
+            return BadRequest();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

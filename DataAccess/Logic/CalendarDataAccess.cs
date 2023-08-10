@@ -51,6 +51,7 @@ namespace DataAccess.Logic
 
                 calendar.Id = reader.GetInt32(0);
                 calendar.Title = reader.GetString(1);
+                calendar.ImagePath = !reader.IsDBNull(2) ? reader.GetString(2) : "";
                 calendar.Events = ReturnEventsOfCalendar(calendar.Id);
 
                 sqlQuery = "SELECT Name FROM Category " +
@@ -93,6 +94,7 @@ namespace DataAccess.Logic
             {
                 calendar.Id = reader.GetInt32(0);
                 calendar.Title = reader.GetString(1);
+                calendar.ImagePath = !reader.IsDBNull(2) ? reader.GetString(2) : "";
                 calendar.Events = ReturnEventsOfCalendar(id);
 
                 sqlQuery = "SELECT Name FROM Category " +
@@ -253,6 +255,28 @@ namespace DataAccess.Logic
                 connection.Close();
             }
             
+            connection.Close();
+        }
+
+        /// <summary>
+        /// This method is a very simple one and it is simply used to update the screenshot
+        /// of the calendar which happens automatically. It should not be really used match
+        /// and it should not be used by the user to update the screenshot of the calendar
+        /// manually.
+        /// </summary>
+        /// <param name="calendarId">The id of the calendar</param>
+        /// <param name="newScreenshotPath">The new path of the screenshot</param>
+        public void UpdateCalendarScreenshot(int calendarId, string newScreenshotPath)
+        {
+            connection.Open();
+            string sqlQuery = "UPDATE Calendar SET ImagePath = @imagePath " +
+                              "WHERE Calendar.Id = @calendarId;";
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+
+            command.Parameters.AddWithValue("@calendarId", calendarId);
+            command.Parameters.AddWithValue("@imagePath", newScreenshotPath);
+            command.ExecuteNonQuery();
+
             connection.Close();
         }
 

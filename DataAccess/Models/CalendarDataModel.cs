@@ -18,6 +18,10 @@ namespace DataAccess.Models
         /// </summary>
         public string Title { get; set; }
         /// <summary>
+        /// The string that contains the name of the path of the latest screenshot of the calendar
+        /// </summary>
+        public string ImagePath { get; set; }
+        /// <summary>
         /// The list that contains the categories of the calendar.
         /// </summary>
         public List<string> Categories { get; set; } = new List<string>();
