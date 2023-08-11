@@ -4,12 +4,6 @@
     ViewData["Title"] = "editAccount";
 }
 
-<style>
-    body {
-        background-color: #f0f2f5;
-    }
-</style>
-
 @if ((bool)ViewData["DuplicateAccount"])
 {
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -209,7 +203,7 @@
         let passwordInput = document.getElementById("password");
         passwordInput.removeAttribute("disabled");
         if(passwordInput.value === ""){
-            passwordInput.value = "@ActiveUser.User.Password";
+            passwordInput.value = "@ActiveUsers.User.Username";
         }
     }
 </script>

@@ -15,6 +15,7 @@ namespace SoftwareTechnologyCalendarApplication.Models
         public bool CommentDeleted { get; set; }
         public bool EventDeleted { get; set; }
         public bool AlertNotification { get; set; }
+        public bool HasBeenSeen { get; set; }
 
         public Notification(){}
 
@@ -30,6 +31,7 @@ namespace SoftwareTechnologyCalendarApplication.Models
             CommentDeleted = notificationDataModel.CommentDeleted;
             EventDeleted = notificationDataModel.EventDeleted;
             AlertNotification = notificationDataModel.AlertNotification;
+            HasBeenSeen = notificationDataModel.HasBeenSeen;
         }
     }
 }

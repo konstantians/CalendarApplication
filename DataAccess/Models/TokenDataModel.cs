@@ -29,6 +29,9 @@ namespace DataAccess.Models
         /// 
         /// </summary>
         public bool IsResetPasswordToken { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsSessionToken { get; set; }
     }
 }

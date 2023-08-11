@@ -4,12 +4,6 @@
     ViewData["Title"] = "addEvent";
 }
 
-<style>
-    body {
-        background-color: #f0f2f5;
-    }
-</style>
-
 @if ((bool)ViewData["DuplicateEventTitle"])
 {
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -203,7 +197,7 @@
 
             let usernameTitle = document.createElement("h5");
             usernameTitle.classList.add("card-title", "font-weight-bold");
-            usernameTitle.innerHTML = '<i class="fa-solid fa-user mr-1"></i> ' + "@ActiveUser.User.Username";
+            usernameTitle.innerHTML = '<i class="fa-solid fa-user mr-1"></i> ' + "@ActiveUsers.User.Username";
 
             // Add the "Edit" and "Delete" buttons to the card header
             let buttonsDiv = document.createElement("div");

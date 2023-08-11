@@ -1,6 +1,8 @@
 ﻿using DataAccess.Logic;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.IIS.Core;
+using Services.AccountSessionServices;
 using Services.BackgroundServices;
 using Services.EmailSendingMechanism;
 using SoftwareTechnologyCalendarApplication;
@@ -14,36 +16,41 @@ namespace SoftwareTechnologyCalendarApplicationMVC.Controllers
     {
         private readonly IEmailService EmailService;
         private readonly IUserDataAccess UserDataAccess;
-        public ServicesController(IEmailService emailService, IUserDataAccess userDataAccess)
+        private readonly IActiveUsers ActiveUsers;
+        private readonly IAccountSessionManager AccountSessionManager;
+        public ServicesController(IEmailService emailService, IUserDataAccess userDataAccess, IActiveUsers activeUsers, IAccountSessionManager accountSessionManager)
         {
             EmailService = emailService;
             UserDataAccess = userDataAccess;
+            ActiveUsers = activeUsers;
+            AccountSessionManager = accountSessionManager;
         }
 
         [HttpPost]
         public IActionResult ContactFormSubmission(string emailSender, string messageTitle, string messageContent)
         {
-            ActiveUser.AuthorizeUser();
+            if (!ActiveUsers.CheckIfLoggedIn())
+                return RedirectToAction("Login", "Authentication");
+            ActiveUsers.InstantiateUser();
+            ActiveUsers.CheckForNotifications();
 
             // in this case kinnaskonstantinos0@gmail.com just sends an email to itself, but we still pass the email of the user
             // using the body of the email
             bool result = EmailService.SendContactFormEmail(emailSender, messageTitle, messageContent);
-            if(result)
-            {
-                ViewData["EmailSendSuccessfully"] = true;
-                return View();
-            }
-            else
-            {
-                ViewData["EmailSendSuccessfully"] = false;
-                return View();
-            }
+
+            //set for this specific method the regular layout
+            ViewData["Layout"] = "_Layout";
+            ViewData["EmailSendSuccessfully"] = result ? true : false;
+            return View();
         }
 
         public IActionResult RegisterVerificationEmailMessage(string username, string email)
         {
-            ActiveUser.CheckAccessConfirmationPage();
-            ActiveUser.AccessConfirmationPage = false;
+            if (ActiveUsers.CheckIfLoggedIn())
+                return RedirectToAction("HomePage", "Home");
+
+            if (!TempData.ContainsKey("allowed"))
+                return RedirectToAction("Login", "Authentication");
 
             string token = Guid.NewGuid().ToString();
             string confirmationLink = Url.Action("ConfirmEmail", "Services", new { token, username }, Request.Scheme);
@@ -64,8 +71,11 @@ namespace SoftwareTechnologyCalendarApplicationMVC.Controllers
 
         public IActionResult ResetPasswordEmailMessage(string username, string email)
         {
-            ActiveUser.CheckAccessConfirmationPage();
-            ActiveUser.AccessConfirmationPage = false;
+            if (ActiveUsers.CheckIfLoggedIn())
+                return RedirectToAction("HomePage", "Home");
+
+            if (!TempData.ContainsKey("allowed"))
+                return RedirectToAction("Login", "Authentication");
 
             string token = Guid.NewGuid().ToString();
             string confirmationLink = Url.Action("ResetPassword", "Authentication", new { token, username }, Request.Scheme);
@@ -84,15 +94,17 @@ namespace SoftwareTechnologyCalendarApplicationMVC.Controllers
 
         public IActionResult ConfirmEmail(string token, string username)
         {
-            if (UserDataAccess.TokenExists(username, token)) {
-                UserDataAccess.ActivateUser(username, token);
-            }
-            else
-            {
+            //if the token is not valid
+            if (!UserDataAccess.TokenExists(username, token)) {
                 throw new NotImplementedException();
             }
 
-            ActiveUser.User = new User(UserDataAccess.GetUser(username));
+            //activate the user
+            UserDataAccess.ActivateUser(username, token);
+            //create the session which means that a session token is created in the database
+            //and a cookie is created in the users browser
+            AccountSessionManager.CreateSession(username);
+
             return RedirectToAction("HomePage", "Home", new { pagination = 1 });
         }
     }

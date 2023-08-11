@@ -28,7 +28,7 @@ namespace Services.BackgroundServices
                     {
                         _userDataAccess.DeleteAccountActivationTokenAndUser(token.Token, token.UserOfToken);
                     }
-                    else if(token.TokenExpiration > DateTime.Now)
+                    else if(token.TokenExpiration < DateTime.Now)
                     {
                         _userDataAccess.DeleteToken(token.Token);
                     }

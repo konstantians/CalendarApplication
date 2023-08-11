@@ -27,11 +27,10 @@
                     <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                @*text dark?*@
                                 <a class="nav-link text-light" asp-controller="Home"
                                    asp-action="HomePage" asp-route-pagination="1">Home</a>
                             </li>
-                            @if (ActiveUser.HasNotifications)
+                            @if (ActiveUsers.HasNotifications)
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-light" asp-controller="Home" asp-action="ViewNotifications">Notifications*</a>
@@ -75,7 +74,7 @@
                     <h5 class="mb-3">Site Links</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><a class="footer-link" asp-controller="Home" asp-action="HomePage" asp-route-pagination="1"><i class="fa-solid fa-house mr-2"></i>HomePage</a></li>
-                        @if (ActiveUser.HasNotifications)
+                        @if (ActiveUsers.HasNotifications)
                         {
                             <li class="mb-2"> <a class="footer-link" asp-controller="Home" asp-action="ViewNotifications"><i class="fa-regular fa-bell mr-2"></i>Notifications*</a></li>
                         }
@@ -131,7 +130,7 @@
                             <label for="messageContent" class="form-label">Message</label>
                             <textarea class="form-control" id="messageContent" name="messageContent" rows="3" required></textarea>
                         </div>
-                        <input type="hidden" name="emailSender" value="@ActiveUser.User.Email"/>
+                        <input type="hidden" name="emailSender" value="@ActiveUsers.User.Email"/>
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">Send Message</button>
                         </div>

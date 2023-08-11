@@ -4,10 +4,6 @@
 }
 
 <style>
-    body {
-        background-color: #f0f2f5;
-    }
-
     /* Styles for the cool bubbles */
     .badge {
         display: inline-block;
@@ -204,7 +200,7 @@
                                             <i class="fa-solid fa-user mr-1"></i> @comment.UserWhoMadeTheComment.Username
                                         </h5>
                                         @*if the comment is yours create the buttons*@
-                                        @if(ActiveUser.User.Username == comment.UserWhoMadeTheComment.Username){
+                                        @if(ActiveUsers.User.Username == comment.UserWhoMadeTheComment.Username){
                                             <div>
                                                 @*button for update modal*@
                                                 <button type="button" class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#updateModal-@commentId">
@@ -262,7 +258,7 @@
 @foreach (Comment comment in Model.EventComments)
 {
     @*if the comment is yours create the buttons*@
-    @if (ActiveUser.User.Username == comment.UserWhoMadeTheComment.Username)
+    @if (ActiveUsers.User.Username == comment.UserWhoMadeTheComment.Username)
     {
         <form id="editForm-@i" asp-action="editComment" asp-controller="home" method="post">
             <input name="userWhoMadeTheComment" value="@comment.UserWhoMadeTheComment.Username" hidden>
@@ -438,7 +434,7 @@
 
             let usernameTitle = document.createElement("h5");
             usernameTitle.classList.add("card-title", "font-weight-bold");
-            usernameTitle.innerHTML = '<i class="fa-solid fa-user mr-1"></i> ' + "@ActiveUser.User.Username";
+            usernameTitle.innerHTML = '<i class="fa-solid fa-user mr-1"></i> ' + "@ActiveUsers.User.Username";
 
             // Add the Edit and Delete buttons to the card header
             let buttonsDiv = document.createElement("div");

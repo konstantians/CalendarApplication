@@ -38,12 +38,14 @@ namespace DataAccess.Logic
         /// This method returns all the users from the database and also all their calendars populated(with their events filled)
         /// and their events populated. Additionally it returns the comments of the users and it also returns all the events they either have created or participate in.
         /// </summary>
-        /// <returns>All the users</returns>
-        public List<UserDataModel> GetUsers()
+        /// <param name="getInactiveUsers">this parameter if set will make the method also return the inactive users</param>
+        /// <returns>All the active users and also the inactive users if specified</returns>
+        public List<UserDataModel> GetUsers(bool getInactiveUsers)
         {
             connection.Open();
-            string sqlQuery = "SELECT * FROM User WHERE IsActive = 1;";
+            string sqlQuery = getInactiveUsers ? "SELECT * FROM User;" : "SELECT * FROM User WHERE IsActive = 1;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+
             SQLiteDataReader reader = command.ExecuteReader();
 
             List<UserDataModel> users = new List<UserDataModel>();
@@ -172,7 +174,8 @@ namespace DataAccess.Logic
         public List<NotificationDataModel> GetNotificationsOfUser(string username)
         {
             string sqlQuery = "SELECT EventId, NotificationTime, InvitationPending, EventAccepted, EventRejected, " +
-                "EventChanged, CommentAdded, CommentDeleted, EventDeleted, AlertNotification FROM Notification WHERE Notification.UserUsername = @userUsername;";
+                "EventChanged, CommentAdded, CommentDeleted, EventDeleted, AlertNotification, HasBeenSeen " +
+                "FROM Notification WHERE Notification.UserUsername = @userUsername;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@userUsername", username);
@@ -193,6 +196,7 @@ namespace DataAccess.Logic
                 notificationDataModel.CommentDeleted = Convert.ToBoolean(reader.GetInt32(7));
                 notificationDataModel.EventDeleted = Convert.ToBoolean(reader.GetInt32(8));
                 notificationDataModel.AlertNotification = Convert.ToBoolean(reader.GetInt32(9));
+                notificationDataModel.HasBeenSeen = Convert.ToBoolean(reader.GetInt32(10));
 
                 notificationDataModels.Add(notificationDataModel);
             }
@@ -434,12 +438,15 @@ namespace DataAccess.Logic
                 tokenDataModel.Token = reader.GetString(0);
                 tokenDataModel.TokenExpiration = DateTime.Parse(reader.GetString(1));
                 tokenDataModel.UserOfToken = reader.GetString(2);
+                tokenDataModel.IsActivationToken = Convert.ToBoolean(reader.GetInt32(3));
+                tokenDataModel.IsResetPasswordToken = Convert.ToBoolean(reader.GetInt32(4));
+                tokenDataModel.IsSessionToken = Convert.ToBoolean(reader.GetInt32(5));
             }
 
             connection.Close();
 
             //check if there is a token
-            return tokenDataModel.Token != "";
+            return tokenDataModel.Token != null;
         }
 
         public void ActivateUser(string username, string token)
@@ -457,26 +464,39 @@ namespace DataAccess.Logic
 
         public void CreateAccountActivationToken(string token, string username)
         {
-            CreateToken(token, username, true, false);
+            CreateToken(token, username, true, false, false);
         }
 
         public void CreateResetPasswordToken(string token, string username)
         {
-            CreateToken(token, username, false, true);
+            CreateToken(token, username, false, true, false);
         }
 
-        private void CreateToken(string token, string username, bool isActivationToken, bool isResetPasswordToken)
+        public void CreateSessionToken(string token, string username)
+        {
+            CreateToken(token, username, false, false, true);
+        }
+
+        private void CreateToken(string token, string username, bool isActivationToken, bool isResetPasswordToken, bool isSessionToken)
         {
             connection.Open();
-            string sqlQuery = "INSERT INTO Token (Token, ExpirationDate, UserUsername, IsActivationToken, IsResetPasswordToken) " +
-                              "VALUES (@token, @expirationDate, @userUsername, @isActivationToken, @isResetPasswordToken);";
+            string sqlQuery = "INSERT INTO Token (Token, ExpirationDate, UserUsername, IsActivationToken, IsResetPasswordToken, IsSessionToken) " +
+                              "VALUES (@token, @expirationDate, @userUsername, @isActivationToken, @isResetPasswordToken, @isSessionToken);";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@token", token);
-            command.Parameters.AddWithValue("@expirationDate", DateTime.Now.AddHours(3).ToString());
+            if (!isSessionToken)
+            {
+                command.Parameters.AddWithValue("@expirationDate", DateTime.Now.AddHours(3).ToString());
+            }
+            else
+            {
+                command.Parameters.AddWithValue("@expirationDate", DateTime.MaxValue.ToString());
+            }
             command.Parameters.AddWithValue("@userUsername", username);
             command.Parameters.AddWithValue("@isActivationToken", Convert.ToInt32(isActivationToken));
             command.Parameters.AddWithValue("@isResetPasswordToken", Convert.ToInt32(isResetPasswordToken));
+            command.Parameters.AddWithValue("@isSessionToken", Convert.ToInt32(isSessionToken));
             command.ExecuteNonQuery();
             connection.Close();
         }
