@@ -174,7 +174,7 @@
                                         @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                         {
                                             //check if event foreign or not
-                                            if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                            if (calendarEvent.EventCreatorName == ActiveUsers.User.Username)
                                             {
                                                 <div class="calendar-event native event-top"></div>
                                                 <div class="text-white event-inside">@calendarEvent.Title</div>
@@ -198,7 +198,7 @@
                                         @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                         {
                                             //check if event foreign or not
-                                            if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                            if (calendarEvent.EventCreatorName == ActiveUsers.User.Username)
                                             {
                                                 <div class="calendar-event native event-middle"></div>
                                             }
@@ -222,7 +222,7 @@
                                         @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                         {
                                             //check if event foreign or not
-                                            if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                            if (calendarEvent.EventCreatorName == ActiveUsers.User.Username)
                                             {
                                                 <div class="calendar-event native event-bottom"></div>
                                                 foreignn = 0;
@@ -340,7 +340,7 @@
                                     {
 
                                         //check if event foreign or not
-                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        if (calendarEvent.EventCreatorName == ActiveUsers.User.Username)
                                         {
                                             <div class="calendar-event native event-top"></div>
                                             <div class="text-white event-inside">@calendarEvent.Title</div>
@@ -363,7 +363,7 @@
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
                                         //check if event foreign or not
-                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        if (calendarEvent.EventCreatorName == ActiveUsers.User.Username)
                                         {
                                             <div class="calendar-event native event-middle"></div>
                                         }
@@ -388,7 +388,7 @@
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
                                         //check if event foreign or not
-                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        if (calendarEvent.EventCreatorName == ActiveUsers.User.Username)
                                         {
                                             <div class="calendar-event native event-bottom"></div>
                                             foreignn = 0;
@@ -511,7 +511,7 @@
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
                                         //check if event foreign or not
-                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        if (calendarEvent.EventCreatorName == ActiveUsers.User.Username)
                                         {
                                             <div class="calendar-event native event-top"></div>
                                             <div class="text-white event-inside">@calendarEvent.Title</div>
@@ -534,7 +534,7 @@
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
                                         //check if event foreign or not
-                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        if (calendarEvent.EventCreatorName == ActiveUsers.User.Username)
                                         {
                                             <div class="calendar-event native event-middle"></div>
                                         }
@@ -559,7 +559,7 @@
                                     @if (!prevId.Contains(calendarEvent.Id) && (!teams.ContainsKey(calendarEvent.Id) || teams[calendarEvent.Id] == j))
                                     {
                                         //check if event foreign or not
-                                        if (calendarEvent.EventCreatorName == ActiveUser.User.Username)
+                                        if (calendarEvent.EventCreatorName == ActiveUsers.User.Username)
                                         {
                                             <div class="calendar-event native event-bottom "></div>
                                             foreignn = 0;
@@ -615,8 +615,6 @@
         asp-route-month="@ViewData["Month"]" asp-route-calendarId="@Model.Id">Back To Calendar View</a>
     <a href="#" class="btn btn-primary text-center text-white font-weight-bold pt-3 pb-3">View Documentation</a>
 </div>
-<a onclick="captureAndSaveTableScreenshot()">bullshit screenshot</a>
-<div id="output"></div>
 
 @foreach (KeyValuePair<int, int> kvp in teams)
 {
@@ -773,8 +771,8 @@
             }
         }
 
-        // Capture and save screenshot every 6 seconds
-        setInterval(captureAndSaveTableScreenshot, 6000);
+        // Capture and save screenshot every 8 seconds
+        setInterval(captureAndSaveTableScreenshot, 8000);
 
         function captureAndSaveTableScreenshot() {
             const div = document.getElementById('desktopTableContainer');

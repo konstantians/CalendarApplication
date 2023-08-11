@@ -58,6 +58,10 @@ namespace DataAccess.Models
         /// at the same time for each notification.
         /// </summary>
         public bool AlertNotification { get; set; }
+        /// <summary>
+        /// The boolean that is used to showcase that the notification has been seen by the user
+        /// </summary>
+        public bool HasBeenSeen { get; set; }
 
         /// <summary>
         /// default constructor
@@ -78,7 +82,8 @@ namespace DataAccess.Models
         /// <param name="eventDeleted"></param>
         /// <param name="alertNotification"></param>
         public NotificationDataModel(int id, DateTime notificationTime, bool invitationPending,
-            bool eventAccepted, bool eventRejected, bool eventChanged, bool commentAdded, bool commentDeleted, bool eventDeleted, bool alertNotification)
+            bool eventAccepted, bool eventRejected, bool eventChanged, bool commentAdded,
+            bool commentDeleted, bool eventDeleted, bool alertNotification)
         {
             EventOfNotification.Id = id;
             NotificationTime = notificationTime;
@@ -90,6 +95,37 @@ namespace DataAccess.Models
             CommentDeleted = commentDeleted;
             EventDeleted = eventDeleted;
             AlertNotification = alertNotification;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="notificationTime"></param>
+        /// <param name="invitationPending"></param>
+        /// <param name="eventAccepted"></param>
+        /// <param name="eventRejected"></param>
+        /// <param name="eventChanged"></param>
+        /// <param name="commentAdded"></param>
+        /// <param name="commentDeleted"></param>
+        /// <param name="eventDeleted"></param>
+        /// <param name="alertNotification"></param>
+        /// <param name="hasBeenSeen"></param>
+        public NotificationDataModel(int id, DateTime notificationTime, bool invitationPending,
+            bool eventAccepted, bool eventRejected, bool eventChanged, bool commentAdded, 
+            bool commentDeleted, bool eventDeleted, bool alertNotification, bool hasBeenSeen)
+        {
+            EventOfNotification.Id = id;
+            NotificationTime = notificationTime;
+            InvitationPending = invitationPending;
+            EventAccepted = eventAccepted;
+            EventRejected = eventRejected;
+            EventChanged = eventChanged;
+            CommentAdded = commentAdded;
+            CommentDeleted = commentDeleted;
+            EventDeleted = eventDeleted;
+            AlertNotification = alertNotification;
+            HasBeenSeen = hasBeenSeen;
         }
     }
 }

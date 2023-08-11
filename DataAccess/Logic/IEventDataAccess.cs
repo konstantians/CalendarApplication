@@ -178,5 +178,11 @@ namespace DataAccess.Logic
         /// <param name="userUsername">The username of the user who the about to be deleted notification was sent to</param>
         /// <param name="notificationTime">The creation date and time of the about to be deleted notification</param>
         void DeleteNotification(int eventId, string userUsername, DateTime notificationTime);
+        /// <summary>
+        /// This method should only be used when the system needs to understand that the
+        /// user has aknowledged the notifications that have been sent to them.
+        /// </summary>
+        /// <param name="username">The username of the user who saw the notifications</param>
+        void UpdateSeenStatusOfNotifications(string username);
     }
 }

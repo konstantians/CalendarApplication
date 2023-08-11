@@ -495,32 +495,6 @@ namespace DataAccess.Logic
             connection.Close();
 
             //TODO possibly send notifications that a comment has been updated. Database does not support it yet
-            //find everyone who participates in the event and is not the person who created the comment
-            /*sqlQuery = "SELECT UserUsername FROM ParticipationInEvent WHERE ParticipationInEvent.EventId = @eventId AND ParticipationInEvent.UserUsername != @userUsername;";
-
-            command = new SQLiteCommand(sqlQuery, connection);
-
-            command.Parameters.AddWithValue("@eventId", eventId);
-            command.Parameters.AddWithValue("@userUsername", creatorOfComment);
-
-            SQLiteDataReader reader = command.ExecuteReader();
-
-            List<string> membersOfEvent = new List<string>();
-
-            while (reader.Read())
-            {
-                membersOfEvent.Add(reader.GetString(0));
-            }
-
-            connection.Close();
-
-            int count = 0;
-            foreach (string comment in comments)
-            {
-                CreateNotifications(new NotificationDataModel(eventId, DateTime.Now,
-                    false, false, false, false, true, false, false, false), membersOfEvent, count);
-                count++;
-            }*/
         }
 
         /// <summary>
@@ -582,9 +556,9 @@ namespace DataAccess.Logic
             {
 
                 string sqlQuery = "INSERT INTO Notification (EventId, UserUsername, NotificationTime, InvitationPending, EventAccepted, " +
-                    "EventRejected, EventChanged, CommentAdded, CommentDeleted, EventDeleted, AlertNotification) " +
+                    "EventRejected, EventChanged, CommentAdded, CommentDeleted, EventDeleted, AlertNotification, HasBeenSeen) " +
                            "VALUES (@eventId, @userUsername, @notificationTime, @invitationPending ,@eventAccepted, " +
-                           "@eventRejected, @eventChanged, @commentAdded, @commentDeleted, @eventDeleted, @alertNotification);";
+                           "@eventRejected, @eventChanged, @commentAdded, @commentDeleted, @eventDeleted, @alertNotification, 0);";
                 SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
                 command.Parameters.AddWithValue("@eventId", notificationDataModel.EventOfNotification.Id);
@@ -1070,7 +1044,24 @@ namespace DataAccess.Logic
             command.ExecuteNonQuery();
 
             connection.Close();
+        }
 
+        /// <summary>
+        /// This method should only be used when the system needs to understand that the
+        /// user has aknowledged the notifications that have been sent to them.
+        /// </summary>
+        /// <param name="username">The username of the user who saw the notifications</param>
+        public void UpdateSeenStatusOfNotifications(string username)
+        {
+            connection.Open();
+            string sqlQuery = "UPDATE Notification SET HasBeenSeen = 1 WHERE UserUsername = @userUsername;";
+
+            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
+
+            command.Parameters.AddWithValue("@userUsername", username);
+            command.ExecuteNonQuery();
+
+            connection.Close();
         }
     }
 }

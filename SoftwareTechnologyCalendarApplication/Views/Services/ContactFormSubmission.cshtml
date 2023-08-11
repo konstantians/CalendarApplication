@@ -1,12 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Contact Form Submission Result";
+    Layout = (string)ViewData["Layout"];
 }
-
-<style>
-    body {
-        background-color: #f0f2f5;
-    }
-</style>
 
 @if ((bool)ViewData["EmailSendSuccessfully"])
 {

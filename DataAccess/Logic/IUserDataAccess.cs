@@ -12,8 +12,9 @@ namespace DataAccess.Logic
         /// This method returns all the users from the database and also all their calendars populated(with their events filled)
         /// and their events populated. Additionally it returns the comments of the users and it also returns all the events they either have created or participate in.
         /// </summary>
-        /// <returns>All the users</returns>
-        List<UserDataModel> GetUsers();
+        /// <param name="getInactiveUsers">this parameter if set will make the method also return the inactive users</param>
+        /// <returns>All the active users and also the inactive users if specified</returns>
+        List<UserDataModel> GetUsers(bool getInactiveUsers);
         /// <summary>
         /// This method returns one user using the given username from the database and also all their calendars populated(with their events filled)
         /// and their events populated. Additionally it returns the comments of the user and it also returns all the events they either have created or participate in.
@@ -60,6 +61,7 @@ namespace DataAccess.Logic
         bool TokenExists(string username, string token);
         void CreateAccountActivationToken(string token, string username);
         void CreateResetPasswordToken(string token, string username);
+        void CreateSessionToken(string token, string username);
         void ActivateUser(string username, string token);
         void DeleteToken(string token);
         void DeleteAccountActivationTokenAndUser(string token, string username);

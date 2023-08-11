@@ -4,6 +4,7 @@ using DataAccess.Models;
 using System.Collections.Generic;
 using System;
 using SoftwareTechnologyCalendarApplication.Models;
+using Services.AccountSessionServices;
 
 namespace SoftwareTechnologyCalendarApplication.Controllers
 {
@@ -11,14 +12,22 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
     {
         private readonly IUserDataAccess _userDataAccess;
         private readonly IEventDataAccess _eventDataAccess;
-        public AuthenticationController(IUserDataAccess userDataAccess, IEventDataAccess eventDataAccess)
+        private readonly IAccountSessionManager _accountSessionManager;
+        private readonly IActiveUsers _activeUsers;
+
+        public AuthenticationController(IUserDataAccess userDataAccess, IEventDataAccess eventDataAccess, 
+            IAccountSessionManager accountSessionManager, IActiveUsers activeUsers)
         {
             _userDataAccess = userDataAccess;
             _eventDataAccess = eventDataAccess;
+            _accountSessionManager = accountSessionManager;
+            _activeUsers = activeUsers;
         }
         public IActionResult Register()
         {
-            if (ActiveUser.User != null) throw new NotImplementedException();
+            if(_activeUsers.CheckIfLoggedIn())
+                return RedirectToAction("HomePage", "Home");
+
             ViewData["DuplicateAccount"] = false;
             ViewData["DuplicateEmail"] = false;
             return View();
@@ -28,14 +37,15 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Register(User user)
         {
-            if (ActiveUser.User != null) throw new NotImplementedException();
+            if (_activeUsers.CheckIfLoggedIn())
+                return RedirectToAction("HomePage", "Home");
 
             if (!ModelState.IsValid)
             {
                 return View();
             }
 
-            List<UserDataModel> users = _userDataAccess.GetUsers();
+            List<UserDataModel> users = _userDataAccess.GetUsers(true);
             foreach (UserDataModel userDataModel in users)
             {
                 if(userDataModel.Username == user.Username)
@@ -62,13 +72,14 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             userr.Phone = user.Phone;
             _userDataAccess.CreateUser(userr);
 
-            ActiveUser.AccessConfirmationPage = true;
+            TempData["allowed"] = true;
             return RedirectToAction("RegisterVerificationEmailMessage", "Services", new {username = user.Username , email = userr.Email});
         }
 
         public IActionResult Login(bool setFalseResetMessage)
         {
-            if (ActiveUser.User != null) throw new NotImplementedException();
+            if (_activeUsers.CheckIfLoggedIn())
+                return RedirectToAction("HomePage", "Home");
 
             ViewData["WrongUsernamePassword"] = false;
             ViewData["FalseResetAccount"] = setFalseResetMessage ? true : false;
@@ -79,13 +90,16 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Login(UserLogin user)
         {
-            if (ActiveUser.User != null) throw new NotImplementedException();
+            if (_activeUsers.CheckIfLoggedIn())
+                return RedirectToAction("HomePage", "Home");
 
             ViewData["WrongUsernamePassword"] = false;
             ViewData["FalseResetAccount"] = false;
+
             if(!ModelState.IsValid) {
                 return View(user);
             }
+
             UserDataModel userDataModel = _userDataAccess.GetUser(user.Username);
             if ((userDataModel == null) || (userDataModel.Password != user.Password))
             {
@@ -93,23 +107,17 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 ViewData["FalseResetAccount"] = false;
                 return View();
             }
-            //authenticates the user
-            ActiveUser.User = new User(userDataModel);
 
-            foreach (Event calendarEvent in ActiveUser.User.EventsThatTheUserParticipates)
+            //authenticates the user
+            _accountSessionManager.CreateSession(userDataModel.Username);
+
+            _activeUsers.User = new User(userDataModel);
+            foreach (Event calendarEvent in _activeUsers.User.EventsThatTheUserParticipates)
             {
                 if (calendarEvent.AlertStatus && (calendarEvent.StartingTime.AddHours(-1) < DateTime.Now && DateTime.Now < calendarEvent.EndingTime))
                 {
-                    _eventDataAccess.SendAlertNotification(calendarEvent.Id, ActiveUser.User.Username);
+                    _eventDataAccess.SendAlertNotification(calendarEvent.Id, _activeUsers.User.Username);
                 }
-            }
-
-            //get the new notifications of the user, which might have been created by the alert status
-            ActiveUser.User = new User(_userDataAccess.GetUser(user.Username));
-
-            if (ActiveUser.User.Notifications.Count != 0)
-            {
-                ActiveUser.HasNotifications = true;
             }
 
             return RedirectToAction("HomePage","Home", new {pagination = 1});
@@ -117,10 +125,11 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
 
         public IActionResult ForgotPassword(string username, string email)
         {
-            if (ActiveUser.User != null) throw new NotImplementedException();
+            if (_activeUsers.CheckIfLoggedIn())
+                return RedirectToAction("HomePage", "Home");
 
             //if the username was not empty
-            if(username != "" && username != null)
+            if (username != "" && username != null)
             {
                 User user = new User(_userDataAccess.GetUser(username));
                 //if the user does not exist
@@ -129,12 +138,13 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                     return RedirectToAction("Login", "Authentication", new { setFalseResetMessage = true });
                 }
                 //otherwise
-                ActiveUser.AccessConfirmationPage = true;
+
+                TempData["allowed"] = true;
                 return RedirectToAction("ResetPasswordEmailMessage", "Services", new {username = username, email = user.Email});
             }
             //if the email want not empty
             string userUsername = "";
-            foreach (UserDataModel tempUser in _userDataAccess.GetUsers())
+            foreach (UserDataModel tempUser in _userDataAccess.GetUsers(false))
             {
                 if (tempUser.Email == email)
                 {
@@ -148,14 +158,15 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 return RedirectToAction("Login", "Authentication", new { setFalseResetMessage = true});
             }
             //otherwise
-            ActiveUser.AccessConfirmationPage = true;
+            TempData["allowed"] = true;
             return RedirectToAction("ResetPasswordEmailMessage", "Services", new { username = userUsername, email = email });
             
         }
 
         public IActionResult ResetPassword(string username, string token)
         {
-            if (ActiveUser.User != null) throw new NotImplementedException();
+            if (_activeUsers.CheckIfLoggedIn())
+                return RedirectToAction("HomePage", "Home");
 
             if (!_userDataAccess.TokenExists(username, token))
             {
@@ -170,7 +181,9 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         [HttpPost]
         public IActionResult ResetPassword(ResetPasswordViewModel resetPasswordViewModel)
         {
-            if (ActiveUser.User != null) throw new NotImplementedException();
+            if (_activeUsers.CheckIfLoggedIn())
+                return RedirectToAction("HomePage", "Home");
+
             if (!_userDataAccess.TokenExists(resetPasswordViewModel.Username, resetPasswordViewModel.Token))
             {
                 throw new NotImplementedException();
@@ -188,15 +201,18 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             //now that the user is updated delete the token
             _userDataAccess.DeleteToken(resetPasswordViewModel.Token);
 
-            ActiveUser.User = new User(updatedUser);
+            //create the session token and the cookie for the updated user
+            _accountSessionManager.CreateSession(updatedUser.Username);
+
             return RedirectToAction("HomePage","Home");
         }
 
         public IActionResult LogOut()
         {
-            ActiveUser.AuthorizeUser();
+            if (!_activeUsers.CheckIfLoggedIn())
+                return RedirectToAction("Login", "Authentication");
 
-            ActiveUser.User = null;
+            _accountSessionManager.DeleteSessionCookie();
             return RedirectToAction("Login", "Authentication");
         }
     }

@@ -1,17 +1,14 @@
 using DataAccess.Logic;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Services.AccountSessionServices;
 using Services.BackgroundServices;
 using Services.EmailSendingMechanism;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using SoftwareTechnologyCalendarApplicationMVC;
 
 namespace SoftwareTechnologyCalendarApplication
 {
@@ -29,10 +26,16 @@ namespace SoftwareTechnologyCalendarApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddHttpContextAccessor();
+
             services.AddSingleton<IUserDataAccess, UserDataAccess>();
             services.AddSingleton<ICalendarDataAccess, CalendarDataAccess>();
             services.AddSingleton<IEventDataAccess, EventDataAccess>();
             services.AddSingleton<IEmailService,EmailService>();
+            services.AddSingleton<IAccountSessionManager,AccountSessionManager>();
+
+            services.AddScoped<IActiveUsers, ActiveUsers>();
+
             services.AddHostedService<AccountTokenExpirationService>();
         }
 
