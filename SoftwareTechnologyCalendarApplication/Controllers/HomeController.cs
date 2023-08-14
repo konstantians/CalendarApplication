@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Services.AccountSessionServices;
 using SoftwareTechnologyCalendarApplication.Models;
 using System;
 using System.Collections.Generic;
@@ -21,12 +22,13 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         private readonly IUserDataAccess UserDataAccess;
         private readonly ICalendarDataAccess CalendarDataAccess;
         private readonly IEventDataAccess EventDataAccess;
-        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IActiveUsers _activeUsers;
+        private readonly IAccountSessionManager _accountSessionManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public HomeController(ILogger<HomeController> logger, IUserDataAccess userDataAccess,
             ICalendarDataAccess calendarDataAccess, IEventDataAccess eventDataAccess, 
-            IActiveUsers activeUsers,IWebHostEnvironment webHostEnvironment)
+            IActiveUsers activeUsers, IAccountSessionManager accountSessionManager, IWebHostEnvironment webHostEnvironment)
         {
             UserDataAccess = userDataAccess;
             CalendarDataAccess = calendarDataAccess;
@@ -34,6 +36,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             _logger = logger;
             _activeUsers = activeUsers;
             _webHostEnvironment = webHostEnvironment;
+            _accountSessionManager = accountSessionManager;
         }
 
         public IActionResult AddCalendar()
@@ -88,19 +91,68 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             return RedirectToAction("HomePage", "Home", new { pagination = 1 });
         }
 
-        public IActionResult HomePage(int pagination, bool calendarWasDeleted)
+        //TODO big bug. The calendar pagination is recked.
+        //corrected pagination is probably important so that the events will not overflow
+        //but not like that.
+        //Idea prepei na kano correction se ola kai na to janakano opos prin
+        public IActionResult HomePage(int pagination, bool calendarWasDeleted, string paginationMode)
         {
             if (!AuthenticateAndCheckNotifications())
                 return RedirectToAction("Login", "Authentication");
+            User user = _activeUsers.User;
 
             //if no pagination was given make it the default
             pagination = pagination == 0 ? 1 : pagination;
 
-            User user = _activeUsers.User;
+            //if it came from desktop there is no need for correction
+            if (paginationMode == "desktop" || paginationMode == null || paginationMode == "")
+            {
+                ViewData["pagination"] = pagination * 6;
+
+                //yes this math is tough
+                //there is a pattern where if there is a decimal point then you just need to floor the value
+                //otherwise you need to -1
+                decimal x = ((decimal)pagination * 6 / 4);
+                if (x != Math.Floor(x))
+                    ViewData["paginationTablet"] = (int)(Math.Floor(x)) * 4;
+                else
+                    ViewData["paginationTablet"] = (x - 1) * 4; 
+
+                ViewData["paginationMobile"] = ((pagination * 6 / 2) - 2) * 2;
+            }
+            //happened because the pagination was triggered on tablet
+            else if (paginationMode == "tablet")
+            {
+                //yes this math is tough
+                //there is a pattern where it turns out that if it is divisible by 3*pagination - 2 you need to ceiling the expression
+                //there is a pattern where it turns out that if it is divisible by 3*pagination - 1 you need to floor the expression
+                //there is a pattern where it turns out that if it is divisible by 3*pagination you do not need to do anything
+                if((pagination % 3 == 1))
+                {
+                    ViewData["pagination"] = ((int)Math.Ceiling(((decimal)pagination * 4) / 6)) * 6;
+                }
+                else if(pagination % 3 == 2)
+                {
+                    ViewData["pagination"] =  ((int)Math.Floor(((decimal)pagination * 4) / 6)) * 6;
+                }
+                else
+                {
+                    ViewData["pagination"] = ((pagination * 4) / 6) * 6;
+                }
+
+
+                ViewData["paginationTablet"] = pagination * 4;
+                ViewData["paginationMobile"] = ((pagination * 4 / 2) - 1) * 2;
+            }
+            //happened because the pagination was triggered on mobile
+            else if (paginationMode == "mobile")
+            {
+                ViewData["pagination"] = ((int)Math.Ceiling(((decimal)pagination * 2) / 6)) * 6;
+                ViewData["paginationTablet"] = ((int)Math.Ceiling(((decimal)pagination * 2) / 4)) * 4;
+                ViewData["paginationMobile"] = pagination * 2;
+            }
+            
             ViewData["DeletedCalendar"] = calendarWasDeleted;
-            ViewData["pagination"] = pagination * 6;
-            ViewData["paginationTablet"] = pagination * 4;
-            ViewData["paginationMobile"] = pagination * 2;
             ViewData["webHostPath"] = _webHostEnvironment.WebRootPath;
             return View(user);
         }
@@ -109,6 +161,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         {
             if (!_activeUsers.CheckIfLoggedIn())
                 return RedirectToAction("Login", "Authentication");
+            _activeUsers.InstantiateUser();
 
             CalendarDataAccess.DeleteCalendar(calendarId, _activeUsers.User.Username);
             return RedirectToAction("HomePage", "Home", new { pagination = 1,
@@ -120,6 +173,7 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         {
             if (!_activeUsers.CheckIfLoggedIn())
                 return RedirectToAction("Login", "Authentication");
+            _activeUsers.InstantiateUser();
 
             EventDataAccess.DeleteEvent(eventId, _activeUsers.User.Username);
             return RedirectToAction("ViewCalendarDay", "Home", new
@@ -441,18 +495,18 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteNotification(int eventId, DateTime notificationTime)
+        public IActionResult DeleteNotification(int eventId, string userSenderUsername, DateTime notificationTime)
         {
             if (!_activeUsers.CheckIfLoggedIn())
                 return RedirectToAction("Login", "Authentication");
             _activeUsers.InstantiateUser();
 
-            EventDataAccess.DeleteNotification(eventId, _activeUsers.User.Username, notificationTime);
+            EventDataAccess.DeleteNotification(eventId, _activeUsers.User.Username, userSenderUsername, notificationTime);
             return RedirectToAction("ViewNotifications", "Home");
         }
 
         [HttpPost]
-        public IActionResult AcceptInvitation(int eventId, DateTime notificationTime, int calendarId/*, bool alertStatus*/)
+        public IActionResult AcceptInvitation(int eventId, string userSenderUsername, DateTime notificationTime, int calendarId/*, bool alertStatus*/)
         {
             if (!_activeUsers.CheckIfLoggedIn())
                 return RedirectToAction("Login", "Authentication");
@@ -468,18 +522,18 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
                 return RedirectToAction("ViewNotifications", "Home", new { NoCalendarSelected = true});
             }
             
-            EventDataAccess.AcceptInvitation(eventId, _activeUsers.User.Username, notificationTime, calendarId, alertStatus);
+            EventDataAccess.AcceptInvitation(eventId, _activeUsers.User.Username, userSenderUsername, notificationTime, calendarId, alertStatus);
             return RedirectToAction("ViewNotifications", "Home");
         }
 
         [HttpPost]
-        public IActionResult RejectInvitation(int eventId, DateTime notificationTime)
+        public IActionResult RejectInvitation(int eventId, string userSenderUsername, DateTime notificationTime)
         {
             if (!_activeUsers.CheckIfLoggedIn())
                 return RedirectToAction("Login", "Authentication");
             _activeUsers.InstantiateUser();
 
-            EventDataAccess.RejectInvitation(eventId, _activeUsers.User.Username, notificationTime);
+            EventDataAccess.RejectInvitation(eventId, _activeUsers.User.Username, userSenderUsername, notificationTime);
             return RedirectToAction("ViewNotifications", "Home");
         }
 
@@ -536,7 +590,16 @@ namespace SoftwareTechnologyCalendarApplication.Controllers
             userDataModel.DateOfBirth = userr.DateOfBirth;
             userDataModel.Phone = userr.Phone;
             userDataModel.Email = userr.Email;
+            //delete session tokens of user
+            foreach (TokenDataModel token in UserDataAccess.GetTokens())
+            {
+                if (token.IsSessionToken)
+                    UserDataAccess.DeleteToken(token.Token);
+                _accountSessionManager.DeleteSessionCookie();
+            }
+
             UserDataAccess.UpdateUserAndUsername(userDataModel, oldUsername);
+            _accountSessionManager.CreateSession(userDataModel.Username);
 
             return RedirectToAction("HomePage", "Home", new { pagination = 1 });
         }

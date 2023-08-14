@@ -6,6 +6,7 @@ namespace SoftwareTechnologyCalendarApplication.Models
     public class Notification
     {
         public Event EventOfNotification { get; set; }
+        public User SenderUser { get; set; }
         public DateTime NotificationTime { get; set; }
         public bool InvitationPending { get; set; }
         public bool EventAccepted { get; set; }
@@ -22,6 +23,7 @@ namespace SoftwareTechnologyCalendarApplication.Models
         public Notification(NotificationDataModel notificationDataModel)
         {
             EventOfNotification = new Event(notificationDataModel.EventOfNotification);
+            SenderUser = new User(notificationDataModel.SenderUser);
             NotificationTime = notificationDataModel.NotificationTime;
             InvitationPending = notificationDataModel.InvitationPending;
             EventAccepted = notificationDataModel.EventAccepted;

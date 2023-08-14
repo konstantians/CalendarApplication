@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Contact Form Submission Result";
+    ViewData["Title"] = "Register Result";
 }
 
 @if ((bool)ViewData["EmailSendSuccessfully"])
@@ -19,7 +19,7 @@
                     </p>
                     <div class="d-flex justify-content-center mt-4">
                         <a asp-controller="Authentication" asp-action="Login" class="btn btn-lg btn-dark mr-3">Return to Login</a>
-                        <a href="#" class="btn btn-lg btn-primary">Continue To Home</a>
+                        <a asp-controller="Home" asp-action="HomePage" class="btn btn-lg btn-primary">Continue To Home</a>
                     </div>
                 </div>
             </div>

@@ -14,6 +14,10 @@ namespace DataAccess.Models
         /// </summary>
         public EventDataModel EventOfNotification { get; set; } = new EventDataModel();
         /// <summary>
+        /// The user who sent the notification
+        /// </summary>
+        public UserDataModel SenderUser { get; set; } = new UserDataModel();
+        /// <summary>
         /// The date and time at which this notification was created.
         /// </summary>
         public DateTime NotificationTime { get; set; }
@@ -101,6 +105,38 @@ namespace DataAccess.Models
         /// 
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="senderUser"></param>
+        /// <param name="notificationTime"></param>
+        /// <param name="invitationPending"></param>
+        /// <param name="eventAccepted"></param>
+        /// <param name="eventRejected"></param>
+        /// <param name="eventChanged"></param>
+        /// <param name="commentAdded"></param>
+        /// <param name="commentDeleted"></param>
+        /// <param name="eventDeleted"></param>
+        /// <param name="alertNotification"></param>
+        public NotificationDataModel(int id, UserDataModel senderUser, DateTime notificationTime, bool invitationPending,
+            bool eventAccepted, bool eventRejected, bool eventChanged, bool commentAdded,
+            bool commentDeleted, bool eventDeleted, bool alertNotification)
+        {
+            EventOfNotification.Id = id;
+            SenderUser = senderUser;
+            NotificationTime = notificationTime;
+            InvitationPending = invitationPending;
+            EventAccepted = eventAccepted;
+            EventRejected = eventRejected;
+            EventChanged = eventChanged;
+            CommentAdded = commentAdded;
+            CommentDeleted = commentDeleted;
+            EventDeleted = eventDeleted;
+            AlertNotification = alertNotification;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="senderUser"></param>
         /// <param name="notificationTime"></param>
         /// <param name="invitationPending"></param>
         /// <param name="eventAccepted"></param>
@@ -111,11 +147,12 @@ namespace DataAccess.Models
         /// <param name="eventDeleted"></param>
         /// <param name="alertNotification"></param>
         /// <param name="hasBeenSeen"></param>
-        public NotificationDataModel(int id, DateTime notificationTime, bool invitationPending,
+        public NotificationDataModel(int id, UserDataModel senderUser, DateTime notificationTime, bool invitationPending,
             bool eventAccepted, bool eventRejected, bool eventChanged, bool commentAdded, 
             bool commentDeleted, bool eventDeleted, bool alertNotification, bool hasBeenSeen)
         {
             EventOfNotification.Id = id;
+            SenderUser = senderUser;
             NotificationTime = notificationTime;
             InvitationPending = invitationPending;
             EventAccepted = eventAccepted;

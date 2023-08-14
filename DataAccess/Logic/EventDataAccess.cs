@@ -462,7 +462,7 @@ namespace DataAccess.Logic
             foreach (string comment in comments)
             {
                 CreateNotifications(new NotificationDataModel(eventId, DateTime.Now,
-                    false, false, false, false, true, false, false, false), membersOfEvent, count);
+                    false, false, false, false, true, false, false, false), creatorOfComment, membersOfEvent, count);
                 count++;
             }
         }
@@ -536,7 +536,7 @@ namespace DataAccess.Logic
             connection.Close();
 
             CreateNotifications(new NotificationDataModel(commentDataModel.EventOfComment.Id, DateTime.Now,
-                false, false, false, false, false, true, false, false), membersOfEvent);
+                false, false, false, false, false, true, false, false), commentDataModel.UserWhoMadeTheComment.Username, membersOfEvent);
         }
 
         /// <summary>
@@ -545,9 +545,10 @@ namespace DataAccess.Logic
         /// be created at the same time, by the same user for the same event.
         /// </summary>
         /// <param name="notificationDataModel">The model of the notification</param>
+        /// <param name="userSender">The user who sender the notification</param>
         /// <param name="receiversOfNotification">The usernames of the users who will receive this notification</param>
         /// <param name="count">Parameter that is Used when multiple notifications must be created at the same time, to avoid conflict</param>
-        private void CreateNotifications(NotificationDataModel notificationDataModel, List<string> receiversOfNotification, int count = 0)
+        private void CreateNotifications(NotificationDataModel notificationDataModel, string userSender,List<string> receiversOfNotification, int count = 0)
         {
             connection.Open();
 
@@ -555,14 +556,15 @@ namespace DataAccess.Logic
             foreach (string memberOfEvent in receiversOfNotification)
             {
 
-                string sqlQuery = "INSERT INTO Notification (EventId, UserUsername, NotificationTime, InvitationPending, EventAccepted, " +
+                string sqlQuery = "INSERT INTO Notification (EventId, UserReceiver, UserSender, NotificationTime, InvitationPending, EventAccepted, " +
                     "EventRejected, EventChanged, CommentAdded, CommentDeleted, EventDeleted, AlertNotification, HasBeenSeen) " +
-                           "VALUES (@eventId, @userUsername, @notificationTime, @invitationPending ,@eventAccepted, " +
+                           "VALUES (@eventId, @userReceiver, @userSender, @notificationTime, @invitationPending ,@eventAccepted, " +
                            "@eventRejected, @eventChanged, @commentAdded, @commentDeleted, @eventDeleted, @alertNotification, 0);";
                 SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
                 command.Parameters.AddWithValue("@eventId", notificationDataModel.EventOfNotification.Id);
-                command.Parameters.AddWithValue("@userUsername", memberOfEvent);
+                command.Parameters.AddWithValue("@userReceiver", memberOfEvent);
+                command.Parameters.AddWithValue("@userSender", userSender);
                 command.Parameters.AddWithValue("@notificationTime", notificationDataModel.NotificationTime.AddSeconds(count).ToString());
                 command.Parameters.AddWithValue("@invitationPending", Convert.ToInt32(notificationDataModel.InvitationPending));
                 command.Parameters.AddWithValue("@eventAccepted", Convert.ToInt32(notificationDataModel.EventAccepted));
@@ -587,7 +589,7 @@ namespace DataAccess.Logic
         /// <param name="usernamesOfInvitedUsers">The names of the people who are invited</param>
         public void InviteUsersToEvent(int eventId, string usernameOfCreator, List<string> usernamesOfInvitedUsers)
         {
-            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, true, false, false, false, false, false, false, false), usernamesOfInvitedUsers);
+            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, true, false, false, false, false, false, false, false), usernameOfCreator, usernamesOfInvitedUsers);
         }
 
         /// <summary>
@@ -599,7 +601,7 @@ namespace DataAccess.Logic
         /// <param name="usernameOfInvitedUser">The name of the person who is invited</param>
         public void InviteUserToEvent(int eventId, string usernameOfCreator, string usernameOfInvitedUser)
         {
-            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, true, false, false, false, false, false, false, false), new List<string> { usernameOfInvitedUser });
+            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, true, false, false, false, false, false, false, false), usernameOfCreator, new List<string> { usernameOfInvitedUser });
         }
 
         /// <summary>
@@ -610,13 +612,14 @@ namespace DataAccess.Logic
         /// </summary>
         /// <param name="eventId">The id of the event</param>
         /// <param name="usernameOfInvitedUser">The username of the invited user who accepted the invitation</param>
+        /// <param name="usernameOfSenderUser">The username of the sender user(the user who sent the notification)</param>
         /// <param name="notificationTime">The date and time of the original invitation, which is used to delete the invitation</param>
         /// <param name="calendarId">The id of the calendar that contains the event</param>
         /// <param name="alertStatus">The alert status that the invited user chose(on or off)</param>
-        public void AcceptInvitation(int eventId, string usernameOfInvitedUser, DateTime notificationTime, int calendarId, bool alertStatus)
+        public void AcceptInvitation(int eventId, string usernameOfInvitedUser, string usernameOfSenderUser,  DateTime notificationTime, int calendarId, bool alertStatus)
         {
             //delete the pending notification
-            DeleteNotification(eventId, usernameOfInvitedUser, notificationTime);
+            DeleteNotification(eventId, usernameOfInvitedUser, usernameOfSenderUser, notificationTime);
 
             connection.Open();
 
@@ -633,25 +636,9 @@ namespace DataAccess.Logic
 
             connection.Close();
 
-            //send notification to the creator of the event
-            //find the creator of the event
-            connection.Open();
-            sqlQuery = "SELECT EventCreator FROM Event WHERE Event.Id = @eventId;";
-            command = new SQLiteCommand(sqlQuery, connection);
-
-            command.Parameters.AddWithValue("@eventId", eventId);
-            SQLiteDataReader reader = command.ExecuteReader();
-            string creatorName = "";
-
-            while (reader.Read())
-            {
-                creatorName = reader.GetString(0);
-            }
-
-            connection.Close();
-
-            //send accepted notification to the creator of the event
-            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, true, false, false, false, false, false, false), new List<string> { creatorName });
+            //send accepted notification to the person who invited the invited user to the event
+            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, true, false, false, false, false, false, false), 
+                usernameOfInvitedUser,new List<string> { usernameOfSenderUser });
         }
 
         /// <summary>
@@ -662,30 +649,15 @@ namespace DataAccess.Logic
         /// </summary>
         /// <param name="eventId">The id of the event</param>
         /// <param name="usernameOfInvitedUser">The username of the invited user who rejected the invitation</param>
+        /// <param name="usernameOfSenderUser">The username of the sender user(the user who sent the notification)</param>
         /// <param name="notificationTime">The date and time of the original invitation, which is used to delete the invitation</param>
-        public void RejectInvitation(int eventId, string usernameOfInvitedUser, DateTime notificationTime)
+        public void RejectInvitation(int eventId, string usernameOfInvitedUser, string usernameOfSenderUser, DateTime notificationTime)
         {
             //delete the pending notification
-            DeleteNotification(eventId, usernameOfInvitedUser, notificationTime);
+            DeleteNotification(eventId, usernameOfInvitedUser, usernameOfSenderUser, notificationTime);
 
-            //send notification to the creator of the event
-            //find the creator of the event
-            connection.Open();
-            string sqlQuery = "SELECT EventCreator FROM Event WHERE Event.Id = @eventId;";
-            SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
-
-            command.Parameters.AddWithValue("@eventId", eventId);
-            SQLiteDataReader reader = command.ExecuteReader();
-            string creatorName = "";
-
-            while (reader.Read())
-            {
-                creatorName = reader.GetString(0);
-            }
-
-            connection.Close();
-            //send rejected notification to the creator of the event
-            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, false, true, false, false, false, false, false), new List<string> { creatorName });
+            //send rejected notification to the person who invited the invited user to the event
+            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, false, true, false, false, false, false, false), usernameOfInvitedUser,new List<string> { usernameOfSenderUser });
         }
 
         /// <summary>
@@ -769,7 +741,7 @@ namespace DataAccess.Logic
             connection.Close();
 
             //send changed notification
-            CreateNotifications(new NotificationDataModel(calendarEvent.Id, DateTime.Now, false, false, false, true, false, false, false, false), membersOfEvent);
+            CreateNotifications(new NotificationDataModel(calendarEvent.Id, DateTime.Now, false, false, false, true, false, false, false, false), username,membersOfEvent);
         }
 
         /// <summary>
@@ -890,7 +862,7 @@ namespace DataAccess.Logic
                 connection.Close();
 
                 //send notification that the event was deleted to everyone else(everyone who is not the creator)
-                CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, false, false, false, false, false, true, false), membersOfEvent);
+                CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, false, false, false, false, false, true, false), userWhoDeletedTheEvent, membersOfEvent);
             }
         }
 
@@ -938,7 +910,7 @@ namespace DataAccess.Logic
 
             connection.Close();
             //send deleted notification to everyone else
-            CreateNotifications(new NotificationDataModel(id, DateTime.Now, false, false, false, false, false, false, true, false), membersOfEvent);
+            CreateNotifications(new NotificationDataModel(id, DateTime.Now, false, false, false, false, false, false, true, false), userWhoDeletedTheEvent, membersOfEvent);
         }
 
         /// <summary>
@@ -951,7 +923,7 @@ namespace DataAccess.Logic
         public void SendAlertNotification(int eventId, string username)
         {
             //send the notification
-            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, false, false, false, false, false, false, true), new List<string> { username });
+            CreateNotifications(new NotificationDataModel(eventId, DateTime.Now, false, false, false, false, false, false, false, true), username, new List<string> { username });
 
             //update the alert status
             connection.Open();
@@ -973,17 +945,21 @@ namespace DataAccess.Logic
         /// that event and if no then it will hard delete the event. In any other case it will just stop.
         /// </summary>
         /// <param name="eventId">The id of the event</param>
-        /// <param name="userUsername">The username of the user who the about to be deleted notification was sent to</param>
+        /// <param name="userReceiver">The username of the receiver user(the user who received the notification)</param>
+        /// <param name="userSender">The username of the sender user(the user who sent the notification)</param>
         /// <param name="notificationTime">The creation date and time of the about to be deleted notification</param>
-        public void DeleteNotification(int eventId, string userUsername, DateTime notificationTime)
+        public void DeleteNotification(int eventId, string userReceiver, string userSender, DateTime notificationTime)
         {
+            //TODO fix that
             //delete the notification
             connection.Open();
-            string sqlQuery = "DELETE FROM Notification WHERE EventId = @eventId AND UserUsername = @userUsername AND NotificationTime = @notificationTime;";
+            string sqlQuery = "DELETE FROM Notification WHERE EventId = @eventId " +
+                "AND UserReceiver = @userReceiver AND UserSender = @userSender AND NotificationTime = @notificationTime;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@eventId", eventId);
-            command.Parameters.AddWithValue("@userUsername", userUsername);
+            command.Parameters.AddWithValue("@userReceiver", userReceiver);
+            command.Parameters.AddWithValue("@userSender", userSender);
             command.Parameters.AddWithValue("@notificationTime", notificationTime.ToString());
 
             command.ExecuteNonQuery();
@@ -1050,15 +1026,15 @@ namespace DataAccess.Logic
         /// This method should only be used when the system needs to understand that the
         /// user has aknowledged the notifications that have been sent to them.
         /// </summary>
-        /// <param name="username">The username of the user who saw the notifications</param>
-        public void UpdateSeenStatusOfNotifications(string username)
+        /// <param name="userReceiver">The username of the user who receives the notifications</param>
+        public void UpdateSeenStatusOfNotifications(string userReceiver)
         {
             connection.Open();
-            string sqlQuery = "UPDATE Notification SET HasBeenSeen = 1 WHERE UserUsername = @userUsername;";
+            string sqlQuery = "UPDATE Notification SET HasBeenSeen = 1 WHERE UserReceiver = @userReceiver;";
 
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
-            command.Parameters.AddWithValue("@userUsername", username);
+            command.Parameters.AddWithValue("@userReceiver", userReceiver);
             command.ExecuteNonQuery();
 
             connection.Close();

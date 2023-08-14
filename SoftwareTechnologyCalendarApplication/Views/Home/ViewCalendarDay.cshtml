@@ -631,7 +631,7 @@
                     <p>Are you sure you want to delete the event?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="width:75px;">No</button>
+                    <button type="button" class="btn btn-dark" data-dismiss="modal" style="width:75px;">Cancel</button>
                     <!--fill the form-->
                     <form method="post" asp-controller="Home" asp-action="DeleteEvent">
                         <input type="hidden" name="calendarId" value="@Model.Id" />
@@ -639,7 +639,7 @@
                         <input type="hidden" name="year" value="@ViewData["Year"]" />
                         <input type="hidden" name="month" value="@ViewData["Month"]" />
                         <input type="hidden" name="day" value="@ViewData["Day"]" />
-                        <button type="submit" class="btn btn-danger" style="width:75px;">Yes</button>
+                        <button type="submit" class="btn btn-danger" style="width:75px;">Delete</button>
                     </form>
                 </div>
             </div>
