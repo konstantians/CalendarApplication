@@ -1,7 +1,7 @@
 ﻿@model SoftwareTechnologyCalendarApplication.Models.User
 
 @{
-    ViewData["Title"] = "editAccount";
+    ViewData["Title"] = "Edit Account";
 }
 
 @if ((bool)ViewData["DuplicateAccount"])
@@ -203,7 +203,7 @@
         let passwordInput = document.getElementById("password");
         passwordInput.removeAttribute("disabled");
         if(passwordInput.value === ""){
-            passwordInput.value = "@ActiveUsers.User.Username";
+            passwordInput.value = "@ActiveUsers.User.Password";
         }
     }
 </script>

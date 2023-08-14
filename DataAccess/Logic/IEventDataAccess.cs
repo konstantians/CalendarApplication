@@ -122,10 +122,11 @@ namespace DataAccess.Logic
         /// </summary>
         /// <param name="eventId">The id of the event</param>
         /// <param name="usernameOfInvitedUser">The username of the invited user who accepted the invitation</param>
+        /// <param name="usernameOfSenderUser">The username of the sender user(the user who sent the notification)</param>
         /// <param name="notificationTime">The date and time of the original invitation, which is used to delete the invitation</param>
         /// <param name="calendarId">The id of the calendar that contains the event</param>
         /// <param name="alertStatus">The alert status that the invited user chose(on or off)</param>
-        void AcceptInvitation(int eventId, string usernameOfInvitedUser, DateTime notificationTime, int calendarId, bool alertStatus);
+        void AcceptInvitation(int eventId, string usernameOfInvitedUser, string usernameOfSenderUser, DateTime notificationTime, int calendarId, bool alertStatus);
         /// <summary>
         /// This method is used to reject an invitation that came from a different user for a specific event, 
         /// which is identified by the eventId parameter. This method also deletes that invitation, so no further
@@ -134,8 +135,9 @@ namespace DataAccess.Logic
         /// </summary>
         /// <param name="eventId">The id of the event</param>
         /// <param name="usernameOfInvitedUser">The username of the invited user who rejected the invitation</param>
+        /// <param name="usernameOfSenderUser">The username of the sender user(the user who sent the notification)</param>
         /// <param name="notificationTime">The date and time of the original invitation, which is used to delete the invitation</param>
-        void RejectInvitation(int eventId, string usernameOfInvitedUser, DateTime notificationTime);
+        void RejectInvitation(int eventId, string usernameOfInvitedUser, string usernameOfSenderUser, DateTime notificationTime);
         /// <summary>
         /// This method using the userWhoUpdatedTheEvent parameter figures out on whether the event is native or foreign
         /// If the method finds out that the event was native then it updates all the fields using the information that 
@@ -175,9 +177,10 @@ namespace DataAccess.Logic
         /// that event and if no then it will hard delete the event. In any other case it will just stop.
         /// </summary>
         /// <param name="eventId">The id of the event</param>
-        /// <param name="userUsername">The username of the user who the about to be deleted notification was sent to</param>
+        /// <param name="userReceiver">The username of the receiver user(the user who received the notification)</param>
+        /// <param name="userSender">The username of the sender user(the user who sent the notification)</param>
         /// <param name="notificationTime">The creation date and time of the about to be deleted notification</param>
-        void DeleteNotification(int eventId, string userUsername, DateTime notificationTime);
+        void DeleteNotification(int eventId, string userReceiver, string userSender, DateTime notificationTime);
         /// <summary>
         /// This method should only be used when the system needs to understand that the
         /// user has aknowledged the notifications that have been sent to them.

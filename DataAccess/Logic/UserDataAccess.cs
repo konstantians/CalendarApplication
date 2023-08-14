@@ -173,9 +173,9 @@ namespace DataAccess.Logic
         /// <returns></returns>
         public List<NotificationDataModel> GetNotificationsOfUser(string username)
         {
-            string sqlQuery = "SELECT EventId, NotificationTime, InvitationPending, EventAccepted, EventRejected, " +
+            string sqlQuery = "SELECT EventId, UserSender, NotificationTime, InvitationPending, EventAccepted, EventRejected, " +
                 "EventChanged, CommentAdded, CommentDeleted, EventDeleted, AlertNotification, HasBeenSeen " +
-                "FROM Notification WHERE Notification.UserUsername = @userUsername;";
+                "FROM Notification WHERE Notification.UserReceiver = @userUsername;";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@userUsername", username);
@@ -187,16 +187,17 @@ namespace DataAccess.Logic
                 NotificationDataModel notificationDataModel = new NotificationDataModel();
 
                 notificationDataModel.EventOfNotification = EventDataAccess.GetEventForNotifications(reader.GetInt32(0));
-                notificationDataModel.NotificationTime = DateTime.Parse(reader.GetString(1));
-                notificationDataModel.InvitationPending = Convert.ToBoolean(reader.GetInt32(2));
-                notificationDataModel.EventAccepted = Convert.ToBoolean(reader.GetInt32(3));
-                notificationDataModel.EventRejected = Convert.ToBoolean(reader.GetInt32(4));
-                notificationDataModel.EventChanged = Convert.ToBoolean(reader.GetInt32(5));
-                notificationDataModel.CommentAdded = Convert.ToBoolean(reader.GetInt32(6));
-                notificationDataModel.CommentDeleted = Convert.ToBoolean(reader.GetInt32(7));
-                notificationDataModel.EventDeleted = Convert.ToBoolean(reader.GetInt32(8));
-                notificationDataModel.AlertNotification = Convert.ToBoolean(reader.GetInt32(9));
-                notificationDataModel.HasBeenSeen = Convert.ToBoolean(reader.GetInt32(10));
+                notificationDataModel.SenderUser = GetUserBasicInformation(reader.GetString(1));
+                notificationDataModel.NotificationTime = DateTime.Parse(reader.GetString(2));
+                notificationDataModel.InvitationPending = Convert.ToBoolean(reader.GetInt32(3));
+                notificationDataModel.EventAccepted = Convert.ToBoolean(reader.GetInt32(4));
+                notificationDataModel.EventRejected = Convert.ToBoolean(reader.GetInt32(5));
+                notificationDataModel.EventChanged = Convert.ToBoolean(reader.GetInt32(6));
+                notificationDataModel.CommentAdded = Convert.ToBoolean(reader.GetInt32(7));
+                notificationDataModel.CommentDeleted = Convert.ToBoolean(reader.GetInt32(8));
+                notificationDataModel.EventDeleted = Convert.ToBoolean(reader.GetInt32(9));
+                notificationDataModel.AlertNotification = Convert.ToBoolean(reader.GetInt32(10));
+                notificationDataModel.HasBeenSeen = Convert.ToBoolean(reader.GetInt32(11));
 
                 notificationDataModels.Add(notificationDataModel);
             }
@@ -306,13 +307,16 @@ namespace DataAccess.Logic
             //first create a new user with the given username
             CreateUser(user);
 
-            //then update all information in the database to point to the new user
+            //then update all information in the database to point to the new user and activate the new user in the database
             connection.Open();
             string sqlQuery = "UPDATE Comment SET UserUsername = @username WHERE UserUsername = @oldUsername;" +
                 "UPDATE Event SET EventCreator = @username WHERE EventCreator = @oldUsername;" +
+                "UPDATE Token SET UserUsername = @username WHERE UserUsername = @oldUsername;" +
                 "UPDATE ParticipationInEvent SET UserUsername = @username WHERE UserUsername = @oldUsername;" +
-                "UPDATE Notification SET UserUsername = @username WHERE UserUsername = @oldUsername;" +
-                "UPDATE Calendar SET UserUsername = @username WHERE UserUsername = @oldUsername;";
+                "UPDATE Notification SET UserSender = @username WHERE UserSender = @oldUsername;" +
+                "UPDATE Notification SET UserReceiver = @username WHERE UserReceiver = @oldUsername;" +
+                "UPDATE Calendar SET UserUsername = @username WHERE UserUsername = @oldUsername;" +
+                "UPDATE User SET IsActive = 1 WHERE Username = @username";
             SQLiteCommand command = new SQLiteCommand(sqlQuery, connection);
 
             command.Parameters.AddWithValue("@username", user.Username);

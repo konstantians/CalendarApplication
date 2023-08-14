@@ -27,6 +27,7 @@
         border: none;
         background: none;
         cursor: pointer;
+        margin-top:0;
     }
 
     .notification-check-btn {
@@ -38,6 +39,25 @@
     }
 
     .marker {
+    }
+
+    /* Styles for the cool bubbles */
+    .badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        /*background-color: #007bff;*/
+        color: #fff;
+    }
+
+    .badge-accepted{
+        background-color: #5cb85c;
+    }
+
+    .badge-rejected{
+        background-color: #dc3545;
     }
 </style>
 
@@ -78,11 +98,15 @@
                     @if (notification.InvitationPending)
                     {
                         <div class="notification-box" id="notification-box-@count">
-                            <div class="flex-grow-1 d-flex justify-content-between align-items-center">
-                                <p class="notification-title">Invitation to the @notification.EventOfNotification.Title event .</p>
+                            <div class="flex-grow-1 d-flex justify-content-between align-items-top">
+                                <p class="notification-title">Sent At: <span style="font-weight:bold">@notification.NotificationTime</span><br> 
+                                    From User: <span style="font-weight:bold">@notification.SenderUser.Username</span></p>
                                 <div>
+                                    <button type="button" class="btn btn-primary notification-btn notification-check-btn" data-toggle="modal" data-target="#viewModal-@count">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <button type="button" class="btn btn-primary notification-btn notification-check-btn" data-toggle="modal" data-target="#acceptModal-@count">
-                                        <i class="fa-solid fa-check"></i>
+                                        <i class="fa-solid fa-calendar-plus"></i>
                                     </button>
                                     <button type="button" class="btn btn-danger notification-btn notification-close-btn" onclick="removeNotification('@count')">
                                         <i class="fa-solid fa-x"></i>
@@ -90,6 +114,122 @@
                                     <button type="button" class="btn btn-danger notification-btn notification-close-btn" data-toggle="modal" data-target="#deleteModal-@count">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- View Event Modal -->
+                        <div class="modal fade" id="viewModal-@count" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel-@count" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="viewModalLabel-@count">Event Information</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <h4 class="text-center d-none d-sm-none d-md-block">Event Information</h4>
+                                                <div class="d-block d-sm-block d-md-none">
+                                                    <div class="d-flex justify-content-between mt-3 mb-2">
+                                                        <div></div>
+                                                        <h4>Event Information</h4>
+                                                        <a class="btn btn-primary" data-toggle="collapse" href="#eventInformationSection-@count" role="button" aria-expanded="false"
+                                                            aria-controls="eventInformationSection-@count" id="showEventInformationButton-@count"
+                                                           onclick="toggleSection('showEventInformationButton-@count')">
+                                                           @{string eventInformationIconId = $"showEventInformationButton-{@count}Icon";}
+                                                            <i id="@eventInformationIconId" class="fa-solid fa-chevron-up"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div id="eventInformationSection-@count" class="collapse show">
+                                                    <div class="form-group">
+                                                        <label for="title" class="control-label">Title</label>
+                                                        <input class="form-control" id="title" value="@notification.EventOfNotification.Title" disabled="disabled" />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="startingTime" class="control-label">Starting Time</label>
+                                                        <input id="startingTime" type="datetime" class="form-control" value="@notification.EventOfNotification.StartingTime" disabled="disabled" />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="endingTime" class="control-label">Ending Time</label>
+                                                        <input id="endingTime" type="datetime" class="form-control" value="@notification.EventOfNotification.EndingTime" disabled="disabled" />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="description" class="control-label">Description</label>
+                                                        <textarea class="form-control" id="description" disabled="disabled" rows="3">@notification.EventOfNotification.Description</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="d-flex justify-content-between mt-2 mt-md-0">
+                                                    <div></div>
+                                                    <h4>Participants Section</h4>
+                                                    <a class="btn btn-primary" data-toggle="collapse" href="#participationSection-@count" role="button" aria-expanded="false"
+                                                       aria-controls="participationSection-@count" id="showParticipationButton-@count" onclick="toggleSection('showParticipationButton-@count')">
+                                                        @{
+                                                            string showParticipationIconId = $"showParticipationButton-{@count}Icon";
+                                                        }
+                                                        <i id="@showParticipationIconId" class="fa-solid fa-chevron-down"></i>
+                                                    </a>
+                                                </div>
+
+                                                <div id="participationSection-@count" class="collapse">
+                                                    <p> Members Who Participate In The Event: </p>
+                                                    <div class="d-flex flex-wrap mt-3">
+                                                        @foreach (User user in notification.EventOfNotification.UsersThatParticipateInTheEvent)
+                                                        {
+                                                            <span class="badge badge-primary mr-2 mb-2">@user.Username</span>
+                                                        }
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex justify-content-between mt-3 mb-2">
+                                                    <div></div>
+                                                    <h4>Comments Section</h4>
+                                                    <a class="btn btn-primary" data-toggle="collapse" href="#commentSection-@count" role="button" aria-expanded="false"
+                                                       aria-controls="commentSection-@count" id="showCommentButton-@count" onclick="toggleSection('showCommentButton-@count')">
+                                                        @{
+                                                            string showCommentIconId = $"showCommentButton-{@count}Icon";
+                                                        }
+                                                        <i id="@showCommentIconId" class="fa-solid fa-chevron-down"></i>
+                                                    </a>
+                                                </div>
+                                                <div id="commentSection-@count" class="collapse mt-2">
+                                                    <div id="commentArea">
+                                                        @if (notification.EventOfNotification.EventComments.Count == 0)
+                                                        {
+                                                            <div class="alert alert-info" role="alert" id="noComments">
+                                                                <strong>No comments!</strong> There are no comments yet.
+                                                            </div>
+                                                        }
+
+                                                        @foreach (Comment comment in notification.EventOfNotification.EventComments)
+                                                        {
+                                                            <div class="card mb-2">
+                                                                <div class="card-header">
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <h5 class="card-title font-weight-bold">
+                                                                            <i class="fa-solid fa-user mr-1"></i> @comment.UserWhoMadeTheComment.Username
+                                                                        </h5>
+                                                                    </div>
+                                                                    <p class="card-subtitle text-muted">@comment.CommentDate.ToString()</p>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    @comment.CommentText
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -139,11 +279,12 @@
                                                     <input name="alertStatus" class="form-check-input" type="checkbox" id="checkbox-x" style="transform: scale(1.3);">
                                                 </div>
                                                 <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
+                                                <input type="hidden" name="userSenderUsername" value="@notification.SenderUser.Username"/>
                                                 <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
                                             </form>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
                                             <button type="submit" form="acceptForm-@count" class="btn btn-primary">Confirm</button>
                                         </div>
                                     }
@@ -165,10 +306,11 @@
                                         <p>Are you sure you do not want to participate in that event?</p>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
                                         <!--fill the form-->
                                         <form method="post" asp-controller="Home" asp-action="RejectInvitation">
                                             <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
+                                            <input type="hidden" name="userSenderUsername" value="@notification.SenderUser.Username" />
                                             <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
                                             <button type="submit" class="btn btn-danger">Confirm</button>
                                         </form>
@@ -208,32 +350,68 @@
                     @if (!notification.InvitationPending && !notification.AlertNotification)
                     {
                         <div class="notification-box" id="notification-box-@count">
-                            <div class="flex-grow-1 d-flex justify-content-between align-items-center">
+                            <div class="flex-grow-1 d-flex justify-content-between align-items-top">
                                 @if (notification.EventAccepted)
                                 {
-                                    <p class="notification-title">Your invitation to the event @notification.EventOfNotification.Title has been accepted.</p>
+                                    <p class="notification-title">
+                                        Sent At: <span style="font-weight:bold;">@notification.NotificationTime</span><br>
+                                        From User: <span style="font-weight:bold;">@notification.SenderUser.Username</span><br>
+                                        Accepted Event: <span style="font-weight:bold;">@notification.EventOfNotification.Title</span>
+                                    </p>
                                 }
                                 @if (notification.EventRejected)
                                 {
-                                    <p class="notification-title">Your invitation to the event @notification.EventOfNotification.Title has been rejected.</p>
+                                    <p class="notification-title">
+                                        Sent At: <span style="font-weight:bold;">@notification.NotificationTime</span><br>
+                                        From User: <span style="font-weight:bold;">@notification.SenderUser.Username</span><br>
+                                        Rejected Event: <span style="font-weight:bold;">@notification.EventOfNotification.Title</span>
+                                    </p>
                                 }
                                 @if (notification.EventChanged)
                                 {
-                                    <p class="notification-title">The Event @notification.EventOfNotification.Title has been updated.</p>
+                                    <p class="notification-title">
+                                        Sent At: <span style="font-weight:bold;">@notification.NotificationTime</span><br>
+                                        From User: <span style="font-weight:bold;">@notification.SenderUser.Username</span><br>
+                                        Updated Event: <span style="font-weight:bold;">@notification.EventOfNotification.Title</span>
+                                    </p>
                                 }
                                 @if (notification.CommentAdded)
                                 {
-                                    <p class="notification-title">A new comment has been added to the event @notification.EventOfNotification.Title .</p>
+                                    <p class="notification-title">
+                                        Sent At: <span style="font-weight:bold;">@notification.NotificationTime</span><br>
+                                        From User: <span style="font-weight:bold;">@notification.SenderUser.Username</span><br>
+                                        Event Of Added Comment: <span style="font-weight:bold;">@notification.EventOfNotification.Title</span>
+                                    </p>
                                 }
                                 @if (notification.CommentDeleted)
                                 {
-                                    <p class="notification-title">A comment has been deleted from the event @notification.EventOfNotification.Title .</p>
+                                    <p class="notification-title">
+                                        Sent At: <span style="font-weight:bold;">@notification.NotificationTime</span><br>
+                                        From User: <span style="font-weight:bold;">@notification.SenderUser.Username</span><br>
+                                        Event Of Deleted Comment: <span style="font-weight:bold;">@notification.EventOfNotification.Title</span>
+                                    </p>
                                 }
                                 @if (notification.EventDeleted)
                                 {
-                                    <p class="notification-title">The Event @notification.EventOfNotification.Title was deleted.</p>
+                                    <p class="notification-title">
+                                        Sent At: <span style="font-weight:bold;">@notification.NotificationTime</span><br>
+                                        From User: <span style="font-weight:bold;">@notification.SenderUser.Username</span><br>
+                                        @*the creator of the event deleted the event*@
+                                        @if(notification.EventOfNotification.EventCreatorName == notification.SenderUser.Username)
+                                        {
+                                            <span>Deleted Event: <span style="font-weight:bold;">@notification.EventOfNotification.Title</span></span>
+                                        }
+                                        @*someone left from an event*@
+                                        else
+                                        {
+                                            <span>User Left Event: <span style="font-weight:bold;">@notification.EventOfNotification.Title</span></span>
+                                        }
+                                    </p>
                                 }
                                 <div>
+                                    <button type="button" class="btn btn-primary notification-btn notification-check-btn" data-toggle="modal" data-target="#viewModal-@count">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <button type="button" class="btn btn-danger notification-btn notification-close-btn" onclick="removeNotification('@count')">
                                         <i class="fa-solid fa-x"></i>
                                     </button>
@@ -243,7 +421,167 @@
                                 </div>
                             </div>
 
-                            <!-- Modal -->
+                            <!-- View Event Modal -->
+                            <div class="modal fade" id="viewModal-@count" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel-@count" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            @if(notification.EventAccepted){
+                                                <h5 class="modal-title" id="viewModalLabel-@count">Accepted Event <span style="font-weight:bold;">@notification.EventOfNotification.Title</span> From User <span style="font-weight:bold;">@notification.SenderUser.Username</span></h5>
+                                            }
+                                            else if(notification.EventRejected){
+                                                <h5 class="modal-title" id="viewModalLabel-@count">Rejected Event <span style="font-weight:bold;">@notification.EventOfNotification.Title</span> From User <span style="font-weight:bold;">@notification.SenderUser.Username</span></h5>
+                                            }
+                                            else if (notification.EventChanged)
+                                            {
+                                                <h5 class="modal-title" id="viewModalLabel-@count">Updated Event <span style="font-weight:bold;">@notification.EventOfNotification.Title</span> From User <span style="font-weight:bold;">@notification.SenderUser.Username</span></h5>
+                                            }
+                                            else if (notification.CommentAdded)
+                                            {
+                                                <h5 class="modal-title" id="viewModalLabel-@count">Comment Added To <span style="font-weight:bold;">@notification.EventOfNotification.Title</span> From User <span style="font-weight:bold;">@notification.SenderUser.Username</span></h5>
+                                            }
+                                            else if (notification.CommentDeleted)
+                                            {
+                                                <h5 class="modal-title" id="viewModalLabel-@count">Comment Deleted From Event <span style="font-weight:bold;">@notification.EventOfNotification.Title</span> From User <span style="font-weight:bold;">@notification.SenderUser.Username</span></h5>
+                                            }
+                                            else if (notification.EventDeleted)
+                                            {
+                                                @*the creator of the event deleted the event*@
+                                                @if (notification.EventOfNotification.EventCreatorName == notification.SenderUser.Username)
+                                                {
+                                                    <h5 class="modal-title" id="viewModalLabel-@count">Event <span style="font-weight:bold;">@notification.EventOfNotification.Title</span> Deleted From Creator Of Event <span style="font-weight:bold;">@notification.SenderUser.Username</span></h5>
+                                                }
+                                                @*someone left from an event*@
+                                                else
+                                                {
+                                                    <h5 class="modal-title" id="viewModalLabel-@count">User <span style="font-weight:bold;">@notification.SenderUser.Username</span> Left The Event <span style="font-weight:bold;">@notification.EventOfNotification.Title</span></h5>
+                                                }
+                                            }
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <h4 class="text-center d-none d-sm-none d-md-block">Event Information</h4>
+                                                    <div class="d-block d-sm-block d-md-none">
+                                                        <div class="d-flex justify-content-between mt-3 mb-2">
+                                                            <div></div>
+                                                            <h4>Event Information</h4>
+                                                            <a class="btn btn-primary" data-toggle="collapse" href="#eventInformationSection-@count" role="button" aria-expanded="false"
+                                                               aria-controls="eventInformationSection-@count" id="showEventInformationButton-@count"
+                                                               onclick="toggleSection('showEventInformationButton-@count')">
+                                                                @{
+                                                                    string eventInformationIconId = $"showEventInformationButton-{@count}Icon";
+                                                                }
+                                                                <i id="@eventInformationIconId" class="fa-solid fa-chevron-up"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div id="eventInformationSection-@count" class="collapse show">
+                                                        <div class="form-group">
+                                                            <label for="title" class="control-label">Title</label>
+                                                            <input class="form-control" id="title" value="@notification.EventOfNotification.Title" disabled="disabled" />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="startingTime" class="control-label">Starting Time</label>
+                                                            <input id="startingTime" type="datetime" class="form-control" value="@notification.EventOfNotification.StartingTime" disabled="disabled" />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="endingTime" class="control-label">Ending Time</label>
+                                                            <input id="endingTime" type="datetime" class="form-control" value="@notification.EventOfNotification.EndingTime" disabled="disabled" />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="description" class="control-label">Description</label>
+                                                            <textarea class="form-control" id="description" disabled="disabled" rows="3">@notification.EventOfNotification.Description</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="d-flex justify-content-between mt-2 mt-md-0">
+                                                        <div></div>
+                                                        <h4>Participants Section</h4>
+                                                        <a class="btn btn-primary" data-toggle="collapse" href="#participationSection-@count" role="button" aria-expanded="false"
+                                                           aria-controls="participationSection-@count" id="showParticipationButton-@count" onclick="toggleSection('showParticipationButton-@count')">
+                                                            @{
+                                                                string showParticipationIconId = $"showParticipationButton-{@count}Icon";
+                                                            }
+                                                            <i id="@showParticipationIconId" class="fa-solid fa-chevron-down"></i>
+                                                        </a>
+                                                    </div>
+
+                                                    <div id="participationSection-@count" class="collapse">
+                                                        <p> Members Who Participate In The Event: </p>
+                                                        <div class="d-flex flex-wrap mt-3">
+                                                            @foreach (User user in notification.EventOfNotification.UsersThatParticipateInTheEvent)
+                                                            {
+                                                                @if (!(notification.EventAccepted && notification.SenderUser.Username == user.Username))
+                                                                {
+                                                                    <span class="badge badge-primary mr-2 mb-2">@user.Username</span>
+                                                                }
+                                                            }
+                                                            @if(notification.EventAccepted)
+                                                            {
+                                                                <span class="badge badge-success mr-2 mb-2">@notification.SenderUser.Username</span>
+                                                            }
+                                                            else if (notification.EventRejected)
+                                                            {
+                                                                <span class="badge badge-danger mr-2 mb-2">@notification.SenderUser.Username</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="d-flex justify-content-between mt-3 mb-2">
+                                                        <div></div>
+                                                        <h4>Comments Section</h4>
+                                                        <a class="btn btn-primary" data-toggle="collapse" href="#commentSection-@count" role="button" aria-expanded="false"
+                                                           aria-controls="commentSection-@count" id="showCommentButton-@count" onclick="toggleSection('showCommentButton-@count')">
+                                                            @{
+                                                                string showCommentIconId = $"showCommentButton-{@count}Icon";
+                                                            }
+                                                            <i id="@showCommentIconId" class="fa-solid fa-chevron-down"></i>
+                                                        </a>
+                                                    </div>
+                                                    <div id="commentSection-@count" class="collapse mt-2">
+                                                        <div id="commentArea">
+                                                            @if (notification.EventOfNotification.EventComments.Count == 0)
+                                                            {
+                                                                <div class="alert alert-info" role="alert" id="noComments">
+                                                                    <strong>No comments!</strong> There are no comments yet.
+                                                                </div>
+                                                            }
+
+                                                            @foreach (Comment comment in notification.EventOfNotification.EventComments)
+                                                            {
+                                                                <div class="card mb-2">
+                                                                    <div class="card-header">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <h5 class="card-title font-weight-bold">
+                                                                                <i class="fa-solid fa-user mr-1"></i> @comment.UserWhoMadeTheComment.Username
+                                                                            </h5>
+                                                                        </div>
+                                                                        <p class="card-subtitle text-muted">@comment.CommentDate.ToString()</p>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        @comment.CommentText
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- Delete Notification Modal -->
                             <div class="modal fade" id="myModal-@count" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-@count" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
@@ -257,10 +595,11 @@
                                             <p>Are you sure you want to delete this notification?</p>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
                                             <!--fill the form-->
                                             <form method="post" asp-controller="Home" asp-action="DeleteNotification">
                                                 <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
+                                                <input type="hidden" name="userSenderUsername" value="@notification.SenderUser.Username" />
                                                 <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
                                                 <button type="submit" class="btn btn-danger">Delete</button>
                                             </form>
@@ -301,9 +640,13 @@
                     if (notification.AlertNotification)
                     {
                         <div class="notification-box" id="notification-box-@count">
-                            <div class="flex-grow-1 d-flex justify-content-between align-items-center">
-                                <p class="notification-title">The Event @notification.EventOfNotification.Title will start in 1 hour</p>
+                            <div class="flex-grow-1 d-flex justify-content-between align-items-top">
+                                <p class="notification-title">The Event: <span style="font-weight:bold">@notification.EventOfNotification.Title</span><br> 
+                                    Will Start In 1 Hour</p>
                                 <div>
+                                    <button type="button" class="btn btn-primary notification-btn notification-check-btn" data-toggle="modal" data-target="#viewModal-@count">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <button type="button" class="btn btn-danger notification-btn notification-close-btn" onclick="removeNotification('@count')">
                                         <i class="fa-solid fa-x"></i>
                                     </button>
@@ -314,7 +657,125 @@
                             </div>
                         </div>
 
-                        <!-- Modal -->
+                        <!-- View Event Modal -->
+                        <div class="modal fade" id="viewModal-@count" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel-@count" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="viewModalLabel-@count">Alert Status For Event <span style="font-weight:bold;">@notification.EventOfNotification.Title</span></h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <h4 class="text-center d-none d-sm-none d-md-block">Event Information</h4>
+                                                <div class="d-block d-sm-block d-md-none">
+                                                    <div class="d-flex justify-content-between mt-3 mb-2">
+                                                        <div></div>
+                                                        <h4>Event Information</h4>
+                                                        <a class="btn btn-primary" data-toggle="collapse" href="#eventInformationSection-@count" role="button" aria-expanded="false"
+                                                           aria-controls="eventInformationSection-@count" id="showEventInformationButton-@count"
+                                                           onclick="toggleSection('showEventInformationButton-@count')">
+                                                            @{
+                                                                string eventInformationIconId = $"showEventInformationButton-{@count}Icon";
+                                                            }
+                                                            <i id="@eventInformationIconId" class="fa-solid fa-chevron-up"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div id="eventInformationSection-@count" class="collapse show">
+                                                    <div class="form-group">
+                                                        <label for="title" class="control-label">Title</label>
+                                                        <input class="form-control" id="title" value="@notification.EventOfNotification.Title" disabled="disabled" />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="startingTime" class="control-label">Starting Time</label>
+                                                        <input id="startingTime" type="datetime" class="form-control" value="@notification.EventOfNotification.StartingTime" disabled="disabled" />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="endingTime" class="control-label">Ending Time</label>
+                                                        <input id="endingTime" type="datetime" class="form-control" value="@notification.EventOfNotification.EndingTime" disabled="disabled" />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="description" class="control-label">Description</label>
+                                                        <textarea class="form-control" id="description" disabled="disabled" rows="3">@notification.EventOfNotification.Description</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="d-flex justify-content-between mt-2 mt-md-0">
+                                                    <div></div>
+                                                    <h4>Participants Section</h4>
+                                                    <a class="btn btn-primary" data-toggle="collapse" href="#participationSection-@count" role="button" aria-expanded="false"
+                                                       aria-controls="participationSection-@count" id="showParticipationButton-@count" onclick="toggleSection('showParticipationButton-@count')">
+                                                        @{
+                                                            string showParticipationIconId = $"showParticipationButton-{@count}Icon";
+                                                        }
+                                                        <i id="@showParticipationIconId" class="fa-solid fa-chevron-down"></i>
+                                                    </a>
+                                                </div>
+
+                                                <div id="participationSection-@count" class="collapse">
+                                                    <p> Members Who Participate In The Event: </p>
+                                                    <div class="d-flex flex-wrap mt-3">
+                                                        @foreach (User user in notification.EventOfNotification.UsersThatParticipateInTheEvent)
+                                                        {
+                                                            <span class="badge badge-primary mr-2 mb-2">@user.Username</span>
+                                                        }
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex justify-content-between mt-3 mb-2">
+                                                    <div></div>
+                                                    <h4>Comments Section</h4>
+                                                    <a class="btn btn-primary" data-toggle="collapse" href="#commentSection-@count" role="button" aria-expanded="false"
+                                                       aria-controls="commentSection-@count" id="showCommentButton-@count" onclick="toggleSection('showCommentButton-@count')">
+                                                        @{
+                                                            string showCommentIconId = $"showCommentButton-{@count}Icon";
+                                                        }
+                                                        <i id="@showCommentIconId" class="fa-solid fa-chevron-down"></i>
+                                                    </a>
+                                                </div>
+                                                <div id="commentSection-@count" class="collapse mt-2">
+                                                    <div id="commentArea">
+                                                        @if (notification.EventOfNotification.EventComments.Count == 0)
+                                                        {
+                                                            <div class="alert alert-info" role="alert" id="noComments">
+                                                                <strong>No comments!</strong> There are no comments yet.
+                                                            </div>
+                                                        }
+
+                                                        @foreach (Comment comment in notification.EventOfNotification.EventComments)
+                                                        {
+                                                            <div class="card mb-2">
+                                                                <div class="card-header">
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <h5 class="card-title font-weight-bold">
+                                                                            <i class="fa-solid fa-user mr-1"></i> @comment.UserWhoMadeTheComment.Username
+                                                                        </h5>
+                                                                    </div>
+                                                                    <p class="card-subtitle text-muted">@comment.CommentDate.ToString()</p>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    @comment.CommentText
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delete Notification Modal -->
                         <div class="modal fade" id="myModal-@count" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-@count" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
@@ -328,10 +789,11 @@
                                         <p>Are you sure you want to delete this notification?</p>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
                                         <!--fill the form-->
                                         <form method="post" asp-controller="Home" asp-action="DeleteNotification">
                                             <input type="hidden" name="eventId" value="@notification.EventOfNotification.Id" />
+                                            <input type="hidden" name="userSenderUsername" value="@notification.SenderUser.Username" />
                                             <input type="hidden" name="notificationTime" value="@notification.NotificationTime" />
                                             <button type="submit" class="btn btn-danger">Delete</button>
                                         </form>
@@ -394,6 +856,7 @@
 
         //for severons icons change
         function toggleSection(buttonId) {
+            console.log(buttonId);
             const buttonIcon = document.getElementById(buttonId + 'Icon');
             if (buttonIcon.classList.contains('fa-chevron-down')) {
                 buttonIcon.classList.remove('fa-chevron-down');
